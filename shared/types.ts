@@ -48,6 +48,7 @@ export interface GameState {
   market: Record<'mushroom' | 'flower' | 'herb' | 'fruit', { price: number; stock: number }>;
   marketEvent: { name: string; description: string } | null;
   pendingActions: PlayerAction[];
+  actionsUsed: number;
   townRequests: TownRequestCard[];
 }
 
