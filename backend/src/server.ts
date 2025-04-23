@@ -5,20 +5,25 @@ import cors from "cors";
 
 const app = express();
 
-// ✅ ALLOW frontend domain to talk to backend
-app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
+// ✅ Apply CORS for frontend access
+app.use(cors({
+  origin: "https://coven-frontend.onrender.com",
+}));
 
 const server = http.createServer(app);
+
 const io = new Server(server, {
-  cors: { origin: "https://coven-frontend.onrender.com" },
+  cors: {
+    origin: "https://coven-frontend.onrender.com",
+  },
 });
 
-// ✅ This must return JSON
+// ✅ Simple GET route to confirm backend is reachable
 app.get("/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
 });
