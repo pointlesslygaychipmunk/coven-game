@@ -9,6 +9,7 @@ export function createGameState(): GameState {
     status: { ...initialGameStatus },
     townRequests: generateTownRequests(),
     marketEvent: null,
-    pendingActions: ['water']
+    pendingActions: ['water'],
+    actionsUsed: 0 
   };
 }

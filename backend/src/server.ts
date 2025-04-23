@@ -86,9 +86,9 @@ app.post("/fell-tree", (req, res) => {
 });
 
 app.post("/buy", (req, res) => {
-  const result = validateBuy(req.body.gameState);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
-  res.json(result.state);
+  const { gameState, type } = req.body;
+  const updatedState = applyBuy(gameState, type, 1); // Quantity fixed to 1 for now
+  res.json(updatedState);
 });
 
 app.post("/sell", (req, res) => {
