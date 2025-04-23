@@ -14,14 +14,7 @@ import {
   Droplet
 } from "lucide-react";
 
-// Fix for NodeJS namespace issue in the browser
-declare global {
-  interface NodeJS {
-    Timeout: any;
-  }
-}
-
-let growthInterval: NodeJS.Timeout | null = null;
+let growthInterval: ReturnType<typeof setTimeout> | null = null;
 
 interface GardenPlot {
   type: string;
