@@ -46,6 +46,7 @@ export interface GameState {
   player: Player;
   status: GameStatus;
   market: Record<'mushroom' | 'flower' | 'herb' | 'fruit', { price: number; stock: number }>;
+  marketEvent: { name: string; description: string } | null;
   townRequests: TownRequestCard[];
 }
 

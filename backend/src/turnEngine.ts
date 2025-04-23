@@ -1,5 +1,9 @@
 import type { GameStatus, GameState, GardenSlot, GardenSlotObject, Season, Weather } from '../../shared/types';
 
+import { updateMarketAI } from "./marketLogic";
+import { generateMarketEvent } from "./marketEvents";
+import type { MarketEvent } from "./marketEvents";
+
 export function advanceTurn(gameState: GameState): GameState {
   let { moonPhase, season, year, weather } = gameState.status;
   const nextPhase = (moonPhase % 56) + 1;
@@ -67,6 +71,27 @@ export function advanceTurn(gameState: GameState): GameState {
     return { type, age: newAge, stage } as GardenSlot;
   });
 
+  // Dummy memory example — replace with actual tracking logic
+  const memory = {
+    purchases: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
+    sales: { mushroom: 0, flower: 0, herb: 0, fruit: 0 }
+  };
+  
+  // Update market base state
+  let newMarket = updateMarketAI(gameState.market, memory);
+  
+  // Try to generate an event
+  const event = generateMarketEvent(newSeason, nextPhase);
+  
+  // Apply event if it exists
+  const newMarketEvent = event
+    ? { name: event.name, description: event.description }
+    : null;
+  
+  if (event) {
+    newMarket = event.apply(newMarket);
+  }  
+
   return {
     ...gameState,
     player: {
@@ -76,11 +101,13 @@ export function advanceTurn(gameState: GameState): GameState {
         spaces: updatedGarden
       }
     },
+    market: newMarket,
+    marketEvent: newMarketEvent,
     status: {
       moonPhase: nextPhase,
       season: newSeason,
       year: newYear,
       weather: newWeather
     }
-  };
+  };  
 }

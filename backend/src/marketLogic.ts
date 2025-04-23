@@ -1,59 +1,52 @@
-// src/marketLogic.ts
+// backend/marketLogic.ts
+
 import type { MarketState, PotionType } from "../../shared/types";
 
-const BASELINE: Record<PotionType, number> = {
-  mushroom: 3,
-  flower: 2,
-  herb: 4,
-  fruit: 5,
-};
-
-export function updateMarketAfterTransaction(
-  market: MarketState,
-  type: PotionType,
-  action: 'buy' | 'sell'
-): MarketState {
-  const newMarket = { ...market };
-  const item = newMarket[type];
-  const { price, stock } = item;
-
-  const stockDelta = action === "buy" ? -1 : +1;
-  const newStock = Math.max(stock + stockDelta, 0);
-  item.stock = newStock;
-
-  // Elastic pricing: magnitude depends on how far from baseline stock
-  const baselineStock = BASELINE[type];
-  const deviation = Math.abs(baselineStock - newStock);
-  const priceChange = Math.max(1, Math.floor(deviation / 2));
-
-  if (action === "buy") {
-    item.price = Math.min(price + priceChange, 10);
-  } else {
-    item.price = Math.max(price - priceChange, 1);
-  }
-
-  return newMarket;
+export interface MarketMemory {
+  purchases: Record<PotionType, number>;
+  sales: Record<PotionType, number>;
 }
 
-export function decayMarketPrices(market: MarketState): MarketState {
-  const updated = { ...market };
+export function updateMarketAI(
+  market: MarketState,
+  memory: MarketMemory
+): MarketState {
+  const updated: MarketState = { ...market };
 
-  for (const type in BASELINE) {
-    const t = type as PotionType;
-    const base = BASELINE[t];
-    const current = updated[t].price;
-    const delta = current - base;
+  for (const type of Object.keys(market) as PotionType[]) {
+    const item = market[type];
+    const bought = memory.purchases[type] ?? 0;
+    const sold = memory.sales[type] ?? 0;
 
-    if (delta > 0) {
-      updated[t].price = Math.max(base, current - Math.ceil(delta / 2));
-    } else if (delta < 0) {
-      updated[t].price = Math.min(base, current + Math.ceil(Math.abs(delta) / 2));
+    // --- Stock Adjustment ---
+    let stockChange = 0;
+    if (item.stock < 3) {
+      stockChange += Math.random() < 0.75 ? 2 : 1; // restock rare items more aggressively
+    } else {
+      stockChange += Math.random() < 0.5 ? 0 : 1; // mild regen
     }
 
-    // Passive restock mechanic
-    if (updated[t].stock < BASELINE[t]) {
-      updated[t].stock += 1;
-    }
+    // --- Player Influence ---
+    stockChange -= Math.floor(bought * 0.5); // buying reduces stock more
+    stockChange += Math.floor(sold * 0.25); // selling softens scarcity
+
+    const newStock = Math.max(0, Math.min(10, item.stock + stockChange));
+
+    // --- Price Calculation ---
+    const scarcity = 5 - newStock;
+    const demandBoost = Math.floor(bought * 0.3);
+    const supplyDiscount = Math.floor(sold * 0.2);
+
+    const basePrice = 3;
+    const newPrice = Math.max(
+      1,
+      basePrice + scarcity + demandBoost - supplyDiscount
+    );
+
+    updated[type] = {
+      stock: newStock,
+      price: newPrice,
+    };
   }
 
   return updated;
