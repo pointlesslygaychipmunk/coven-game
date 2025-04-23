@@ -8,7 +8,7 @@ import type { TownRequestCard } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
 import { plantCrop, harvestCrop, brewPotions, fulfillTownRequest, plantTree, fellTree } from "../utils";
-import { advanceTurn } from "../turnEngine";
+import { advanceTurn } from "../../../backend/src/turnEngine";
 import { calculateScore } from "../gameOverLogic";
 import type { Player, GameStatus } from "../../../shared/types";
 

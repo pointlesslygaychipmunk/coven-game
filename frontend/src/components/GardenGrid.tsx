@@ -1,29 +1,10 @@
+// src/GardenGrid.tsx
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Leaf,
-  Flower2,
-  Flame,
-  Apple,
-  Hand,
-  Droplets,
-  Sparkles,
-  Timer,
-  Skull,
-  Loader2,
-  Droplet
-} from "lucide-react";
-
-let growthInterval: ReturnType<typeof setTimeout> | null = null;
-
-interface GardenPlot {
-  type: string;
-  stage: "young" | "mature" | "withered";
-  watered?: boolean;
-}
+import { motion } from "framer-motion";
+import { Leaf, Flower2, Flame, Apple, Hand, Droplets, Sparkles, Timer, Skull } from "lucide-react";
 
 type Props = {
-  spaces: (GardenPlot | null)[];
+  spaces: ({ type: string; stage: "young" | "mature" | "withered"; age: number } | null)[];
   onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
   onPlantTree: (index: number) => void;
   player: any;
@@ -31,61 +12,34 @@ type Props = {
 
 export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) => {
   const [selectedCrop, setSelectedCrop] = useState<string | null>(null);
-  const [internalSpaces, setInternalSpaces] = useState(spaces);
-  const [isPlanting, setIsPlanting] = useState(false);
-  const [plotTimers, setPlotTimers] = useState<number[]>(Array(spaces.length).fill(0));
+  const [isBusy, setIsBusy] = useState(false);
 
-  useEffect(() => {
-    setInternalSpaces(spaces);
-  }, [spaces]);
-
-  useEffect(() => {
-    if (growthInterval) clearInterval(growthInterval);
-    growthInterval = setInterval(() => {
-      setInternalSpaces((prev) =>
-        prev.map((plot, i) => {
-          if (!plot) return null;
-          if (plot.watered) {
-            plot.watered = false;
-            return plot;
-          }
-          if (plot.stage === "young") return { ...plot, stage: "mature" };
-          if (plot.stage === "mature") return { ...plot, stage: "withered" };
-          return plot;
-        })
-      );
-      setPlotTimers((prev) => prev.map((t) => Math.max(t - 15, 0)));
-    }, 15000);
-    return () => clearInterval(growthInterval!);
-  }, []);
-
-  const handlePlotClick = async (index: number) => {
-    if (!selectedCrop || internalSpaces[index] || isPlanting) return;
-    setIsPlanting(true);
+  const handlePlotClick = (index: number) => {
+    if (!selectedCrop || spaces[index] || isBusy) return;
+    setIsBusy(true);
+    setTimeout(() => setIsBusy(false), 500);
     if (selectedCrop === "tree") {
-      await onPlantTree(index);
+      onPlantTree(index);
     } else if (selectedCrop === "mushroom" || selectedCrop === "flower" || selectedCrop === "herb") {
-      await onPlantCrop(selectedCrop, index);
+      onPlantCrop(selectedCrop, index);
     }
-    setIsPlanting(false);
   };
 
   const cropIcon = (type: string) => {
     switch (type) {
-      case "mushroom": return <Flame className="w-4 h-4 inline text-orange-600" />;
-      case "flower": return <Flower2 className="w-4 h-4 inline text-pink-600" />;
-      case "herb": return <Leaf className="w-4 h-4 inline text-green-600" />;
-      case "tree": return <Apple className="w-4 h-4 inline text-red-600" />;
+      case "mushroom": return <span title="Mushroom"><Flame className="w-4 h-4 inline text-orange-600" /></span>;
+      case "flower": return <span title="Flower"><Flower2 className="w-4 h-4 inline text-pink-600" /></span>;
+      case "herb": return <span title="Herb"><Leaf className="w-4 h-4 inline text-green-600" /></span>;
+      case "tree": return <span title="Tree"><Apple className="w-4 h-4 inline text-red-600" /></span>;
       default: return null;
     }
   };
 
-  const stageIcon = (stage: string, timeRemaining: number, watered?: boolean) => {
-    if (watered) return <Droplet className="absolute top-1 left-1 w-4 h-4 text-blue-300 animate-bounce" />;
+  const stageIcon = (stage: string) => {
     switch (stage) {
-      case "young": return <Timer className="absolute top-1 left-1 w-4 h-4 text-blue-400 animate-ping" />;
-      case "mature": return <Sparkles className="absolute top-1 right-1 w-4 h-4 text-yellow-400 animate-pulse" />;
-      case "withered": return <Skull className="absolute top-1 right-1 w-4 h-4 text-gray-500" />;
+      case "young": return <span title="Growing"><Timer className="absolute top-1 left-1 w-4 h-4 text-blue-400 animate-ping" /></span>;
+      case "mature": return <span title="Ready"><Sparkles className="absolute top-1 right-1 w-4 h-4 text-yellow-400 animate-pulse" /></span>;
+      case "withered": return <span title="Withered"><Skull className="absolute top-1 right-1 w-4 h-4 text-gray-500" /></span>;
       default: return null;
     }
   };
@@ -100,7 +54,7 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
               key={type}
               onClick={() => setSelectedCrop(type)}
               className={`px-3 py-1 rounded-full shadow-md border transition duration-200 ${selectedCrop === type ? "bg-purple-300 text-white" : "bg-white text-purple-700 hover:bg-purple-100"}`}
-              disabled={isPlanting}
+              title={`Select ${type} to plant`}
             >
               {cropIcon(type)} {type}
             </button>
@@ -109,18 +63,15 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
           <button
             onClick={() => setSelectedCrop("tree")}
             className={`px-3 py-1 rounded-full shadow-md border transition duration-200 ${selectedCrop === "tree" ? "bg-purple-300 text-white" : "bg-white text-purple-700 hover:bg-purple-100"}`}
-            disabled={isPlanting}
+            title="Select fruit to grow a tree"
           >
             <Apple className="w-4 h-4 inline text-red-600" /> Tree
           </button>
         )}
-        {isPlanting && (
-          <Loader2 className="w-5 h-5 text-purple-500 animate-spin ml-2" />
-        )}
       </div>
 
       <div className="grid grid-cols-4 gap-3 p-4 rounded-xl bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 shadow-inner">
-        {internalSpaces.map((plot, index) => (
+        {spaces.map((plot, index) => (
           <motion.div
             key={index}
             onClick={() => handlePlotClick(index)}
@@ -130,29 +81,17 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}
           >
-            <AnimatePresence>
-              {plot ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-lg font-semibold text-purple-800"
-                >
-                  {cropIcon(plot.type)} {plot.type === "tree" ? "Tree" : plot.type}
-                  {stageIcon(plot.stage, plotTimers[index], plot.watered)}
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-sm text-purple-300 flex items-center gap-1"
-                >
-                  <Hand className="w-4 h-4" /> Empty Plot
-                  <Droplets className="absolute bottom-1 right-1 w-4 h-4 text-blue-300" />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {plot ? (
+              <div className="text-lg font-semibold text-purple-800">
+                {cropIcon(plot.type)} {plot.type === "tree" ? "Tree" : plot.type}
+                {stageIcon(plot.stage)}
+              </div>
+            ) : (
+              <div className="text-sm text-purple-300 flex items-center gap-1">
+                <Hand className="w-4 h-4" /> Empty Plot
+                <Droplets className="absolute bottom-1 right-1 w-4 h-4 text-blue-300" />
+              </div>
+            )}
           </motion.div>
         ))}
       </div>

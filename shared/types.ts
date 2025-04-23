@@ -53,3 +53,14 @@ export type MarketState = Record<PotionType, {
   price: number;
   stock: number;
 }>;
+
+export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
+export type Weather = 'Sunny' | 'Rainy' | 'Foggy' | 'Stormy' | 'Cloudy';
+
+export interface GardenSlotObject {
+  type: 'mushroom' | 'flower' | 'herb' | 'tree';
+  stage: 'young' | 'mature' | 'withered' | 'decaying';
+  age: number;
+}
+
+export type GardenSlot = GardenSlotObject | null;
