@@ -1,22 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Leaf, Flower2, Flame } from "lucide-react";
+import { Leaf, Flower2, Flame, Apple, MousePointer } from "lucide-react";
 
 type Props = {
   spaces: (string | null)[];
   onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
-  onPlantTree: () => void;
-  player: {
-    inventory: Record<"mushroom" | "flower" | "herb" | "fruit", number>;
-  };
+  onPlantTree: (index: number) => void;
+  player: any;
 };
 
 export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) => {
-  const handleDropdownChange = (index: number, value: string) => {
-    if (value === "tree") {
-      onPlantTree();
-    } else if (value === "mushroom" || value === "flower" || value === "herb") {
-      onPlantCrop(value, index);
+  const [selectedCrop, setSelectedCrop] = useState<string | null>(null);
+
+  const handlePlotClick = (index: number) => {
+    if (!selectedCrop || spaces[index]) return;
+    if (selectedCrop === "tree") {
+      onPlantTree(index);
+    } else if (selectedCrop === "mushroom" || selectedCrop === "flower" || selectedCrop === "herb") {
+      onPlantCrop(selectedCrop, index);
     }
   };
 
@@ -25,45 +26,57 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
       case "mushroom": return <Flame className="w-4 h-4 inline text-orange-600" />;
       case "flower": return <Flower2 className="w-4 h-4 inline text-pink-600" />;
       case "herb": return <Leaf className="w-4 h-4 inline text-green-600" />;
+      case "tree": return <Apple className="w-4 h-4 inline text-red-600" />;
       default: return null;
     }
   };
 
   return (
-    <div className="grid grid-cols-4 gap-3 p-4 rounded-xl bg-white/60 shadow-inner">
-      {spaces.map((plot, index) => (
-        <motion.div
-          key={index}
-          className="h-24 flex flex-col items-center justify-center border border-purple-300 rounded-lg bg-purple-50 shadow-md"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {plot ? (
-            <div className="text-lg font-semibold text-purple-800">
-              {cropIcon(plot)} {plot}
-            </div>
-          ) : (
-            <select
-              className="mt-2 text-sm bg-white border border-purple-200 rounded-full px-3 py-1 shadow-sm hover:bg-purple-50"
-              onChange={(e) => handleDropdownChange(index, e.target.value)}
-              defaultValue=""
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-center gap-2 mb-2">
+        {Object.entries(player.inventory)
+          .filter(([type, count]) => typeof count === 'number' && count > 0 && ["mushroom", "flower", "herb"].includes(type))
+          .map(([type]) => (
+            <button
+              key={type}
+              onClick={() => setSelectedCrop(type)}
+              className={`px-3 py-1 rounded-full shadow-md border ${selectedCrop === type ? "bg-purple-300 text-white" : "bg-white text-purple-700"}`}
             >
-              <option value="" disabled>
-                Plant...
-              </option>
-              {Object.entries(player.inventory)
-                .filter(([_, count]) => typeof count === 'number' && count > 0)
-                .map(([type]) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              <option value="tree">Tree 🌳</option>
-            </select>
-          )}
-        </motion.div>
-      ))}
+              {cropIcon(type)} {type}
+            </button>
+          ))}
+        {player.inventory.fruit > 0 && (
+          <button
+            onClick={() => setSelectedCrop("tree")}
+            className={`px-3 py-1 rounded-full shadow-md border ${selectedCrop === "tree" ? "bg-purple-300 text-white" : "bg-white text-purple-700"}`}
+          >
+            <Apple className="w-4 h-4 inline text-red-600" /> Tree
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-4 gap-3 p-4 rounded-xl bg-white/60 shadow-inner">
+        {spaces.map((plot, index) => (
+          <motion.div
+            key={index}
+            onClick={() => handlePlotClick(index)}
+            className={`h-24 flex flex-col items-center justify-center border rounded-lg shadow-md transition-all duration-300 cursor-pointer ${plot === "tree" ? "bg-green-100 border-green-300" : plot ? "bg-purple-50 border-purple-300" : "bg-white/30 border-dashed border-purple-200"}`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            {plot ? (
+              <div className="text-lg font-semibold text-purple-800" title={plot}>
+                {cropIcon(plot)} {plot === "tree" ? "Tree" : plot}
+              </div>
+            ) : (
+              <div className="text-sm text-purple-300 flex items-center gap-1">
+                <MousePointer className="w-4 h-4" /> Click to Plant
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };
