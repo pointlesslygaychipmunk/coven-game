@@ -8,7 +8,7 @@ import type { TownRequestCard } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
 import { calculateScore } from "../gameOverLogic";
-import type { GameState } from "../../../shared/types";
+import type { GameState, PotionType } from "../../../shared/types";
 
 export const Layout = ({
   gameState,
@@ -86,13 +86,13 @@ export const Layout = ({
     postToBackend("fell-tree", { index });
   }, [gameState, postToBackend]);
 
-  const handleBuy = useCallback(() => {
-    postToBackend("buy", gameState);
-  }, [gameState, postToBackend]);
-
-  const handleSell = useCallback(() => {
-    postToBackend("sell", gameState);
-  }, [gameState, postToBackend]);
+  const handleBuy = (type: PotionType) => {
+    postToBackend("buy", { type });
+  };
+  
+  const handleSell = (type: PotionType) => {
+    postToBackend("sell", { type });
+  };  
 
   const handleUpgrade = useCallback(() => {
     postToBackend("upgrade", gameState);
@@ -100,7 +100,7 @@ export const Layout = ({
 
   const handleAdvanceTurn = useCallback(() => {
     postToBackend("advance", gameState, (data) => {
-      const result = calculateScore(data);
+      const result = calculateScore(data.player);
       if (result.lost) {
         setGameOver(true);
         setScoreData(result);
@@ -111,10 +111,6 @@ export const Layout = ({
   return (
     <div className="p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen">
       <GameStatusBar status={gameState?.status} />
-
-      <div className="text-right text-lg font-semibold text-indigo-800">
-        🪄 Mana: {gameState?.player?.mana ?? 0}
-      </div>
 
       {gameState?.player?.alerts?.length ? (
         <div className="bg-white border border-indigo-200 p-4 rounded shadow-md text-sm text-gray-800 space-y-1">
@@ -139,11 +135,7 @@ export const Layout = ({
         <div className="flex flex-col gap-4 w-1/2">
           <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
           {gameState?.market && (
-            <MarketView
-              market={gameState.market}
-              onBuy={handleBuy}
-              onSell={handleSell}
-            />
+            <MarketView market={gameState.market} onBuy={handleBuy} onSell={handleSell} />
           )}
         </div>
       </div>
