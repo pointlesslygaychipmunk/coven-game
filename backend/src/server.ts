@@ -17,6 +17,8 @@ import {
 import { createGameState } from "./createGameState";
 import { playTurn } from "./playController";
 import type { GameState } from "../../shared/types";
+import { applyBuy } from "./applyBuy";
+
 
 const app = express();
 app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
