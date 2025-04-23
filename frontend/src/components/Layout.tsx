@@ -7,7 +7,7 @@ import { TownRequests } from "./TownRequests";
 import type { TownRequestCard } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
-import { calculateScore } from "../gameOverLogic";
+import { calculateScore } from "../../../backend/src/gameOverLogic";
 import type { GameState, PotionType } from "../../../shared/types";
 
 export const Layout = ({

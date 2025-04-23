@@ -12,5 +12,5 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["src", "../backend/src/turnEngine.ts", "../backend/src/gameState.ts"]
+  "include": ["src", "../backend/src/turnEngine.ts", "../backend/src/gameState.ts", "../backend/src/gameOverLogic.ts", "../backend/src/moonLogic.ts", "../backend/src/townRequestLogic.ts", "../backend/src/upgradeLogic.ts"]
 }
