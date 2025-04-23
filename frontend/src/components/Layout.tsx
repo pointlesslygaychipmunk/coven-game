@@ -37,10 +37,6 @@ export const Layout = ({
     );
   }
 
-  if (!gameState || !gameState.player) {
-    return <div className="p-4 text-red-700">Loading game data...</div>;
-  }
-
   const handlePlant = (type: 'mushroom' | 'flower' | 'herb', index: number) => {
     setGameState((prev: any) => plantCrop(prev, type, index));
   };
@@ -56,7 +52,7 @@ export const Layout = ({
       flower: 1,
       herb: 1,
       fruit: 1,
-    };
+    }; // Replace with real data
     setGameState((prev: any) => brewPotions(prev, potionMap));
   };
 
@@ -95,48 +91,41 @@ export const Layout = ({
   };
 
   return (
-    <div className="p-4">
-      {gameState.status && (
-        <GameStatusBar status={gameState.status} />
-      )}
+    <div className="p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen">
+      <GameStatusBar status={gameState.status} />
 
-      <section className="my-4">
-        <GardenGrid
-          spaces={gameState.player.garden.spaces}
-          onPlantCrop={handlePlant}
-          onPlantTree={handlePlantTree}
-          player={gameState.player}
-        />
-      </section>
-
-      <section className="my-4">
-        <InventoryBox player={gameState.player} />
-      </section>
-
-      <section className="my-4">
-        <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
-      </section>
-
-      <section className="my-4">
-        <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
-      </section>
-
-      <section className="my-4">
-        {gameState.market && (
-          <MarketView
-            market={gameState.market}
-            onBuy={handleBuy}
-            onSell={handleSell}
+      <div className="flex flex-row gap-6 items-start">
+        <div className="flex flex-col gap-4 w-1/2">
+          <GardenGrid
+            spaces={gameState.player.garden.spaces}
+            onPlantCrop={handlePlant}
+            onPlantTree={handlePlantTree}
+            player={gameState.player}
           />
-        )}
-      </section>
+          <InventoryBox player={gameState.player} />
+          <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
+        </div>
 
-      <button
-        className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded"
-        onClick={handleAdvanceTurn}
-      >
-        🌙 End Turn / Advance Moon
-      </button>
+        <div className="flex flex-col gap-4 w-1/2">
+          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+          {gameState?.market && (
+            <MarketView
+              market={gameState.market}
+              onBuy={handleBuy}
+              onSell={handleSell}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="flex justify-center">
+        <button
+          className="mt-4 px-6 py-3 bg-pink-300 hover:bg-pink-400 text-white font-bold shadow-lg rounded-full transition-transform transform hover:scale-105 border border-white/60 backdrop-blur"
+          onClick={handleAdvanceTurn}
+        >
+          🌙 End Turn / Advance Moon
+        </button>
+      </div>
     </div>
   );
 };
