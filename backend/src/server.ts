@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { createInitialGameState } from "./createGameState";
+import { createGameState } from "./createGameState";
 
 const app = express();
 app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
@@ -20,7 +20,7 @@ app.get("/ping", (req, res) => {
 
 // ✅ Initial game state endpoint
 app.get("/init", (req, res) => {
-  const gameState = createInitialGameState();
+  const gameState = createGameState();
   console.log("Initialized game state:", gameState);
   res.json(gameState);
 });
