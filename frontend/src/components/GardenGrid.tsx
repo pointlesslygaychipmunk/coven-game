@@ -1,18 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Leaf, Flower2, Flame, TreeDeciduous } from "lucide-react";
+import { Leaf, Flower2, Flame } from "lucide-react";
 
 type Props = {
   spaces: (string | null)[];
   onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
-  onPlantTree: (index: number) => void;
-  player: any;
+  onPlantTree: () => void;
+  player: {
+    inventory: Record<"mushroom" | "flower" | "herb" | "fruit", number>;
+  };
 };
 
 export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) => {
   const handleDropdownChange = (index: number, value: string) => {
     if (value === "tree") {
-      onPlantTree(index);
+      onPlantTree();
     } else if (value === "mushroom" || value === "flower" || value === "herb") {
       onPlantCrop(value, index);
     }
@@ -23,7 +25,6 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
       case "mushroom": return <Flame className="w-4 h-4 inline text-orange-600" />;
       case "flower": return <Flower2 className="w-4 h-4 inline text-pink-600" />;
       case "herb": return <Leaf className="w-4 h-4 inline text-green-600" />;
-      case "tree": return <TreeDeciduous className="w-4 h-4 inline text-emerald-800" />;
       default: return null;
     }
   };
@@ -52,7 +53,7 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
                 Plant...
               </option>
               {Object.entries(player.inventory)
-                .filter(([_, count]) => (count as number) > 0)
+                .filter(([_, count]) => typeof count === 'number' && count > 0)
                 .map(([type]) => (
                   <option key={type} value={type}>
                     {type}

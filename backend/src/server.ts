@@ -38,13 +38,6 @@ app.get("/init", (_req, res) => {
   res.json(initialState);
 });
 
-app.post("/plant", (req, res) => {
-  const { type, index, gameState } = req.body;
-  const result = validatePlantCrop(type, index, gameState);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
-  res.json(result.state);
-});
-
 app.post("/harvest", (req, res) => {
   const result = validateHarvest(req.body.gameState);
   if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
@@ -64,10 +57,22 @@ app.post("/fulfill", (req, res) => {
   res.json(result.state);
 });
 
+
+app.post("/plant", (req, res) => {
+  const { type, index, gameState } = req.body;
+  const result = validatePlantCrop(gameState, type, index);
+  if (!result.valid) {
+    return res.status(400).json({ error: result.error });
+  }
+  res.json(result.state);
+});
+
 app.post("/plant-tree", (req, res) => {
-  const { plotIndex, gameState } = req.body;
-  const result = validatePlantTree(plotIndex, gameState);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  const { gameState } = req.body;
+  const result = validatePlantTree(gameState);
+  if (!result.valid) {
+    return res.status(400).json({ error: result.error });
+  }
   res.json(result.state);
 });
 
