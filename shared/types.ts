@@ -50,3 +50,10 @@ export interface TownRequestCard {
   reward: { gold: number; renown: number };
   fulfilled: boolean;
 }
+
+export interface GameState {
+  player: Player;
+  status: GameStatus;
+  market: Record<'mushroom' | 'flower' | 'herb' | 'fruit', { price: number; stock: number }>;
+  townRequests: TownRequestCard[];
+}
