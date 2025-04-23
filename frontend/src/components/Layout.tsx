@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { GardenGrid } from "./GardenGrid";
 import { InventoryBox } from "./InventoryBox";
 import { UpgradeShop } from "./UpgradeShop";
@@ -10,7 +10,7 @@ import { GameOver } from "./GameOver";
 import { plantCrop, harvestCrop, brewPotions, fulfillTownRequest, plantTree, fellTree } from "../utils";
 import { advanceTurn } from "../turnEngine";
 import { calculateScore } from "../gameOverLogic";
-import type { Player } from "../,,/../shared/types";
+import type { Player, GameStatus } from "../../../shared/types";
 
 export const Layout = ({
   gameState,
@@ -27,6 +27,16 @@ export const Layout = ({
   scoreData: any;
   setScoreData: (val: any) => void;
 }) => {
+  useEffect(() => {
+    fetch("https://coven-backend.onrender.com/start")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("🎮 Initial game state loaded:", data);
+        setGameState(data);
+      })
+      .catch((err) => console.error("Initial load error:", err));
+  }, []);
+
   if (gameOver && scoreData) {
     return (
       <GameOver
@@ -44,10 +54,7 @@ export const Layout = ({
       body: JSON.stringify({ type, index, gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Plant result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Plant error:", err));
   };
 
@@ -58,10 +65,7 @@ export const Layout = ({
       body: JSON.stringify({ gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Harvest result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Harvest error:", err));
   };
 
@@ -72,10 +76,7 @@ export const Layout = ({
       body: JSON.stringify({ gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Brew result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Brew error:", err));
   };
 
@@ -86,25 +87,18 @@ export const Layout = ({
       body: JSON.stringify({ card, gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Fulfill result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Fulfill error:", err));
   };
 
   const handlePlantTree = () => {
-    const plotIndex = 0;
     fetch("https://coven-backend.onrender.com/plant-tree", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plotIndex, gameState })
+      body: JSON.stringify({ plotIndex: 0, gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Tree plant result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Plant tree error:", err));
   };
 
@@ -115,10 +109,7 @@ export const Layout = ({
       body: JSON.stringify({ index, gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Fell tree result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Fell tree error:", err));
   };
 
@@ -129,10 +120,7 @@ export const Layout = ({
       body: JSON.stringify({ gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Buy result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Buy error:", err));
   };
 
@@ -143,10 +131,7 @@ export const Layout = ({
       body: JSON.stringify({ gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Sell result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Sell error:", err));
   };
 
@@ -157,10 +142,7 @@ export const Layout = ({
       body: JSON.stringify({ gameState })
     })
       .then(res => res.json())
-      .then(data => {
-        console.log("Upgrade result:", data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))
       .catch(err => console.error("Upgrade error:", err));
   };
 
@@ -172,7 +154,6 @@ export const Layout = ({
     })
       .then(res => res.json())
       .then(data => {
-        console.log("Advance result:", data);
         setGameState(data);
         if (data.gameOver) {
           setGameOver(true);
@@ -188,22 +169,18 @@ export const Layout = ({
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
-          {gameState?.player?.garden?.spaces && (
-            <GardenGrid
-              spaces={gameState.player.garden.spaces}
-              onPlantCrop={handlePlant}
-              onPlantTree={handlePlantTree}
-              player={gameState.player}
-            />
-          )}
+          <GardenGrid
+            spaces={gameState.player.garden.spaces}
+            onPlantCrop={handlePlant}
+            onPlantTree={handlePlantTree}
+            player={gameState.player}
+          />
           <InventoryBox player={gameState.player} />
           <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          {Array.isArray(gameState?.townRequests) && gameState.townRequests.length > 0 && (
-            <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
-          )}
+          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
           {gameState?.market && (
             <MarketView
               market={gameState.market}

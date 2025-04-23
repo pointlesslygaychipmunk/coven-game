@@ -2,40 +2,66 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import { createGameState } from "./createGameState";
+
+import { createGameState } from "./createGameState"; // ✅ assumes this constructs and returns a full GameState
 
 const app = express();
-app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
+
+app.use(cors({
+  origin: "https://coven-frontend.onrender.com",
+}));
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "https://coven-frontend.onrender.com" }
+  cors: {
+    origin: "https://coven-frontend.onrender.com",
+  },
 });
 
-// ✅ Test ping
+// ✅ Confirm backend is reachable
 app.get("/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
-// ✅ Initial game state endpoint
-app.get("/init", (req, res) => {
+// ✅ Return initial game state
+app.get("/start", (req, res) => {
   const gameState = createGameState();
-  console.log("Initialized game state:", gameState);
   res.json(gameState);
 });
 
-// ✅ Echo endpoints (update later with real logic)
-app.post("/plant", (req, res) => res.json(req.body.gameState));
-app.post("/harvest", (req, res) => res.json(req.body.gameState));
-app.post("/brew", (req, res) => res.json(req.body.gameState));
-app.post("/fulfill", (req, res) => res.json(req.body.gameState));
-app.post("/plant-tree", (req, res) => res.json(req.body.gameState));
-app.post("/fell-tree", (req, res) => res.json(req.body.gameState));
-app.post("/buy", (req, res) => res.json(req.body.gameState));
-app.post("/sell", (req, res) => res.json(req.body.gameState));
-app.post("/upgrade", (req, res) => res.json(req.body.gameState));
-app.post("/advance", (req, res) => res.json({ ...req.body.gameState, gameOver: false }));
+// Placeholder POST endpoints
+app.post("/plant", (req, res) => {
+  const { type, index, gameState } = req.body;
+  res.json(gameState);
+});
+app.post("/harvest", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/brew", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/fulfill", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/plant-tree", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/fell-tree", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/buy", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/sell", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/upgrade", (req, res) => {
+  res.json(req.body.gameState);
+});
+app.post("/advance", (req, res) => {
+  res.json({ ...req.body.gameState, gameOver: false });
+});
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
