@@ -2,65 +2,104 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-
-import { createGameState } from "./createGameState"; // ✅ assumes this constructs and returns a full GameState
+import {
+  validatePlantCrop,
+  validateHarvest,
+  validateBrew,
+  validateFulfill,
+  validatePlantTree,
+  validateFellTree,
+  validateBuy,
+  validateSell,
+  validateUpgrade,
+  validateAdvance
+} from "./validate";
+import { createGameState } from "./createGameState";
 
 const app = express();
-
-app.use(cors({
-  origin: "https://coven-frontend.onrender.com",
-}));
+app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "https://coven-frontend.onrender.com",
-  },
+  cors: { origin: "https://coven-frontend.onrender.com" },
 });
 
-// ✅ Confirm backend is reachable
 app.get("/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
-// ✅ Return initial game state
-app.get("/start", (req, res) => {
-  const gameState = createGameState();
-  res.json(gameState);
+function isValidationResult(obj: any): obj is { valid: boolean; error?: string; state?: any } {
+  return obj && typeof obj === 'object' && 'valid' in obj && typeof obj.valid === 'boolean';
+}
+
+app.get("/init", (_req, res) => {
+  const initialState = createGameState();
+  res.json(initialState);
 });
 
-// Placeholder POST endpoints
 app.post("/plant", (req, res) => {
   const { type, index, gameState } = req.body;
-  res.json(gameState);
+  const result = validatePlantCrop(type, index, gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/harvest", (req, res) => {
-  res.json(req.body.gameState);
+  const result = validateHarvest(req.body.gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/brew", (req, res) => {
-  res.json(req.body.gameState);
+  const result = validateBrew(req.body.gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/fulfill", (req, res) => {
-  res.json(req.body.gameState);
+  const { card, gameState } = req.body;
+  const result = validateFulfill(card, gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/plant-tree", (req, res) => {
-  res.json(req.body.gameState);
+  const { plotIndex, gameState } = req.body;
+  const result = validatePlantTree(plotIndex, gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/fell-tree", (req, res) => {
-  res.json(req.body.gameState);
+  const { index, gameState } = req.body;
+  const result = validateFellTree(index, gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/buy", (req, res) => {
-  res.json(req.body.gameState);
+  const result = validateBuy(req.body.gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/sell", (req, res) => {
-  res.json(req.body.gameState);
+  const result = validateSell(req.body.gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/upgrade", (req, res) => {
-  res.json(req.body.gameState);
+  const result = validateUpgrade(req.body.gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
+
 app.post("/advance", (req, res) => {
-  res.json({ ...req.body.gameState, gameOver: false });
+  const result = validateAdvance(req.body.gameState);
+  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
+  res.json(result.state);
 });
 
 const PORT = process.env.PORT || 8080;

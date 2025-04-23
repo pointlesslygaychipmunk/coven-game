@@ -28,7 +28,7 @@ export const Layout = ({
   setScoreData: (val: any) => void;
 }) => {
   useEffect(() => {
-    fetch("https://coven-backend.onrender.com/start")
+    fetch("https://coven-backend.onrender.com/init")
       .then((res) => res.json())
       .then((data) => {
         console.log("🎮 Initial game state loaded:", data);
