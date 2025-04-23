@@ -10,7 +10,7 @@ import { GameOver } from "./GameOver";
 import { plantCrop, harvestCrop, brewPotions, fulfillTownRequest, plantTree, fellTree } from "../utils";
 import { advanceTurn } from "../turnEngine";
 import { calculateScore } from "../gameOverLogic";
-import type { Player } from "../../../shared/types";
+import type { Player } from "../,,/../shared/types";
 
 export const Layout = ({
   gameState,
@@ -38,76 +38,172 @@ export const Layout = ({
   }
 
   const handlePlant = (type: 'mushroom' | 'flower' | 'herb', index: number) => {
-    setGameState((prev: any) => plantCrop(prev, type, index));
+    fetch("https://coven-backend.onrender.com/plant", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, index, gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Plant result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Plant error:", err));
   };
 
   const handleHarvest = () => {
-    const indexes: number[] = []; // Replace with actual crop indexes
-    setGameState((prev: any) => harvestCrop(prev, indexes));
+    fetch("https://coven-backend.onrender.com/harvest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Harvest result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Harvest error:", err));
   };
 
   const handleBrew = () => {
-    const potionMap: Record<'mushroom' | 'flower' | 'herb' | 'fruit', number> = {
-      mushroom: 1,
-      flower: 1,
-      herb: 1,
-      fruit: 1,
-    }; // Replace with real data
-    setGameState((prev: any) => brewPotions(prev, potionMap));
+    fetch("https://coven-backend.onrender.com/brew", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Brew result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Brew error:", err));
   };
 
   const handleFulfill = (card: TownRequestCard) => {
-    setGameState((prev: any) => fulfillTownRequest(prev, card));
+    fetch("https://coven-backend.onrender.com/fulfill", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ card, gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fulfill result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Fulfill error:", err));
   };
 
   const handlePlantTree = () => {
-    const plotIndex = 0; // Replace with selected plot
-    setGameState((prev: any) => plantTree(prev, plotIndex));
+    const plotIndex = 0;
+    fetch("https://coven-backend.onrender.com/plant-tree", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plotIndex, gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Tree plant result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Plant tree error:", err));
   };
 
   const handleFellTree = (index: number) => {
-    setGameState((prev: any) => fellTree(prev, index));
+    fetch("https://coven-backend.onrender.com/fell-tree", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ index, gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fell tree result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Fell tree error:", err));
   };
 
   const handleBuy = () => {
-    // logic here
+    fetch("https://coven-backend.onrender.com/buy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Buy result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Buy error:", err));
   };
 
   const handleSell = () => {
-    // logic here
+    fetch("https://coven-backend.onrender.com/sell", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Sell result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Sell error:", err));
   };
 
   const handleUpgrade = () => {
-    // logic here
+    fetch("https://coven-backend.onrender.com/upgrade", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Upgrade result:", data);
+        setGameState(data);
+      })
+      .catch(err => console.error("Upgrade error:", err));
   };
 
   const handleAdvanceTurn = () => {
-    const result = advanceTurn(gameState);
-    setGameState(result.state);
-    if (result.gameOver) {
-      setGameOver(true);
-      setScoreData(calculateScore(result.state));
-    }
+    fetch("https://coven-backend.onrender.com/advance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState })
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Advance result:", data);
+        setGameState(data);
+        if (data.gameOver) {
+          setGameOver(true);
+          setScoreData(calculateScore(data));
+        }
+      })
+      .catch(err => console.error("Advance error:", err));
   };
 
   return (
     <div className="p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen">
-      <GameStatusBar status={gameState.status} />
+      <GameStatusBar status={gameState?.status} />
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
-          <GardenGrid
-            spaces={gameState.player.garden.spaces}
-            onPlantCrop={handlePlant}
-            onPlantTree={handlePlantTree}
-            player={gameState.player}
-          />
+          {gameState?.player?.garden?.spaces && (
+            <GardenGrid
+              spaces={gameState.player.garden.spaces}
+              onPlantCrop={handlePlant}
+              onPlantTree={handlePlantTree}
+              player={gameState.player}
+            />
+          )}
           <InventoryBox player={gameState.player} />
           <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+          {Array.isArray(gameState?.townRequests) && gameState.townRequests.length > 0 && (
+            <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+          )}
           {gameState?.market && (
             <MarketView
               market={gameState.market}

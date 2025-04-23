@@ -42,8 +42,11 @@ export interface GameStatus {
 
 export interface TownRequestCard {
   id: string;
-  potionNeeds: Record<PotionType, number>;
-  craftPoints: number;
+  potionNeeds: Record<"mushroom" | "flower" | "herb" | "fruit", number>;
+  type: "mushroom" | "flower" | "herb" | "fruit";
+  count: number;
   boardSlot: 1 | 2 | 3 | 4;
-  fulfilled?: boolean;
+  craftPoints: number;
+  reward: { gold: number; renown: number };
+  fulfilled: boolean;
 }
