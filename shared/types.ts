@@ -43,7 +43,7 @@ export interface GameStatus {
 export interface TownRequestCard {
   id: string;
   potionNeeds: Record<"mushroom" | "flower" | "herb" | "fruit", number>;
-  type: "mushroom" | "flower" | "herb" | "fruit";
+  type: string;
   count: number;
   boardSlot: 1 | 2 | 3 | 4;
   craftPoints: number;

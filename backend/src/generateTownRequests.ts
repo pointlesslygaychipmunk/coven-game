@@ -1,31 +1,30 @@
 import { v4 as uuidv4 } from "uuid";
-import { TownRequestCard } from "../../shared/types"; // or wherever it's defined
-
-const potionTypes = ['mushroom', 'flower', 'herb', 'fruit'] as const;
+import type { TownRequestCard } from "../../shared/types";
 
 export function generateTownRequests(): TownRequestCard[] {
-  return Array.from({ length: 3 }, (_, i) => {
-    const type = potionTypes[Math.floor(Math.random() * potionTypes.length)];
-    const count = 3 + Math.floor(Math.random() * 3); // 3–5 of that type
+  const slots: (1 | 2 | 3)[] = [1, 2, 3];
+  const generateNeeds = (): Record<"mushroom" | "flower" | "herb" | "fruit", number> => ({
+    mushroom: Math.floor(Math.random() * 2),
+    flower: Math.floor(Math.random() * 2),
+    herb: Math.floor(Math.random() * 2),
+    fruit: Math.floor(Math.random() * 2),
+  });
 
+  return slots.map((slot) => {
+    const potionNeeds = generateNeeds();
+    const total = Object.values(potionNeeds).reduce((a, b) => a + b, 0);
     return {
       id: uuidv4(),
-      type,
-      count,
-      potionNeeds: {
-        mushroom: 0,
-        flower: 0,
-        herb: 0,
-        fruit: 0,
-        [type]: count
-      },
-      boardSlot: (i + 1) as 1 | 2 | 3,
-      craftPoints: Math.floor(Math.random() * 3),
+      potionNeeds,
+      boardSlot: slot,
+      craftPoints: Math.floor(Math.random() * 5) + 1,
       reward: {
-        gold: 2 + Math.floor(Math.random() * 5),
-        renown: 1 + Math.floor(Math.random() * 2),
+        gold: 1 + (4 - slot),
+        renown: 2 - slot,
       },
       fulfilled: false,
+      type: "standard",   // <- required field
+      count: total        // <- required field
     };
   });
 }
