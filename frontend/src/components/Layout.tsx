@@ -100,8 +100,15 @@ export const Layout = ({
   }, [gameState, postToBackend]);
 
   const handleBuy = (type: PotionType) => {
-    postToBackend("buy", { type });
-  };
+    fetch("https://coven-backend.onrender.com/buy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ gameState, type })
+    })
+      .then((res) => res.json())
+      .then(setGameState)
+      .catch((err) => console.error("Buy error:", err));
+  };  
   
   const handleSell = (type: PotionType) => {
     postToBackend("sell", { type });
