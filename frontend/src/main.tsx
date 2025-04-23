@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { Layout } from "./components/Layout";
-import { initialGameState } from "./gameState";
+import { initialGameState } from "../../backend/src/gameState";
 
 const App = () => {
   const [gameState, setGameState] = useState(initialGameState);

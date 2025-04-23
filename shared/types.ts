@@ -2,11 +2,11 @@ export type PotionType = 'mushroom' | 'flower' | 'herb' | 'fruit';
 
 export type Crop = "mushroom" | "flower" | "herb" | "fruit";
 export type Tree = "tree";
-export type GardenSlot = PotionType | "tree" | null;
 
 export interface Player {
   id: string;
   name: string;
+  alerts?: string[];
   gold: number;
   renown: number;
   craftPoints: number;
@@ -64,3 +64,9 @@ export interface GardenSlotObject {
 }
 
 export type GardenSlot = GardenSlotObject | null;
+
+export interface ScoreData {
+  total: number;
+  breakdown: Record<string, number>;
+  lost: boolean;
+}

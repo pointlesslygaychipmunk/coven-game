@@ -3,8 +3,14 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Leaf, Flower2, Flame, Apple, Hand, Droplets, Sparkles, Timer, Skull } from "lucide-react";
 
+type GardenPlot = {
+  type: string;
+  stage: "young" | "mature" | "withered" | "decaying";
+  age: number;
+};
+
 type Props = {
-  spaces: ({ type: string; stage: "young" | "mature" | "withered"; age: number } | null)[];
+  spaces: (GardenPlot | null)[];
   onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
   onPlantTree: (index: number) => void;
   player: any;
@@ -40,6 +46,7 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
       case "young": return <span title="Growing"><Timer className="absolute top-1 left-1 w-4 h-4 text-blue-400 animate-ping" /></span>;
       case "mature": return <span title="Ready"><Sparkles className="absolute top-1 right-1 w-4 h-4 text-yellow-400 animate-pulse" /></span>;
       case "withered": return <span title="Withered"><Skull className="absolute top-1 right-1 w-4 h-4 text-gray-500" /></span>;
+      case "decaying": return <span title="Decaying"><Skull className="absolute top-1 right-1 w-4 h-4 text-red-400 animate-bounce" /></span>;
       default: return null;
     }
   };

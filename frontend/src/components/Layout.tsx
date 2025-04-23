@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { GardenGrid } from "./GardenGrid";
 import { InventoryBox } from "./InventoryBox";
 import { UpgradeShop } from "./UpgradeShop";
@@ -7,10 +7,8 @@ import { TownRequests } from "./TownRequests";
 import type { TownRequestCard } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
-import { plantCrop, harvestCrop, brewPotions, fulfillTownRequest, plantTree, fellTree } from "../utils";
-import { advanceTurn } from "../../../backend/src/turnEngine";
 import { calculateScore } from "../gameOverLogic";
-import type { Player, GameStatus } from "../../../shared/types";
+import type { GameState } from "../../../shared/types";
 
 export const Layout = ({
   gameState,
@@ -20,12 +18,12 @@ export const Layout = ({
   scoreData,
   setScoreData,
 }: {
-  gameState: any;
-  setGameState: any;
+  gameState: GameState;
+  setGameState: (val: GameState) => void;
   gameOver: boolean;
   setGameOver: (val: boolean) => void;
-  scoreData: any;
-  setScoreData: (val: any) => void;
+  scoreData: { total: number; breakdown: any; lost: boolean };
+  setScoreData: (val: { total: number; breakdown: any; lost: boolean }) => void;
 }) => {
   useEffect(() => {
     fetch("https://coven-backend.onrender.com/init")
@@ -47,125 +45,84 @@ export const Layout = ({
     );
   }
 
-  const handlePlant = (type: 'mushroom' | 'flower' | 'herb', index: number) => {
-    fetch("https://coven-backend.onrender.com/plant", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, index, gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Plant error:", err));
-  };
-
-  const handleHarvest = () => {
-    fetch("https://coven-backend.onrender.com/harvest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Harvest error:", err));
-  };
-
-  const handleBrew = () => {
-    fetch("https://coven-backend.onrender.com/brew", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Brew error:", err));
-  };
-
-  const handleFulfill = (card: TownRequestCard) => {
-    fetch("https://coven-backend.onrender.com/fulfill", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ card, gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Fulfill error:", err));
-  };
-
-  const handlePlantTree = () => {
-    fetch("https://coven-backend.onrender.com/plant-tree", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plotIndex: 0, gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Plant tree error:", err));
-  };
-
-  const handleFellTree = (index: number) => {
-    fetch("https://coven-backend.onrender.com/fell-tree", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ index, gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Fell tree error:", err));
-  };
-
-  const handleBuy = () => {
-    fetch("https://coven-backend.onrender.com/buy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Buy error:", err));
-  };
-
-  const handleSell = () => {
-    fetch("https://coven-backend.onrender.com/sell", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Sell error:", err));
-  };
-
-  const handleUpgrade = () => {
-    fetch("https://coven-backend.onrender.com/upgrade", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState })
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Upgrade error:", err));
-  };
-
-  const handleAdvanceTurn = () => {
-    fetch("https://coven-backend.onrender.com/advance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState })
-    })
-      .then(res => res.json())
-      .then(data => {
-        setGameState(data);
-        if (data.gameOver) {
-          setGameOver(true);
-          setScoreData(calculateScore(data));
-        }
+  const postToBackend = useCallback(
+    (endpoint: string, payload: any, callback?: (data: GameState) => void) => {
+      fetch(`https://coven-backend.onrender.com/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       })
-      .catch(err => console.error("Advance error:", err));
-  };
+        .then(res => res.json())
+        .then(data => {
+          setGameState(data);
+          callback?.(data);
+        })
+        .catch(err => console.error(`${endpoint} error:`, err));
+    },
+    [setGameState]
+  );
+
+  const handlePlant = useCallback((type: 'mushroom' | 'flower' | 'herb', index: number) => {
+    postToBackend("plant", { type, index });
+  }, [gameState, postToBackend]);
+
+  const handleHarvest = useCallback(() => {
+    postToBackend("harvest", gameState);
+  }, [gameState, postToBackend]);
+
+  const handleBrew = useCallback(() => {
+    postToBackend("brew", gameState);
+  }, [gameState, postToBackend]);
+
+  const handleFulfill = useCallback((card: TownRequestCard) => {
+    postToBackend("fulfill", { card });
+  }, [gameState, postToBackend]);
+
+  const handlePlantTree = useCallback((index: number) => {
+    postToBackend("plant-tree", { plotIndex: index });
+  }, [gameState, postToBackend]);
+
+  const handleFellTree = useCallback((index: number) => {
+    postToBackend("fell-tree", { index });
+  }, [gameState, postToBackend]);
+
+  const handleBuy = useCallback(() => {
+    postToBackend("buy", gameState);
+  }, [gameState, postToBackend]);
+
+  const handleSell = useCallback(() => {
+    postToBackend("sell", gameState);
+  }, [gameState, postToBackend]);
+
+  const handleUpgrade = useCallback(() => {
+    postToBackend("upgrade", gameState);
+  }, [gameState, postToBackend]);
+
+  const handleAdvanceTurn = useCallback(() => {
+    postToBackend("advance", gameState, (data) => {
+      const result = calculateScore(data);
+      if (result.lost) {
+        setGameOver(true);
+        setScoreData(result);
+      }
+    });
+  }, [gameState, postToBackend, setGameOver, setScoreData]);
 
   return (
     <div className="p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen">
       <GameStatusBar status={gameState?.status} />
+
+      <div className="text-right text-lg font-semibold text-indigo-800">
+        🪄 Mana: {gameState?.player?.mana ?? 0}
+      </div>
+
+      {gameState?.player?.alerts?.length ? (
+        <div className="bg-white border border-indigo-200 p-4 rounded shadow-md text-sm text-gray-800 space-y-1">
+          {gameState.player.alerts.map((alert, i) => (
+            <div key={i}>🔔 {alert}</div>
+          ))}
+        </div>
+      ) : null}
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
