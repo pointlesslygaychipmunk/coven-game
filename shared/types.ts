@@ -48,3 +48,8 @@ export interface GameState {
   market: Record<'mushroom' | 'flower' | 'herb' | 'fruit', { price: number; stock: number }>;
   townRequests: TownRequestCard[];
 }
+
+export type MarketState = Record<PotionType, {
+  price: number;
+  stock: number;
+}>;

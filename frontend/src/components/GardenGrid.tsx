@@ -10,13 +10,27 @@ import {
   Sparkles,
   Timer,
   Skull,
-  Loader2
+  Loader2,
+  Droplet
 } from "lucide-react";
 
-let growthInterval: ReturnType<typeof setInterval> | null = null;
+// Fix for NodeJS namespace issue in the browser
+declare global {
+  interface NodeJS {
+    Timeout: any;
+  }
+}
+
+let growthInterval: NodeJS.Timeout | null = null;
+
+interface GardenPlot {
+  type: string;
+  stage: "young" | "mature" | "withered";
+  watered?: boolean;
+}
 
 type Props = {
-  spaces: ({ type: string, stage: "young" | "mature" | "withered" } | null)[];
+  spaces: (GardenPlot | null)[];
   onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
   onPlantTree: (index: number) => void;
   player: any;
@@ -38,6 +52,10 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
       setInternalSpaces((prev) =>
         prev.map((plot, i) => {
           if (!plot) return null;
+          if (plot.watered) {
+            plot.watered = false;
+            return plot;
+          }
           if (plot.stage === "young") return { ...plot, stage: "mature" };
           if (plot.stage === "mature") return { ...plot, stage: "withered" };
           return plot;
@@ -69,7 +87,8 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
     }
   };
 
-  const stageIcon = (stage: string, timeRemaining: number) => {
+  const stageIcon = (stage: string, timeRemaining: number, watered?: boolean) => {
+    if (watered) return <Droplet className="absolute top-1 left-1 w-4 h-4 text-blue-300 animate-bounce" />;
     switch (stage) {
       case "young": return <Timer className="absolute top-1 left-1 w-4 h-4 text-blue-400 animate-ping" />;
       case "mature": return <Sparkles className="absolute top-1 right-1 w-4 h-4 text-yellow-400 animate-pulse" />;
@@ -127,7 +146,7 @@ export const GardenGrid = ({ spaces, onPlantCrop, onPlantTree, player }: Props) 
                   className="text-lg font-semibold text-purple-800"
                 >
                   {cropIcon(plot.type)} {plot.type === "tree" ? "Tree" : plot.type}
-                  {stageIcon(plot.stage, plotTimers[index])}
+                  {stageIcon(plot.stage, plotTimers[index], plot.watered)}
                 </motion.div>
               ) : (
                 <motion.div
