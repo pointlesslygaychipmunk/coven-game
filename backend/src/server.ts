@@ -15,6 +15,8 @@ import {
   validateAdvance
 } from "./validate";
 import { createGameState } from "./createGameState";
+import { playTurn } from "./playController";
+import type { GameState } from "../../shared/types";
 
 const app = express();
 app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
@@ -105,6 +107,12 @@ app.post("/advance", (req, res) => {
   const result = validateAdvance(req.body.gameState);
   if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: isValidationResult(result) ? result.error : "Invalid request" });
   res.json(result.state);
+});
+
+app.post("/play-turn", (req, res) => {
+  const currentState = req.body as GameState;
+  const newState = playTurn(currentState);
+  res.json(newState);
 });
 
 const PORT = process.env.PORT || 8080;

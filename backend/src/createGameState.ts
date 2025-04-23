@@ -8,5 +8,7 @@ export function createGameState(): GameState {
     market: { ...initialMarketState },
     status: { ...initialGameStatus },
     townRequests: generateTownRequests(),
+    marketEvent: null,
+    pendingActions: ['water']
   };
 }

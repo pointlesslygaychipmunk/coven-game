@@ -47,6 +47,7 @@ export interface GameState {
   status: GameStatus;
   market: Record<'mushroom' | 'flower' | 'herb' | 'fruit', { price: number; stock: number }>;
   marketEvent: { name: string; description: string } | null;
+  pendingActions: PlayerAction[];
   townRequests: TownRequestCard[];
 }
 
@@ -71,3 +72,30 @@ export interface ScoreData {
   breakdown: Record<string, number>;
   lost: boolean;
 }
+
+export type PlayerAction =
+  | 'plant'
+  | 'harvest'
+  | 'brew'
+  | 'buy'
+  | 'sell'
+  | 'upgrade'
+  | 'fulfill'
+  | 'forage'
+  | 'fortune'
+  | 'lady'
+  | 'water';
+
+  export const ACTION_LABELS: Record<PlayerAction, string> = {
+    water: "💧 Water",
+    plant: "🌱 Plant",
+    harvest: "🌾 Harvest",
+    brew: "🧪 Brew",
+    buy: "🛒 Buy",
+    sell: "💰 Sell",
+    upgrade: "🛠️ Upgrade",
+    fulfill: "📦 Fulfill Request",
+    forage: "🌲 Forage",
+    fortune: "🔮 Tell Fortune",
+    lady: "🌕 Consult a Lady"
+  };  

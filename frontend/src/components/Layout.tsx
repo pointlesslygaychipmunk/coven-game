@@ -9,6 +9,7 @@ import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
 import { calculateScore } from "../../../backend/src/gameOverLogic";
 import type { GameState, PotionType } from "../../../shared/types";
+import ActionSelector from "./ActionSelector";
 
 export const Layout = ({
   gameState,
@@ -44,6 +45,18 @@ export const Layout = ({
       />
     );
   }
+
+  {gameState.pendingActions?.length === 1 && (
+    <ActionSelector onSubmit={(actions) => {
+      fetch("/play-turn", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...gameState, pendingActions: actions })
+      })
+        .then(res => res.json())
+        .then(setGameState);
+    }} />
+  )}  
 
   const postToBackend = useCallback(
     (endpoint: string, payload: any, callback?: (data: GameState) => void) => {
