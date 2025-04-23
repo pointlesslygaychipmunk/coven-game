@@ -1,17 +1,8 @@
 export type PotionType = 'mushroom' | 'flower' | 'herb' | 'fruit';
 
-export interface Crop {
-  type: 'mushroom' | 'flower' | 'herb';
-  growth: number;
-  isDead: boolean;
-}
-
-export interface Tree {
-  growth: number;
-  isDead: boolean;
-}
-
-export type GardenSlot = Crop | Tree | null;
+export type Crop = "mushroom" | "flower" | "herb" | "fruit";
+export type Tree = "tree";
+export type GardenSlot = PotionType | "tree" | null;
 
 export interface Player {
   id: string;
