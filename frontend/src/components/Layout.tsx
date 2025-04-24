@@ -39,14 +39,14 @@ export const Layout = ({
       gameState,
       actions: [{ type: "plant", itemType, plotIndex }]
     }, setGameState);
-  };
+  };  
 
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("play-turn", {
       gameState,
       actions: [{ type: "plant", itemType: "fruit", plotIndex }]
     }, setGameState);
-  };
+  };  
 
   const handleHarvest = (plotIndex: number) => {
     postUpdate("play-turn", {
