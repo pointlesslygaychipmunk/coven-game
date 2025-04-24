@@ -21,7 +21,22 @@ import { applyBuy } from "./applyBuy";
 
 
 const app = express();
-app.use(cors({ origin: "https://coven-frontend.onrender.com" }));
+const allowedOrigins = [
+  "https://coven-frontend.onrender.com",
+  "http://localhost:5173"
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "OPTIONS"]
+}));
 app.use(express.json());
 
 const server = http.createServer(app);
