@@ -42,6 +42,15 @@ app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 app.use(express.json());
 
+app.options("*", (_req, res) => {
+  res.set({
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+  res.sendStatus(204);
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "https://coven-frontend.onrender.com" },
