@@ -7,8 +7,7 @@ import { TownRequests } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
 import { calculateScore } from "../../../shared/scoreLogic";
-import type { TownRequestCard } from "../../../shared/types";
-import type { Player, GameStatus, GameState } from "../../../shared/types";
+import type { GameState } from "../../../shared/types";
 
 export const Layout = ({
   gameState,
@@ -39,42 +38,33 @@ export const Layout = ({
     fetch(`https://api.telecrypt.xyz/${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error(`${path} error:`, err));
+      .then((res) => res.json())
+      .then((data) => setGameState(data))
+      .catch((err) => console.error(`${path} error:`, err));
   };
 
   const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
     postUpdate("play-turn", {
-      ...gameState,
-      player: {
-        ...gameState.player,
-        actions: [{ type: "plant", itemType, plotIndex }]
-      }
+      gameState,
+      actions: [{ type: "plant", itemType, plotIndex }],
     });
   };
-  
+
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("play-turn", {
-      ...gameState,
-      player: {
-        ...gameState.player,
-        actions: [{ type: "plant", itemType: "fruit", plotIndex }]
-      }
+      gameState,
+      actions: [{ type: "plant", itemType: "fruit", plotIndex }],
     });
   };
-  
+
   const handleHarvest = (plotIndex: number) => {
     postUpdate("play-turn", {
-      ...gameState,
-      player: {
-        ...gameState.player,
-        actions: [{ type: "harvest", plotIndex }]
-      }
+      gameState,
+      actions: [{ type: "harvest", plotIndex }],
     });
-  };  
+  };
 
   const handleUpgrade = (upgradeType: string) => {
     postUpdate("upgrade", { upgradeType, gameState });
@@ -84,11 +74,11 @@ export const Layout = ({
     fetch("https://api.telecrypt.xyz/fulfill", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ index, gameState })
+      body: JSON.stringify({ index, gameState }),
     })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error("Fulfill error:", err));
+      .then((res) => res.json())
+      .then((data) => setGameState(data))
+      .catch((err) => console.error("Fulfill error:", err));
   };
 
   const handleBuy = (itemType: string) => {
@@ -100,21 +90,8 @@ export const Layout = ({
   };
 
   const handleAdvanceTurn = () => {
-    fetch("https://api.telecrypt.xyz/play-turn", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gameState)
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setGameState(data);
-        const score = calculateScore(data.player);
-        setScoreData(score);
-        if (score.lost || data.status.renown <= 0 || data.status.potionsBrewed === 0) {
-          setGameOver(true);
-        }
-      })
-      .catch((err) => console.error("Advance turn error:", err));
+    postUpdate("play-turn", { gameState, actions: [] });
+    // No extra action performed but still triggers turn logic
   };
 
   if (gameOver && scoreData) {
@@ -142,11 +119,17 @@ export const Layout = ({
           />
 
           <InventoryBox player={gameState.player} />
-          <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
+          <UpgradeShop
+            upgrades={gameState.player.upgrades}
+            onUpgrade={handleUpgrade}
+          />
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+          <TownRequests
+            cards={gameState.townRequests}
+            onFulfill={handleFulfill}
+          />
           {gameState?.market && (
             <MarketView
               market={gameState.market}
