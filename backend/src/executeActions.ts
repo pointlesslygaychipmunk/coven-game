@@ -3,15 +3,11 @@ import type { GameState } from "../../shared/types";
 
 export type Action = PlantAction;
 
-interface PlantAction {
+export interface PlantAction {
   type: "plant";
   plotIndex: number;
   itemType: "mushroom" | "flower" | "herb" | "fruit";
 }
-
-// Add more action interfaces here as needed
-
-type Action = PlantAction;
 
 export function executeActions(gameState: GameState, actions: Action[]): GameState {
   let newState = { ...gameState };
