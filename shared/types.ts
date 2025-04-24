@@ -72,14 +72,15 @@ export interface TownRequestCard {
 }
 
 export interface GameState {
-  player: Player;
-  status: GameStatus;
-  market: Record<PotionType, { price: number; stock: number }>;
-  marketEvent: { name: string; description: string } | null;
-  townRequests: TownRequestCard[];
-  actionsUsed: number;
-  pendingActions: string[];
-}
+    player: Player;
+    status: GameStatus;
+    market: Record<PotionType, { price: number; stock: number }>;
+    blackMarketInventory: Record<string, { stock: number; price: number }>;
+    marketEvent: { name: string; description: string } | null;
+    townRequests: TownRequestCard[];
+    actionsUsed: number;
+    pendingActions: string[];
+  }  
 
 export interface ScoreData {
   total: number;
