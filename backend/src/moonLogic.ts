@@ -1,4 +1,4 @@
-import { Player, GameStatus } from '../../../shared/types';
+import { Player, GameStatus } from '../../shared/types';
 
 export function simulateMoonPhaseChange(player: Player, gameStatus: GameStatus) {
   const fullMoon = gameStatus.moonPhase % 14 === 0;
