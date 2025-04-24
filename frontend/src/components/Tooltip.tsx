@@ -2,23 +2,15 @@
 import React from "react";
 
 interface TooltipProps {
-  children: React.ReactNode;
   visible: boolean;
-  position: { top: number; left: number };
+  children: React.ReactNode;
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ children, visible, position }) => {
+const Tooltip: React.FC<TooltipProps> = ({ visible, children }) => {
   if (!visible) return null;
 
   return (
-    <div
-      className="absolute z-50 bg-gray-800 text-white text-sm px-2 py-1 rounded shadow-md pointer-events-none transition-opacity duration-150"
-      style={{
-        top: position.top,
-        left: position.left,
-        transform: "translateY(-100%)",
-      }}
-    >
+    <div className="absolute z-50 mt-2 px-3 py-1 rounded-md bg-black text-white text-sm shadow-lg max-w-xs w-max">
       {children}
     </div>
   );
