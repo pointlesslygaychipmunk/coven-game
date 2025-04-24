@@ -33,22 +33,18 @@ export const Layout = ({
       })
       .catch((err) => console.error("Initial load error:", err));
   }, []);
-
   const postUpdate = (
     path: string,
-    payload: any,
-    setGameState: (val: GameState) => void
+    body: any,
+    setGameState: (val: any) => void
   ) => {
     fetch(`https://api.telecrypt.xyz/${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(body)
     })
       .then(res => res.json())
-      .then(data => {
-        console.log(`${path} response:`, data);
-        setGameState(data);
-      })
+      .then(data => setGameState(data))  // ✅ key update
       .catch(err => console.error(`${path} error:`, err));
   };
 
