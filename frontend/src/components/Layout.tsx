@@ -35,28 +35,41 @@ export const Layout = ({
       .catch((err) => console.error("Initial load error:", err));
   }, []);
 
-  // ✅ Correctly formats and sends single-plant actions via full gameState
   const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
     const updatedState = {
       ...gameState,
       player: {
         ...gameState.player,
-        actions: [{ type: "plant", itemType, plotIndex }]
+        actions: [
+          {
+            type: "plant",
+            itemType,
+            plotIndex,
+          }
+        ]
       }
     };
+  
     postUpdate("play-turn", updatedState);
   };
-
+  
   const handlePlantTree = (plotIndex: number) => {
     const updatedState = {
       ...gameState,
       player: {
         ...gameState.player,
-        actions: [{ type: "plant", itemType: "fruit", plotIndex }]
+        actions: [
+          {
+            type: "plant",
+            itemType: "fruit",
+            plotIndex,
+          }
+        ]
       }
     };
+  
     postUpdate("play-turn", updatedState);
-  };
+  };  
 
   const handleUpgrade = (upgradeType: string) => {
     postUpdate("upgrade", { upgradeType, gameState });
