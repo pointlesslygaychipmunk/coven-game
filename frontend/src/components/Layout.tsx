@@ -4,11 +4,10 @@ import { InventoryBox } from "./InventoryBox";
 import { UpgradeShop } from "./UpgradeShop";
 import { GameStatusBar } from "./GameStatusBar";
 import { TownRequests } from "./TownRequests";
-import type { TownRequestCard } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
 import { calculateScore } from "../../../shared/scoreLogic";
-import type { Player, GameStatus, GameState } from "../../../shared/types";
+import type { GameState } from "../../../shared/types";
 
 export const Layout = ({
   gameState,
@@ -35,40 +34,48 @@ export const Layout = ({
       .catch((err) => console.error("Initial load error:", err));
   }, []);
 
+  const postUpdate = (
+    path: string,
+    payload: any,
+    setGameState: (val: GameState) => void
+  ) => {
+    fetch(`https://api.telecrypt.xyz/${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(`${path} response:`, data);
+        setGameState(data);
+      })
+      .catch(err => console.error(`${path} error:`, err));
+  };
+
   const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
     const updatedState = {
       ...gameState,
       player: {
         ...gameState.player,
         actions: [
-          {
-            type: "plant",
-            itemType,
-            plotIndex,
-          }
+          { type: "plant", itemType, plotIndex }
         ]
       }
     };
-  
-    postUpdate("play-turn", updatedState);
+    postUpdate("play-turn", updatedState, setGameState);
   };
-  
+
   const handlePlantTree = (plotIndex: number) => {
     const updatedState = {
       ...gameState,
       player: {
         ...gameState.player,
         actions: [
-          {
-            type: "plant",
-            itemType: "fruit",
-            plotIndex,
-          }
+          { type: "plant", itemType: "fruit", plotIndex }
         ]
       }
     };
-  
-    postUpdate("play-turn", updatedState);
+    postUpdate("play-turn", updatedState, setGameState);
   };
 
   const handleHarvest = (plotIndex: number) => {
@@ -77,19 +84,15 @@ export const Layout = ({
       player: {
         ...gameState.player,
         actions: [
-          {
-            type: "harvest",
-            plotIndex
-          }
+          { type: "harvest", plotIndex }
         ]
       }
     };
-  
-    postUpdate("play-turn", updatedState);
-  };  
+    postUpdate("play-turn", updatedState, setGameState);
+  };
 
   const handleUpgrade = (upgradeType: string) => {
-    postUpdate("upgrade", { upgradeType, gameState });
+    postUpdate("upgrade", { upgradeType, gameState }, setGameState);
   };
 
   const handleFulfill = (index: number) => {
@@ -104,11 +107,11 @@ export const Layout = ({
   };
 
   const handleBuy = (itemType: string) => {
-    postUpdate("buy", { itemType, gameState });
+    postUpdate("buy", { itemType }, setGameState);
   };
 
   const handleSell = (itemType: string) => {
-    postUpdate("sell", { itemType, gameState });
+    postUpdate("sell", { itemType }, setGameState);
   };
 
   const handleAdvanceTurn = () => {
@@ -129,17 +132,6 @@ export const Layout = ({
       .catch(err => console.error("Advance turn error:", err));
   };
 
-  const postUpdate = (path: string, payload: any) => {
-    fetch(`https://api.telecrypt.xyz/${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(res => res.json())
-      .then(data => setGameState(data))
-      .catch(err => console.error(`${path} error:`, err));
-  };
-
   if (gameOver && scoreData) {
     return (
       <GameOver
@@ -156,14 +148,13 @@ export const Layout = ({
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
-        <GardenGrid
-         spaces={gameState.player.garden.spaces}
-         player={gameState.player}
-         onPlantCrop={handlePlantCrop}
-         onPlantTree={handlePlantTree}
-         onHarvest={handleHarvest}
-        />
-
+          <GardenGrid
+            spaces={gameState.player.garden.spaces}
+            player={gameState.player}
+            onPlantCrop={handlePlantCrop}
+            onPlantTree={handlePlantTree}
+            onHarvest={handleHarvest}
+          />
           <InventoryBox player={gameState.player} />
           <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
         </div>
