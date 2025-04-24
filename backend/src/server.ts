@@ -145,22 +145,40 @@ app.post("/advance", (req: Request, res: Response) => {
 
 app.post("/execute-actions", (req, res) => {
   const { gameState, actions } = req.body;
-  const newState = executeActions(gameState, actions);
-  res.json(newState);
-});
-
-app.post("/play-turn", (req, res) => {
-  const { gameState, actions } = req.body;
-
   if (!gameState || !actions) {
     return res.status(400).json({ error: "Missing gameState or actions" });
   }
 
   try {
-    const updated = playTurn(gameState, actions);
-    return res.json(updated);
+    const newState = executeActions(gameState, actions);
+    res.json(newState);
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    console.error("Execution failed", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/play-turn", (req, res) => {
+  const { gameState, actions } = req.body;
+  if (!gameState) return res.status(400).json({ error: "Missing gameState" });
+
+  try {
+    const newState = structuredClone(gameState);
+    newState.status.moonPhase += 1;
+    newState.status.turn += 1;
+
+    newState.player.garden.spaces = newState.player.garden.spaces.map((slot) => {
+      if (slot?.growth !== undefined && slot?.isDead !== true) {
+        slot.growth += 1;
+      }
+      return slot;
+    });
+
+    newState.player.actionsUsed = 0;
+    res.json(newState);
+  } catch (err: any) {
+    console.error("Turn processing failed", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
