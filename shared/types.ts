@@ -77,6 +77,8 @@ export interface GameState {
   market: Record<PotionType, { price: number; stock: number }>;
   marketEvent: { name: string; description: string } | null;
   townRequests: TownRequestCard[];
+  actionsUsed: number;
+  pendingActions: string[];
 }
 
 export interface ScoreData {
