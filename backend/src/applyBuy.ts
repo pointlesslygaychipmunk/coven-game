@@ -1,5 +1,3 @@
-// backend/actions/applyBuy.ts
-
 import type { GameState, PotionType } from "../../shared/types";
 import { canUseAction, incrementActionsUsed } from "./canUseAction";
 
@@ -9,7 +7,12 @@ export function applyBuy(gameState: GameState, type: PotionType, quantity: numbe
     return gameState;
   }
 
-  const item = gameState.market[type];
+  const item = gameState.market?.[type];
+  if (!item) {
+    gameState.player.alerts?.push(`❌ Invalid item type: ${type}`);
+    return gameState;
+  }
+
   const cost = item.price * quantity;
 
   if (item.stock < quantity) {
@@ -22,17 +25,10 @@ export function applyBuy(gameState: GameState, type: PotionType, quantity: numbe
     return gameState;
   }
 
-  // Deduct gold, add to inventory, reduce market stock
   gameState.player.gold -= cost;
   gameState.player.inventory[type] += quantity;
   gameState.market[type].stock -= quantity;
 
   gameState.player.alerts?.push(`🛒 Bought ${quantity} ${type} for ${cost} gold.`);
   return incrementActionsUsed(gameState);
-}
-
-const item = gameState.market?.[type];
-if (!item) {
-  gameState.player.alerts?.push(`❌ Invalid item type: ${type}`);
-  return gameState;
 }
