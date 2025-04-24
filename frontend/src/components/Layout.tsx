@@ -46,12 +46,12 @@ export const Layout = ({
       .catch((err) => console.error(`${path} error:`, err));
   };
 
-  const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
+  const handlePlantCrop = (crop: "mushroom" | "flower" | "herb", index: number) => {
     postUpdate("execute-actions", {
       gameState,
-      actions: [{ type: "plant", itemType, plotIndex }],
+      actions: [{ type: "plant", crop, index }],
     });
-  };
+  };  
 
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("execute-actions", {
