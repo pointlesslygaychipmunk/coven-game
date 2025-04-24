@@ -90,10 +90,11 @@ app.post("/harvest", (req: Request, res: Response) => {
 });
 
 app.post("/brew", (req: Request, res: Response) => {
-  const result = validateBrew(req.body.gameState);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid brew" });
-  res.json(result.state);
-});
+    const { gameState, potion } = req.body;
+    const result = validateBrew(gameState, potion);
+    if (!result.valid) return res.status(400).json({ error: result.error || "Invalid brew" });
+    res.json(result.state);
+  });  
 
 app.post("/fulfill", (req: Request, res: Response) => {
   const { card, gameState } = req.body;
@@ -110,18 +111,18 @@ app.post("/fell-tree", (req: Request, res: Response) => {
 });
 
 app.post("/buy", (req: Request, res: Response) => {
-  const { gameState, item } = req.body;
-  const result = validateBuy(gameState, item);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid buy" });
-  res.json(result.state);
-});
+    const { gameState, item, quantity = 1 } = req.body;
+    const result = validateBuy(gameState, item, quantity);
+    if (!result.valid) return res.status(400).json({ error: result.error || "Invalid buy" });
+    res.json(result.state);
+  });  
 
-app.post("/sell", (req: Request, res: Response) => {
-  const { gameState, item } = req.body;
-  const result = validateSell(gameState, item);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid sell" });
-  res.json(result.state);
-});
+  app.post("/sell", (req: Request, res: Response) => {
+    const { gameState, item, quantity = 1 } = req.body;
+    const result = validateSell(gameState, item, quantity);
+    if (!result.valid) return res.status(400).json({ error: result.error || "Invalid sell" });
+    res.json(result.state);
+  });  
 
 app.post("/upgrade", (req: Request, res: Response) => {
   const { gameState, upgradeId } = req.body;
