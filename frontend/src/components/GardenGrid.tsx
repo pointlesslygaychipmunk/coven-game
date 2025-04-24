@@ -4,8 +4,8 @@ import type { Player } from "../../../shared/types";
 interface GardenGridProps {
   spaces: any[];
   player: Player;
-  onPlantCrop: (type: "mushroom" | "flower" | "herb" | "fruit", index: number) => void;
-  onPlantTree: () => void;
+  onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
+  onPlantTree: (index: number) => void;
 }
 
 export const GardenGrid = ({ spaces, player, onPlantCrop, onPlantTree }: GardenGridProps) => {
@@ -15,21 +15,33 @@ export const GardenGrid = ({ spaces, player, onPlantCrop, onPlantTree }: GardenG
 
   const renderPlot = (slot: any, index: number) => {
     const isEmpty = !slot?.type;
+
     const handleClick = (type: "mushroom" | "flower" | "herb" | "fruit") => {
       if (isEmpty && canPlant(type)) {
-        onPlantCrop(type, index);
+        if (type === "fruit") {
+          onPlantTree(index);
+        } else {
+          onPlantCrop(type as "mushroom" | "flower" | "herb", index);
+        }
       }
     };
 
     return (
-      <div key={index} className="relative aspect-square rounded border border-gray-400 bg-white flex items-center justify-center shadow-sm">
+      <div
+        key={index}
+        className="relative aspect-square rounded border border-gray-400 bg-white flex items-center justify-center shadow-sm"
+      >
         {isEmpty ? (
           <div className="grid grid-cols-2 gap-1 p-1 text-xs">
             {["mushroom", "flower", "herb", "fruit"].map((type) => (
               <button
                 key={type}
                 disabled={!canPlant(type as any)}
-                className={`rounded px-1 py-0.5 ${canPlant(type as any) ? "bg-green-200 hover:bg-green-300" : "bg-gray-200 cursor-not-allowed"}`}
+                className={`rounded px-1 py-0.5 ${
+                  canPlant(type as any)
+                    ? "bg-green-200 hover:bg-green-300"
+                    : "bg-gray-200 cursor-not-allowed"
+                }`}
                 onClick={() => handleClick(type as any)}
               >
                 {type}
