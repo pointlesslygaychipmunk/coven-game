@@ -40,6 +40,11 @@ export interface PlantAction {
   export interface AdvanceAction {
     type: "advance";
   }
+
+  export interface FellAction {
+    type: "fell";
+    plotIndex: number;
+  }  
   
   // ✅ Union of all supported actions
   export type Action =
@@ -50,5 +55,5 @@ export interface PlantAction {
     | SellAction
     | UpgradeAction
     | FulfillAction
-    | AdvanceAction;
-  
+    | AdvanceAction
+    | FellAction; 

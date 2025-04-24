@@ -1,21 +1,18 @@
-import { plantCrop, plantTree } from "./gardenLogic";
 import type { GameState } from "../../shared/types";
 import type { Action } from "../../shared/actionTypes";
+import { plantCrop, plantTree, fellTree, harvestCrop } from "./gardenLogic";
+import { canUseAction, incrementActionsUsed } from "./canUseAction";
 
-export function executeActions(gameState: GameState, actions: Action[] = []): GameState {
-    let newState = { ...gameState };
-  
-    if (!Array.isArray(actions)) {
-      console.warn("Invalid actions received:", actions);
-      return newState;
+export function executeActions(gameState: GameState, actions: Action[]): GameState {
+  let newState = structuredClone(gameState);
+
+  for (const action of actions) {
+    if (!canUseAction(newState)) {
+      newState.player.alerts?.push("❌ You've already used 2 actions this moon.");
+      break;
     }
-  
-    for (const action of actions) {
-      if (!action || typeof action.type !== "string") {
-        console.warn("Skipping invalid action:", action);
-        continue;
-      }
-  
+
+    try {
       switch (action.type) {
         case "plant":
           if (action.itemType === "fruit") {
@@ -23,12 +20,26 @@ export function executeActions(gameState: GameState, actions: Action[] = []): Ga
           } else {
             newState.player = plantCrop(newState.player, action.itemType, action.plotIndex);
           }
+          newState = incrementActionsUsed(newState);
           break;
-  
+
+        case "harvest":
+          newState.player = harvestCrop(newState.player, [action.plotIndex]);
+          newState = incrementActionsUsed(newState);
+          break;
+
+        case "fell":
+          newState.player = fellTree(newState.player, action.plotIndex);
+          newState = incrementActionsUsed(newState);
+          break;
+
         default:
-          throw new Error(`Unknown action type: ${action.type}`);
+          newState.player.alerts?.push(`❌ Unknown action: ${action.type}`);
       }
+    } catch (err: any) {
+      newState.player.alerts?.push(`❌ Action failed: ${err.message}`);
     }
-  
-    return newState;
-  }  
+  }
+
+  return newState;
+}
