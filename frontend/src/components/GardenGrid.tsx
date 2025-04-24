@@ -14,83 +14,71 @@ export const GardenGrid = ({
   player,
   onPlantCrop,
   onPlantTree,
-  onHarvest,
+  onHarvest
 }: GardenGridProps) => {
-  const canPlant = (type: "mushroom" | "flower" | "herb" | "fruit") => {
-    return (player.inventory[type] ?? 0) > 0;
-  };
+  const canPlant = (type: "mushroom" | "flower" | "herb" | "fruit") =>
+    (player.inventory[type] ?? 0) > 0;
 
   const isMatureCrop = (
-    slot: any
-  ): slot is { kind: "crop"; type: "mushroom" | "flower" | "herb"; growth: number } => {
-    if (!slot || slot.kind !== "crop") return false;
-  
-    const thresholds: Record<"mushroom" | "flower" | "herb", number> = {
-      mushroom: 4,
-      flower: 3,
-      herb: 2,
-    };
-  
-    const type = slot.type as "mushroom" | "flower" | "herb"; // ✅ Assertion here
-    return slot.growth >= thresholds[type];
-  };  
+    slot: { kind: string; type: "mushroom" | "flower" | "herb"; growth: number }
+  ) => {
+    const thresholds = { mushroom: 4, flower: 3, herb: 2 };
+    return slot.growth >= thresholds[slot.type];
+  };
 
-  const getGrowthEmoji = (slot: any) => {
+  const getGrowthEmoji = (slot: any): string => {
     if (slot.kind === "crop") {
-      if (isMatureCrop(slot)) return "✂️";
+      if (slot.isDead) return "☠️";
+      if (isMatureCrop(slot)) return "🌾";
       if (slot.growth === 1) return "🌱";
       if (slot.growth === 2) return "🌿";
-      return "🌾";
+      return "🍀";
     }
     if (slot.kind === "tree") {
-      return slot.growth >= 3 ? "🌳" : "🌴";
+      return slot.growth >= 3 ? "🍎" : "🌳";
     }
     return "";
   };
 
   const renderPlot = (slot: any, index: number) => {
-    const isEmpty = !slot?.type && !slot?.kind;
+    const isEmpty = slot === null;
 
     const handleClickEmpty = (type: "mushroom" | "flower" | "herb" | "fruit") => {
-      if (type === "fruit") {
-        onPlantTree(index);
-      } else {
-        onPlantCrop(type, index);
-      }
+      if (type === "fruit") onPlantTree(index);
+      else onPlantCrop(type, index);
     };
 
     const handleClickPlanted = () => {
-      if (slot.kind === "crop") {
-        const mature = isMatureCrop(slot);
-        const confirmed = window.confirm(
-          mature
-            ? `Harvest this mature ${slot.type}?`
-            : `Remove this immature ${slot.type}? It will be lost.`
-        );
-        if (confirmed) onHarvest(index);
-      } else if (slot.kind === "tree") {
-        const confirmed = window.confirm(`Fell this tree? It will be removed permanently.`);
-        if (confirmed) onHarvest(index);
-      }
+      const confirmText =
+        slot.kind === "tree"
+          ? `Fell this tree? It will be removed permanently.`
+          : slot.isDead
+          ? `Remove this dead ${slot.type}?`
+          : isMatureCrop(slot)
+          ? `Harvest this mature ${slot.type}?`
+          : `Remove this immature ${slot.type}? It will be lost.`;
+      if (window.confirm(confirmText)) onHarvest(index);
     };
 
     return (
       <div
         key={index}
-        className="relative aspect-square rounded border border-gray-400 bg-white flex items-center justify-center shadow-sm p-1"
+        className={`aspect-square rounded border bg-white flex items-center justify-center shadow-sm
+          ${slot?.isDead ? "border-red-500 bg-gray-100 text-red-600" : "border-gray-400"}
+        `}
       >
         {isEmpty ? (
-          <div className="grid grid-cols-2 gap-1 w-full h-full">
-            {(["mushroom", "flower", "herb", "fruit"] as const).map((type) => (
+          <div className="grid grid-cols-2 gap-1 p-1 text-xs">
+            {["mushroom", "flower", "herb", "fruit"].map((type) => (
               <button
                 key={type}
-                disabled={!canPlant(type)}
-                className={`text-xs rounded font-medium transition px-1 py-0.5 ${
-                  canPlant(type)
-                    ? "bg-green-200 hover:bg-green-300 text-gray-800"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                disabled={!canPlant(type as any)}
+                className={`rounded px-1 py-0.5 ${
+                  canPlant(type as any)
+                    ? "bg-green-200 hover:bg-green-300"
+                    : "bg-gray-200 cursor-not-allowed"
                 }`}
-                onClick={() => handleClickEmpty(type)}
+                onClick={() => handleClickEmpty(type as any)}
               >
                 {type}
               </button>
@@ -98,17 +86,12 @@ export const GardenGrid = ({
           </div>
         ) : (
           <button
-            className={`w-full h-full text-sm font-semibold rounded flex flex-col justify-center items-center transition text-center p-1 ${
-              isMatureCrop(slot)
-                ? "bg-yellow-100 hover:bg-yellow-200 text-green-900"
-                : slot.kind === "tree"
-                ? "bg-lime-200 hover:bg-lime-300 text-lime-900"
-                : "bg-blue-100 hover:bg-blue-200 text-blue-800"
+            className={`text-lg font-bold transition-all duration-200 hover:scale-105 ${
+              slot.isDead ? "text-red-600" : "text-gray-700"
             }`}
             onClick={handleClickPlanted}
           >
-            <span>{slot.type}</span>
-            <span className="text-lg">{getGrowthEmoji(slot)}</span>
+            {getGrowthEmoji(slot)}
           </button>
         )}
       </div>
