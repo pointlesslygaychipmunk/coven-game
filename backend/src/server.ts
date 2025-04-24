@@ -23,9 +23,10 @@ const app = express();
 
 const corsOptions = {
   origin: [
-    "https://playcoven.com",                  // ✅ Your custom frontend domain
-    "https://coven-frontend.onrender.com",    // ✅ Optional: Render fallback domain
-    "http://localhost:5173"                   // ✅ Optional: for local dev
+    "https://playcoven.com",
+    "https://coven-frontend.onrender.com",
+    "http://localhost:5173",
+    "null",
   ],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"],
