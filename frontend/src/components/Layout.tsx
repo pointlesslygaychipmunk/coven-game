@@ -11,6 +11,8 @@ import { calculateScore } from "../../../backend/src/gameOverLogic";
 import type { GameState, PotionType } from "../../../shared/types";
 import ActionSelector from "./ActionSelector";
 
+import { API_BASE } from '../../constants';
+
 export const Layout = ({
   gameState,
   setGameState,
@@ -27,7 +29,7 @@ export const Layout = ({
   setScoreData: (val: { total: number; breakdown: any; lost: boolean }) => void;
 }) => {
   useEffect(() => {
-    fetch("https://coven-backend.onrender.com/init")
+    fetch(`${API_BASE}/init`)
       .then((res) => res.json())
       .then((data) => {
         console.log("🎮 Initial game state loaded:", data);
@@ -60,7 +62,7 @@ export const Layout = ({
 
   const postToBackend = useCallback(
     (endpoint: string, payload: any, callback?: (data: GameState) => void) => {
-      fetch(`https://coven-backend.onrender.com/${endpoint}`, {
+      fetch(`${API_BASE}/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -100,7 +102,7 @@ export const Layout = ({
   }, [gameState, postToBackend]);
 
   const handleBuy = (type: PotionType) => {
-    fetch("https://coven-backend.onrender.com/buy", {
+    fetch(`${API_BASE}/buy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ gameState, type })
