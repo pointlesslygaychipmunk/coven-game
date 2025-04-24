@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { GardenGrid } from "./GardenGrid";
 import { InventoryBox } from "./InventoryBox";
 import { UpgradeShop } from "./UpgradeShop";
@@ -7,11 +7,9 @@ import { TownRequests } from "./TownRequests";
 import type { TownRequestCard } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
-import { calculateScore } from "../../../backend/src/gameOverLogic";
-import type { GameState, PotionType } from "../../../shared/types";
-import ActionSelector from "./ActionSelector";
-
-import { API_BASE } from '../../constants';
+import { calculateScore } from "../../../shared/scoreLogic";
+import type { Player, GameStatus } from "../../../shared/types";
+import type { Action } from "../../../shared/actionTypes";
 
 export const Layout = ({
   gameState,
@@ -21,15 +19,17 @@ export const Layout = ({
   scoreData,
   setScoreData,
 }: {
-  gameState: GameState;
-  setGameState: (val: GameState) => void;
+  gameState: any;
+  setGameState: any;
   gameOver: boolean;
   setGameOver: (val: boolean) => void;
-  scoreData: { total: number; breakdown: any; lost: boolean };
-  setScoreData: (val: { total: number; breakdown: any; lost: boolean }) => void;
+  scoreData: any;
+  setScoreData: (val: any) => void;
 }) => {
+  const [actions, setActions] = useState<Action[]>([]);
+
   useEffect(() => {
-    fetch(`${API_BASE}/init`)
+    fetch("https://api.telecrypt.xyz/init")
       .then((res) => res.json())
       .then((data) => {
         console.log("🎮 Initial game state loaded:", data);
@@ -48,116 +48,52 @@ export const Layout = ({
     );
   }
 
-  {gameState.pendingActions?.length === 1 && (
-    <ActionSelector onSubmit={(actions) => {
-      fetch("/play-turn", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...gameState, pendingActions: actions })
-      })
-        .then(res => res.json())
-        .then(setGameState);
-    }} />
-  )}  
+  const handlePlant = (type: 'mushroom' | 'flower' | 'herb' | 'fruit', index: number) => {
+    setActions(prev => [...prev, { type: "plant", plotIndex: index, itemType: type }]);
+  };
 
-  const postToBackend = useCallback(
-    (endpoint: string, payload: any, callback?: (data: GameState) => void) => {
-      fetch(`${API_BASE}/${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-        .then(res => res.json())
-        .then(data => {
-          setGameState(data);
-          callback?.(data);
-        })
-        .catch(err => console.error(`${endpoint} error:`, err));
-    },
-    [setGameState]
-  );
-
-  const handlePlant = useCallback((type: 'mushroom' | 'flower' | 'herb', index: number) => {
-    postToBackend("plant", { type, index });
-  }, [gameState, postToBackend]);
-
-  const handleHarvest = useCallback(() => {
-    postToBackend("harvest", gameState);
-  }, [gameState, postToBackend]);
-
-  const handleBrew = useCallback(() => {
-    postToBackend("brew", gameState);
-  }, [gameState, postToBackend]);
-
-  const handleFulfill = useCallback((card: TownRequestCard) => {
-    postToBackend("fulfill", { card });
-  }, [gameState, postToBackend]);
-
-  const handlePlantTree = useCallback((index: number) => {
-    postToBackend("plant-tree", { plotIndex: index });
-  }, [gameState, postToBackend]);
-
-  const handleFellTree = useCallback((index: number) => {
-    postToBackend("fell-tree", { index });
-  }, [gameState, postToBackend]);
-
-  const handleBuy = (type: PotionType) => {
-    fetch(`${API_BASE}/buy`, {
+  const handleAdvanceTurn = () => {
+    fetch("https://api.telecrypt.xyz/play-turn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameState, type })
+      body: JSON.stringify({ gameState, actions })
     })
-      .then((res) => res.json())
-      .then(setGameState)
-      .catch((err) => console.error("Buy error:", err));
-  };  
-  
-  const handleSell = (type: PotionType) => {
-    postToBackend("sell", { type });
-  };  
-
-  const handleUpgrade = useCallback(() => {
-    postToBackend("upgrade", gameState);
-  }, [gameState, postToBackend]);
-
-  const handleAdvanceTurn = useCallback(() => {
-    postToBackend("advance", gameState, (data) => {
-      const result = calculateScore(data.player);
-      if (result.lost) {
-        setGameOver(true);
-        setScoreData(result);
-      }
-    });
-  }, [gameState, postToBackend, setGameOver, setScoreData]);
+      .then(res => res.json())
+      .then(data => {
+        setGameState(data);
+        setActions([]);
+        if (data.gameOver) {
+          setGameOver(true);
+          setScoreData(calculateScore(data));
+        }
+      })
+      .catch(err => console.error("Advance error:", err));
+  };
 
   return (
     <div className="p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen">
       <GameStatusBar status={gameState?.status} />
-
-      {gameState?.player?.alerts?.length ? (
-        <div className="bg-white border border-indigo-200 p-4 rounded shadow-md text-sm text-gray-800 space-y-1">
-          {gameState.player.alerts.map((alert, i) => (
-            <div key={i}>🔔 {alert}</div>
-          ))}
-        </div>
-      ) : null}
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
           <GardenGrid
             spaces={gameState.player.garden.spaces}
             onPlantCrop={handlePlant}
-            onPlantTree={handlePlantTree}
+            onPlantTree={() => {}} // no-op for now
             player={gameState.player}
           />
           <InventoryBox player={gameState.player} />
-          <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
+          <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={() => {}} />
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+          <TownRequests cards={gameState.townRequests} onFulfill={() => {}} />
           {gameState?.market && (
-            <MarketView market={gameState.market} onBuy={handleBuy} onSell={handleSell} />
+            <MarketView
+              market={gameState.market}
+              onBuy={() => {}}
+              onSell={() => {}}
+            />
           )}
         </div>
       </div>
