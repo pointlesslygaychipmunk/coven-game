@@ -69,6 +69,23 @@ export const Layout = ({
     };
   
     postUpdate("play-turn", updatedState);
+  };
+
+  const handleHarvest = (plotIndex: number) => {
+    const updatedState = {
+      ...gameState,
+      player: {
+        ...gameState.player,
+        actions: [
+          {
+            type: "harvest",
+            plotIndex
+          }
+        ]
+      }
+    };
+  
+    postUpdate("play-turn", updatedState);
   };  
 
   const handleUpgrade = (upgradeType: string) => {
@@ -139,12 +156,14 @@ export const Layout = ({
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
-          <GardenGrid
-            spaces={gameState.player.garden.spaces}
-            player={gameState.player}
-            onPlantCrop={handlePlantCrop}
-            onPlantTree={handlePlantTree}
-          />
+        <GardenGrid
+         spaces={gameState.player.garden.spaces}
+         player={gameState.player}
+         onPlantCrop={handlePlantCrop}
+         onPlantTree={handlePlantTree}
+         onHarvest={handleHarvest}
+        />
+
           <InventoryBox player={gameState.player} />
           <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
         </div>
