@@ -15,6 +15,7 @@ export function plantCrop(
   const newPlayer = structuredClone(player);
   newPlayer.inventory[cropType] -= 1;
   newPlayer.garden.spaces[plotIndex] = {
+    kind: "crop",
     type: cropType,
     growth: 1,
     isDead: false,
@@ -27,13 +28,17 @@ export function plantTree(player: Player, plotIndex: number): Player {
   if (player.garden.spaces[plotIndex] !== null)
     throw Error("Plot already occupied.");
   const newPlayer = structuredClone(player);
-  newPlayer.garden.spaces[plotIndex] = { growth: 1, isDead: false };
+  newPlayer.garden.spaces[plotIndex] = {
+    kind: "tree",
+    growth: 1,
+    isDead: false
+  };
   return newPlayer;
 }
 
 export function fellTree(player: Player, plotIndex: number): Player {
   const slot = player.garden.spaces[plotIndex];
-  if (!slot || "type" in slot) throw Error("No tree here.");
+  if (!slot || slot.kind !== "tree") throw Error("No tree here.");
   const newPlayer = structuredClone(player);
   newPlayer.garden.spaces[plotIndex] = null;
   return newPlayer;
@@ -48,10 +53,22 @@ export function harvestCrop(player: Player, indexes: number[]): Player {
   const newPlayer = structuredClone(player);
   for (const i of indexes) {
     const slot = newPlayer.garden.spaces[i];
-    if (!slot || "type" in slot === false || slot.isDead) continue;
+    if (!slot || slot.kind !== "crop" || slot.isDead) continue;
     if (slot.growth >= thresholds[slot.type]) {
       newPlayer.inventory[slot.type] += 1;
       newPlayer.garden.spaces[i] = null;
+    }
+  }
+  return newPlayer;
+}
+
+export function growGarden(player: Player): Player {
+  const newPlayer = structuredClone(player);
+  for (let i = 0; i < newPlayer.garden.spaces.length; i++) {
+    const slot = newPlayer.garden.spaces[i];
+    if (!slot) continue;
+    if (slot.kind === "crop" || slot.kind === "tree") {
+      slot.growth += 1;
     }
   }
   return newPlayer;
@@ -89,3 +106,18 @@ export function fulfillTownRequest(
   newPlayer.renown += 1;
   return newPlayer;
 }
+
+export const postUpdate = (
+  endpoint: string,
+  body: any,
+  setGameState: (val: any) => void
+) => {
+  fetch(`https://api.telecrypt.xyz/${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  })
+    .then(res => res.json())
+    .then(data => setGameState(data))
+    .catch(err => console.error(`${endpoint} error:`, err));
+};

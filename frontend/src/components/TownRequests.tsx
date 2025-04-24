@@ -32,13 +32,13 @@ export const TownRequests = ({
   onFulfill
 }: {
   cards: TownRequestCard[];
-  onFulfill: (card: TownRequestCard) => void;
+  onFulfill: (index: number) => void;
 }) => {
   return (
     <div className="p-4 bg-white/70 rounded-xl shadow space-y-2">
       <h3 className="text-lg font-bold">Town Requests</h3>
       <div className="grid grid-cols-2 gap-4">
-        {cards.map((card) => {
+      {cards.map((card, index) => {
           const { gold, renown } = slotBonuses[card.boardSlot];
 
           return (
@@ -71,7 +71,7 @@ export const TownRequests = ({
               </div>
               {!card.fulfilled && (
                 <button
-                  onClick={() => onFulfill(card)}
+                  onClick={() => onFulfill(index)}
                   className="mt-2 px-3 py-1 text-sm bg-green-200 hover:bg-green-300 rounded"
                 >
                   Fulfill

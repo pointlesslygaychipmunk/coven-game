@@ -38,66 +38,50 @@ export function advanceTurn(gameState: GameState): GameState {
   const totalModifier = seasonModifier[newSeason] * weatherModifier[newWeather];
 
   const updatedGarden: GardenSlot[] = gameState.player.garden.spaces.map((slot): GardenSlot => {
-    if (!slot || typeof slot !== 'object' || !('type' in slot)) return slot;
+    if (!slot || typeof slot !== 'object' || !('kind' in slot)) return slot;
 
-    const { type, stage, age } = slot as GardenSlotObject;
-    const growthCycles: Record<GardenSlotObject['type'], number> = {
-      mushroom: 1,
-      flower: 2,
-      herb: 3,
-      tree: 4
-    };
+    const newSlot = { ...slot };
+    newSlot.growth += totalModifier;
 
-    const isTree = type === 'tree';
-    const baseCycles = growthCycles[type];
-    const adjustedCycles = Math.ceil(baseCycles * totalModifier);
-    const newAge = age + 1;
-
-    if (isTree) {
-      if (newAge >= adjustedCycles * 3) {
-        return { type: 'tree', age: newAge, stage: 'decaying' } as GardenSlot;
-      } else if (stage === 'young' && newAge >= adjustedCycles) {
-        return { type: 'tree', age: newAge, stage: 'mature' } as GardenSlot;
-      }
-      return { type: 'tree', age: newAge, stage } as GardenSlot;
-    }
-
-    if (stage === 'young' && newAge >= adjustedCycles) {
-      return { type, age: newAge, stage: 'mature' } as GardenSlot;
-    } else if (stage === 'mature' && newAge >= adjustedCycles * 2) {
-      return { type, age: newAge, stage: 'withered' } as GardenSlot;
-    }
-
-    return { type, age: newAge, stage } as GardenSlot;
+    return newSlot;
   });
+
+  // Passive resource gain from mature trees
+  let newPlayer = structuredClone(gameState.player);
+  for (const slot of updatedGarden) {
+    if (slot && slot.kind === 'tree' && slot.growth >= 3 && !slot.isDead) {
+      newPlayer.inventory.fruit += 1;
+      newPlayer.mana += 1;
+    }
+  }
 
   // Dummy memory example — replace with actual tracking logic
   const memory = {
     purchases: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
     sales: { mushroom: 0, flower: 0, herb: 0, fruit: 0 }
   };
-  
+
   // Update market base state
   let newMarket = updateMarketAI(gameState.market, memory);
-  
+
   // Try to generate an event
   const event = generateMarketEvent(newSeason, nextPhase);
-  
+
   // Apply event if it exists
   const newMarketEvent = event
     ? { name: event.name, description: event.description }
     : null;
-  
+
   if (event) {
     newMarket = event.apply(newMarket);
-  }  
+  }
 
   return {
     ...gameState,
     player: {
-      ...gameState.player,
+      ...newPlayer,
       garden: {
-        ...gameState.player.garden,
+        ...newPlayer.garden,
         spaces: updatedGarden
       }
     },
@@ -109,5 +93,5 @@ export function advanceTurn(gameState: GameState): GameState {
       year: newYear,
       weather: newWeather
     }
-  };  
+  };
 }

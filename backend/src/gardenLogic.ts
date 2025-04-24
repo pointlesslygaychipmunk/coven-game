@@ -20,10 +20,10 @@ export function plantCrop(gameState: GameState, { plotIndex, itemType }: PlantPa
   }
 
   const newPlot: GardenSlotObject = {
-    type: itemType === "fruit" ? "herb" : itemType, // fallback typing; adapt as needed
-    age: 0,
-    stage: "young"
-  };
+    kind: "tree",
+    growth: 1,
+    isDead: false,
+  };   
 
   const newSpaces: GardenSlot[] = [...gameState.player.garden.spaces];
   newSpaces[plotIndex] = newPlot;

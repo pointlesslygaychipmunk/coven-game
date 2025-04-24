@@ -1,7 +1,24 @@
-export type PotionType = 'mushroom' | 'flower' | 'herb' | 'fruit';
+export type CropType = "mushroom" | "flower" | "herb";
+export type PotionType = CropType | "fruit";
 
-export type Crop = "mushroom" | "flower" | "herb" | "fruit";
-export type Tree = "tree";
+export interface CropSlot {
+  kind: "crop";
+  type: CropType;
+  growth: number;
+  isDead: boolean;
+}
+
+export interface TreeSlot {
+  kind: "tree";
+  growth: number;
+  isDead: boolean;
+}
+
+export type GardenSlotObject = CropSlot | TreeSlot | null;
+
+export interface Garden {
+  spaces: GardenSlotObject[]; // Length 8
+}
 
 export interface Player {
   id: string;
@@ -59,12 +76,6 @@ export type MarketState = Record<PotionType, {
 
 export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
 export type Weather = 'Sunny' | 'Rainy' | 'Foggy' | 'Stormy' | 'Cloudy';
-
-export interface GardenSlotObject {
-  type: 'mushroom' | 'flower' | 'herb' | 'tree';
-  stage: 'young' | 'mature' | 'withered' | 'decaying';
-  age: number;
-}
 
 export type GardenSlot = GardenSlotObject | null;
 
