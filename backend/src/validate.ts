@@ -5,7 +5,6 @@ import type {
   PotionType,
   GardenSlot,
   CropType,
-  GardenSlotObject,
 } from "../../shared/types";
 
 const isCropType = (val: any): val is Exclude<PotionType, "fruit"> =>

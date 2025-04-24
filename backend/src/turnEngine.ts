@@ -1,97 +1,87 @@
-import type { GameStatus, GameState, GardenSlot, GardenSlotObject, Season, Weather } from '../../shared/types';
-
+import type {
+  GameStatus,
+  GameState,
+  GardenSlot,
+  Season,
+  Weather,
+} from "../../shared/types";
 import { updateMarketAI } from "./marketLogic";
 import { generateMarketEvent } from "./marketEvents";
-import type { MarketEvent } from "./marketEvents";
 
 export function advanceTurn(gameState: GameState): GameState {
-  let { moonPhase, season, year, weather } = gameState.status;
+  const { moonPhase, season, year, weather } = gameState.status;
+
   const nextPhase = (moonPhase % 56) + 1;
+  const newYear = moonPhase === 56 ? year + 1 : year;
 
-  const seasons: Season[] = ['Spring', 'Summer', 'Autumn', 'Winter'];
-  let newSeason: Season = season;
-  if (nextPhase % 14 === 1) {
-    const nextSeasonIndex = (seasons.indexOf(season) + 1) % 4;
-    newSeason = seasons[nextSeasonIndex];
-  }
+  const seasons: Season[] = ["Spring", "Summer", "Autumn", "Winter"];
+  const nextSeasonIndex = (seasons.indexOf(season) + (nextPhase % 14 === 1 ? 1 : 0)) % 4;
+  const newSeason: Season = seasons[nextSeasonIndex];
 
-  const weatherOptions: Weather[] = ['Sunny', 'Rainy', 'Foggy', 'Stormy', 'Cloudy'];
-  const newWeather: Weather = weatherOptions[Math.floor(Math.random() * weatherOptions.length)];
-
-  const newYear = (moonPhase === 56) ? year + 1 : year;
+  const weatherOptions: Weather[] = ["Sunny", "Rainy", "Foggy", "Stormy", "Cloudy"];
+  const newWeather: Weather =
+    weatherOptions[Math.floor(Math.random() * weatherOptions.length)];
 
   const seasonModifier: Record<Season, number> = {
-    Spring: 0.8,
-    Summer: 1.0,
-    Autumn: 1.2,
-    Winter: 1.5
+    Spring: 1,
+    Summer: 1,
+    Autumn: 1,
+    Winter: 1,
   };
 
   const weatherModifier: Record<Weather, number> = {
-    Sunny: 1.0,
-    Rainy: 0.8,
-    Foggy: 1.1,
-    Stormy: 1.5,
-    Cloudy: 1.3
+    Sunny: 1,
+    Rainy: 1,
+    Foggy: 1,
+    Stormy: 1,
+    Cloudy: 1,
   };
 
-  const totalModifier = seasonModifier[newSeason] * weatherModifier[newWeather];
+  const newPlayer = structuredClone(gameState.player);
+  const newGarden = newPlayer.garden.spaces.map((slot) => {
+    if (!slot || !("kind" in slot)) return slot;
 
-  const updatedGarden: GardenSlot[] = gameState.player.garden.spaces.map((slot): GardenSlot => {
-    if (!slot || typeof slot !== 'object' || !('kind' in slot)) return slot;
+    if (!slot.isDead) {
+      slot.growth += 1;
+    }
 
-    const newSlot = { ...slot };
-    newSlot.growth += totalModifier;
+    // Passive fruit + mana generation from mature trees
+    if (slot.kind === "tree" && slot.growth >= 3 && !slot.isDead) {
+      newPlayer.inventory.fruit += 1;
+      newPlayer.mana = Math.min(newPlayer.mana + 1, 10);
+    }
 
-    return newSlot;
+    return slot;
   });
 
-  // Passive resource gain from mature trees
-  let newPlayer = structuredClone(gameState.player);
-  for (const slot of updatedGarden) {
-    if (slot && slot.kind === 'tree' && slot.growth >= 3 && !slot.isDead) {
-      newPlayer.inventory.fruit += 1;
-      newPlayer.mana += 1;
-    }
-  }
+  // Reset actionsUsed and alerts
+  newPlayer.garden.spaces = newGarden;
+  newPlayer.alerts = [];
+  const resetActionsUsed = 0;
 
-  // Dummy memory example — replace with actual tracking logic
   const memory = {
     purchases: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
-    sales: { mushroom: 0, flower: 0, herb: 0, fruit: 0 }
+    sales: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
   };
 
-  // Update market base state
   let newMarket = updateMarketAI(gameState.market, memory);
-
-  // Try to generate an event
   const event = generateMarketEvent(newSeason, nextPhase);
-
-  // Apply event if it exists
   const newMarketEvent = event
     ? { name: event.name, description: event.description }
     : null;
-
-  if (event) {
-    newMarket = event.apply(newMarket);
-  }
+  if (event) newMarket = event.apply(newMarket);
 
   return {
     ...gameState,
-    player: {
-      ...newPlayer,
-      garden: {
-        ...newPlayer.garden,
-        spaces: updatedGarden
-      }
-    },
+    player: newPlayer,
     market: newMarket,
     marketEvent: newMarketEvent,
     status: {
       moonPhase: nextPhase,
       season: newSeason,
       year: newYear,
-      weather: newWeather
-    }
+      weather: newWeather,
+    },
+    actionsUsed: resetActionsUsed,
   };
 }
