@@ -1,16 +1,28 @@
 // src/validate.ts
-import type { GameState, TownRequestCard, PotionType, GardenSlot } from "../../shared/types";
+import type {
+  GameState,
+  TownRequestCard,
+  PotionType,
+  GardenSlot,
+  CropType,
+  GardenSlotObject,
+} from "../../shared/types";
 
 const isCropType = (val: any): val is Exclude<PotionType, "fruit"> =>
   val === "mushroom" || val === "flower" || val === "herb";
 
+// 🌿 Harvest crops that are ready and not dead
 export function validateHarvest(gameState: GameState): { valid: boolean; state?: GameState; error?: string } {
-  const updatedState: GameState = JSON.parse(JSON.stringify(gameState));
-  const { spaces } = updatedState.player.garden;
+  const updatedState: GameState = structuredClone(gameState);
+  const thresholds: Record<Exclude<PotionType, "fruit">, number> = {
+    mushroom: 4,
+    flower: 3,
+    herb: 2,
+  };
 
-  spaces.forEach((item, index) => {
-    if (item && typeof item === "object" && isCropType(item.type)) {
-      updatedState.player.inventory[item.type]++;
+  updatedState.player.garden.spaces.forEach((slot, index) => {
+    if (slot && slot.kind === "crop" && !slot.isDead && slot.growth >= thresholds[slot.type]) {
+      updatedState.player.inventory[slot.type]++;
       updatedState.player.garden.spaces[index] = null;
     }
   });
@@ -18,10 +30,12 @@ export function validateHarvest(gameState: GameState): { valid: boolean; state?:
   return { valid: true, state: updatedState };
 }
 
+// 🧪 Brew potions (no validation for now)
 export function validateBrew(gameState: GameState): string | null {
   return null;
 }
 
+// 🧳 Fulfill request if enough potions
 export function validateFulfill(gameState: GameState, card: TownRequestCard): string | null {
   for (const key in card.potionNeeds) {
     const needed = card.potionNeeds[key as keyof typeof card.potionNeeds];
@@ -32,7 +46,7 @@ export function validateFulfill(gameState: GameState, card: TownRequestCard): st
   return null;
 }
 
-// 🦢 Validation for planting crops
+// 🧑‍🌾 Plant a crop in a specific empty plot
 export function validatePlantCrop(
   gameState: GameState,
   crop: Exclude<PotionType, "fruit">,
@@ -48,15 +62,16 @@ export function validatePlantCrop(
   const updated = structuredClone(gameState);
   updated.player.inventory[crop]--;
   updated.player.garden.spaces[index] = {
+    kind: "crop",
     type: crop,
-    stage: "young",
-    age: 0
+    growth: 1,
+    isDead: false,
   };
 
   return { valid: true, state: updated };
 }
 
-// 🌳 Validation for planting trees (only if there's an empty plot)
+// 🌲 Plant a tree if any space is empty
 export function validatePlantTree(
   gameState: GameState
 ): { valid: boolean; state?: GameState; error?: string } {
@@ -67,22 +82,24 @@ export function validatePlantTree(
 
   const updated = structuredClone(gameState);
   updated.player.garden.spaces[index] = {
-    type: "tree",
-    stage: "young",
-    age: 0
+    kind: "tree",
+    growth: 1,
+    isDead: false,
   };
 
   return { valid: true, state: updated };
 }
 
+// 🪓 Fell a tree from a specific index
 export function validateFellTree(gameState: GameState, index: number): GameState | string | null {
   const slot = gameState.player.garden.spaces[index];
-  if (!slot || typeof slot !== "object" || slot.type !== "tree") return "No tree here.";
+  if (!slot || slot.kind !== "tree") return "No tree here.";
   const updated = structuredClone(gameState);
   updated.player.garden.spaces[index] = null;
   return updated;
 }
 
+// 🛍️ Placeholder stubs for future logic
 export function validateBuy(gameState: GameState): string | null {
   return null;
 }
