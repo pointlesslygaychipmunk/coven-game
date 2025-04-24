@@ -22,17 +22,11 @@ import { applyBuy } from "./applyBuy";
 const app = express();
 
 const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowed = [
-      "https://coven-frontend.onrender.com",
-      "null",
-    ];
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: [
+    "https://playcoven.com",                  // ✅ Your custom frontend domain
+    "https://coven-frontend.onrender.com",    // ✅ Optional: Render fallback domain
+    "http://localhost:5173"                   // ✅ Optional: for local dev
+  ],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"],
   credentials: true,
