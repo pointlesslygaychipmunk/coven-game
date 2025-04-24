@@ -16,10 +16,17 @@ export interface TreeSlot {
   isDead: boolean;
 }
 
-export type GardenSlot = CropSlot | TreeSlot;
+export type GardenSlot = CropSlot | TreeSlot | null;
 
 export interface Garden {
-  spaces: (GardenSlot | null)[]; // Fixed length 8
+  spaces: GardenSlot[]; // Fixed-size array of 8 elements
+}
+
+export interface Upgrades {
+  well: number;
+  cellar: number;
+  cart: number;
+  cauldron: number;
 }
 
 export interface Player {
@@ -32,13 +39,12 @@ export interface Player {
   mana: number;
   inventory: Record<PotionType, number>;
   potions: Record<PotionType, number>;
-  upgrades: {
-    well: number;
-    cellar: number;
-    cart: number;
-    cauldron: number;
-  };
+  upgrades: Upgrades;
   garden: Garden;
+  actionsUsed: number;
+  blackMarketUnlocked: boolean;
+  blackMarketInventory: Record<PotionType, { stock: number; price: number }>;
+  lastBlackMarketVisit?: number;
 }
 
 export type Season = "Spring" | "Summer" | "Autumn" | "Winter";
@@ -58,7 +64,10 @@ export interface TownRequestCard {
   count: number;
   boardSlot: 1 | 2 | 3 | 4;
   craftPoints: number;
-  reward: { gold: number; renown: number };
+  reward: {
+    gold: number;
+    renown: number;
+  };
   fulfilled: boolean;
 }
 
@@ -67,21 +76,19 @@ export interface GameState {
   status: GameStatus;
   market: Record<PotionType, { price: number; stock: number }>;
   marketEvent: { name: string; description: string } | null;
-  pendingActions: PlayerAction[];
-  actionsUsed: number;
   townRequests: TownRequestCard[];
 }
-
-export type MarketState = Record<PotionType, {
-  stock: number;
-  price: number;
-}>;
 
 export interface ScoreData {
   total: number;
   breakdown: Record<string, number>;
   lost: boolean;
 }
+
+export type MarketState = Record<PotionType, {
+  price: number;
+  stock: number;
+}>;
 
 export type PlayerAction =
   | "plant"
@@ -97,7 +104,6 @@ export type PlayerAction =
   | "water";
 
 export const ACTION_LABELS: Record<PlayerAction, string> = {
-  water: "💧 Water",
   plant: "🌱 Plant",
   harvest: "🌾 Harvest",
   brew: "🧪 Brew",
@@ -107,5 +113,6 @@ export const ACTION_LABELS: Record<PlayerAction, string> = {
   fulfill: "📦 Fulfill Request",
   forage: "🌲 Forage",
   fortune: "🔮 Tell Fortune",
-  lady: "🌕 Consult a Lady"
+  lady: "🌕 Consult a Lady",
+  water: "💧 Water"
 };

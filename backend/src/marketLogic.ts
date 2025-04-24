@@ -1,10 +1,9 @@
-// backend/marketLogic.ts
-
 import type { MarketState, PotionType } from "../../shared/types";
 
 export interface MarketMemory {
   purchases: Record<PotionType, number>;
   sales: Record<PotionType, number>;
+  trends?: Record<PotionType, number[]>; // NEW: store last few prices
 }
 
 export function updateMarketAI(
@@ -21,31 +20,39 @@ export function updateMarketAI(
     // --- Stock Adjustment ---
     let stockChange = 0;
     if (item.stock < 3) {
-      stockChange += Math.random() < 0.75 ? 2 : 1; // restock rare items more aggressively
+      stockChange += Math.random() < 0.75 ? 2 : 1;
     } else {
-      stockChange += Math.random() < 0.5 ? 0 : 1; // mild regen
+      stockChange += Math.random() < 0.5 ? 0 : 1;
     }
 
-    // --- Player Influence ---
-    stockChange -= Math.floor(bought * 0.5); // buying reduces stock more
-    stockChange += Math.floor(sold * 0.25); // selling softens scarcity
+    stockChange -= Math.floor(bought * 0.5);
+    stockChange += Math.floor(sold * 0.25);
 
     const newStock = Math.max(0, Math.min(10, item.stock + stockChange));
 
-    // --- Price Calculation ---
+    // --- Trend-Informed Price ---
     const scarcity = 5 - newStock;
     const demandBoost = Math.floor(bought * 0.3);
     const supplyDiscount = Math.floor(sold * 0.2);
 
     const basePrice = 3;
-    const newPrice = Math.max(
+    let newPrice = Math.max(
       1,
       basePrice + scarcity + demandBoost - supplyDiscount
     );
 
+    // Optional smoothing using trend history
+    if (memory.trends?.[type]) {
+      const history = memory.trends[type];
+      history.push(newPrice);
+      if (history.length > 4) history.shift();
+      const avg = history.reduce((a, b) => a + b, 0) / history.length;
+      newPrice = Math.round((newPrice + avg) / 2); // mild smoothing
+    }
+
     updated[type] = {
       stock: newStock,
-      price: newPrice,
+      price: newPrice
     };
   }
 

@@ -1,127 +1,119 @@
-import { Player, TownRequestCard } from "../../shared/types";
+// backend/gardenLogic.ts
 
-export function plantCrop(
-  player: Player,
-  cropType: "mushroom" | "flower" | "herb",
-  plotIndex: number
-): Player {
-  if (plotIndex < 0 || plotIndex >= 8) throw Error("Invalid garden index.");
-  if (player.garden.spaces[plotIndex] !== null)
-    throw Error(`Plot ${plotIndex} is already occupied.`);
-  if (player.inventory[cropType] < 1) throw Error("Not enough crops.");
-  const waterLimit = player.upgrades.well * 2;
-  if (waterLimit < 1) throw Error("Not enough water in your well.");
+import type { Player, PotionType, CropType } from "../../shared/types";
 
-  const newPlayer = structuredClone(player);
-  newPlayer.inventory[cropType] -= 1;
-  newPlayer.garden.spaces[plotIndex] = {
+const cropThresholds: Record<CropType, number> = {
+  mushroom: 4,
+  flower: 3,
+  herb: 2,
+};
+
+export function plantCrop(player: Player, type: CropType, index: number): Player {
+  const updated = structuredClone(player);
+
+  if (updated.garden.spaces[index] !== null) {
+    updated.alerts.push("❌ That plot is already occupied.");
+    return updated;
+  }
+
+  if (updated.inventory[type] <= 0) {
+    updated.alerts.push(`❌ No ${type} left in your inventory.`);
+    return updated;
+  }
+
+  updated.inventory[type]--;
+  updated.garden.spaces[index] = {
     kind: "crop",
-    type: cropType,
+    type,
     growth: 1,
     isDead: false,
   };
-  return newPlayer;
+
+  updated.alerts.push(`🌱 Planted a ${type}.`);
+  return updated;
 }
 
-export function plantTree(player: Player, plotIndex: number): Player {
-  if (plotIndex < 0 || plotIndex >= 8) throw Error("Invalid plot.");
-  if (player.garden.spaces[plotIndex] !== null)
-    throw Error("Plot already occupied.");
-  const newPlayer = structuredClone(player);
-  newPlayer.garden.spaces[plotIndex] = {
+export function plantTree(player: Player, index: number): Player {
+  const updated = structuredClone(player);
+
+  if (updated.garden.spaces[index] !== null) {
+    updated.alerts.push("❌ That plot is already occupied.");
+    return updated;
+  }
+
+  if (updated.inventory.fruit <= 0) {
+    updated.alerts.push("❌ No fruit left to plant a tree.");
+    return updated;
+  }
+
+  updated.inventory.fruit--;
+  updated.garden.spaces[index] = {
     kind: "tree",
     growth: 1,
-    isDead: false
+    isDead: false,
   };
-  return newPlayer;
+
+  updated.alerts.push("🌳 Planted a tree.");
+  return updated;
 }
 
-export function fellTree(player: Player, plotIndex: number): Player {
-  const slot = player.garden.spaces[plotIndex];
-  if (!slot || slot.kind !== "tree") throw Error("No tree here.");
-  const newPlayer = structuredClone(player);
-  newPlayer.garden.spaces[plotIndex] = null;
-  return newPlayer;
-}
+export function harvestCrop(player: Player, index: number): Player {
+  const updated = structuredClone(player);
+  const slot = updated.garden.spaces[index];
 
-export function harvestCrop(player: Player, indexes: number[]): Player {
-  const thresholds: Record<"mushroom" | "flower" | "herb", number> = {
-    mushroom: 4,
-    flower: 3,
-    herb: 2,
-  };
-  const newPlayer = structuredClone(player);
-  for (const i of indexes) {
-    const slot = newPlayer.garden.spaces[i];
-    if (!slot || slot.kind !== "crop" || slot.isDead) continue;
-    if (slot.growth >= thresholds[slot.type]) {
-      newPlayer.inventory[slot.type] += 1;
-      newPlayer.garden.spaces[i] = null;
-    }
+  if (!slot || slot.kind !== "crop") {
+    updated.alerts.push("❌ Nothing to harvest.");
+    return updated;
   }
-  return newPlayer;
-}
 
-export function growGarden(player: Player): Player {
-  const newPlayer = structuredClone(player);
-  for (let i = 0; i < newPlayer.garden.spaces.length; i++) {
-    const slot = newPlayer.garden.spaces[i];
-    if (!slot) continue;
-    if (slot.kind === "crop" || slot.kind === "tree") {
-      slot.growth += 1;
-    }
-    if (slot.kind === "tree" && slot.growth >= 3) {
-      newPlayer.inventory.fruit += 1;
-      newPlayer.mana = Math.min(newPlayer.mana + 1, 10);
-    }
+  if (slot.isDead || slot.growth < cropThresholds[slot.type]) {
+    updated.alerts.push(`🌾 Removed immature or dead ${slot.type}.`);
+  } else {
+    updated.alerts.push(`🌾 Harvested a mature ${slot.type}.`);
+    updated.inventory[slot.type]++;
   }
-  return newPlayer;
+
+  updated.garden.spaces[index] = null;
+  return updated;
 }
 
-export function brewPotions(
-  player: Player,
-  potionMap: Record<"mushroom" | "flower" | "herb" | "fruit", number>
-): Player {
-  const newPlayer = structuredClone(player);
-  for (const key in potionMap) {
-    const k = key as keyof typeof potionMap;
-    if (newPlayer.inventory[k] < potionMap[k])
-      throw Error(`Not enough ${k}s`);
-    newPlayer.inventory[k] -= potionMap[k];
-    newPlayer.potions[k] += potionMap[k];
+export function fellTree(player: Player, index: number): Player {
+  const updated = structuredClone(player);
+  const slot = updated.garden.spaces[index];
+
+  if (!slot || slot.kind !== "tree") {
+    updated.alerts.push("❌ No tree to fell here.");
+    return updated;
   }
-  newPlayer.mana = Math.max(newPlayer.mana - 1, 0);
-  return newPlayer;
+
+  updated.alerts.push("🪓 Felled a tree.");
+  updated.garden.spaces[index] = null;
+  return updated;
 }
 
-export function fulfillTownRequest(
-  player: Player,
-  card: TownRequestCard
-): Player {
-  const needs = card.potionNeeds;
-  const newPlayer = structuredClone(player);
-  for (const key in needs) {
-    const k = key as keyof typeof needs;
-    if (newPlayer.potions[k] < needs[k])
-      throw Error(`Missing ${k} potions`);
-    newPlayer.potions[k] -= needs[k];
+export function waterCrop(player: Player, index: number): Player {
+  const updated = structuredClone(player);
+  const slot = updated.garden.spaces[index];
+
+  if (!slot || slot.kind !== "crop") {
+    updated.alerts.push("❌ You can only water crops.");
+    return updated;
   }
-  newPlayer.gold += 2 + card.craftPoints;
-  newPlayer.renown += 1;
-  return newPlayer;
-}
 
-export const postUpdate = (
-  endpoint: string,
-  body: any,
-  setGameState: (val: any) => void
-) => {
-  fetch(`https://api.telecrypt.xyz/${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  })
-    .then(res => res.json())
-    .then(data => setGameState(data))
-    .catch(err => console.error(`${endpoint} error:`, err));
-};
+  if (updated.upgrades.well <= 0) {
+    updated.alerts.push("💧 You need to build a well to water crops.");
+    return updated;
+  }
+
+  const waterAvailable = updated.upgrades.well * 2;
+  if (updated.wateringUsed >= waterAvailable) {
+    updated.alerts.push("💧 You've used all your water this moon.");
+    return updated;
+  }
+
+  slot.growth += 1;
+  updated.wateringUsed = (updated.wateringUsed ?? 0) + 1;
+
+  updated.alerts.push(`💧 Watered your ${slot.type}.`);
+  return updated;
+}

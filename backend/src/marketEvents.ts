@@ -11,7 +11,7 @@ const allEvents: MarketEvent[] = [
     name: "Full Moon Surge",
     description: "Herbs surge in mystical potency. Prices soar!",
     apply: (market) => {
-      const updated = structuredClone(market);
+      const updated = { ...market };
       updated.herb.price += 2;
       return updated;
     }
@@ -20,30 +20,10 @@ const allEvents: MarketEvent[] = [
     name: "Drought",
     description: "Supplies are tight. Crops fail to flourish.",
     apply: (market) => {
-      const updated = structuredClone(market);
-      (Object.keys(updated) as PotionType[]).forEach(type => {
+      const updated = { ...market };
+      for (const type of Object.keys(updated) as PotionType[]) {
         updated[type].stock = Math.max(0, updated[type].stock - 2);
-      });
-      return updated;
-    }
-  },
-  {
-    name: "Abundant Bloom",
-    description: "Flowers burst across the land. Stocks overflow.",
-    apply: (market) => {
-      const updated = structuredClone(market);
-      updated.flower.stock = Math.min(10, updated.flower.stock + 3);
-      return updated;
-    }
-  },
-  {
-    name: "Cauldron Fever",
-    description: "Potion demand spikes. Prices rise for all.",
-    apply: (market) => {
-      const updated = structuredClone(market);
-      (Object.keys(updated) as PotionType[]).forEach(type => {
-        updated[type].price += 1;
-      });
+      }
       return updated;
     }
   },
@@ -51,27 +31,24 @@ const allEvents: MarketEvent[] = [
     name: "Black Market Boom",
     description: "Secret deals abound. Prices shift wildly.",
     apply: (market) => {
-      const updated = structuredClone(market);
-      (Object.keys(updated) as PotionType[]).forEach(type => {
+      const updated = { ...market };
+      for (const type of Object.keys(updated) as PotionType[]) {
         updated[type].price = Math.max(1, Math.floor(updated[type].price * 0.5));
         updated[type].stock = Math.min(10, updated[type].stock + 2);
-      });
+      }
       return updated;
     }
   }
 ];
 
 export function generateMarketEvent(season: Season, moonPhase: number): MarketEvent | null {
-  const phaseModifier = moonPhase % 14 === 0 ? 0.15 : 0; // Full moon
+  const phaseModifier = moonPhase % 14 === 0 ? 0.15 : 0;
   let baseChance = 0.25;
-
   if (season === "Winter") baseChance += 0.1;
-  else if (season === "Spring") baseChance -= 0.05;
+  if (season === "Spring") baseChance -= 0.05;
 
   const roll = Math.random();
-  // console.log(`Market Event Roll: ${roll.toFixed(2)} (Threshold: ${(baseChance + phaseModifier).toFixed(2)})`);
-
-  if (roll >= baseChance + phaseModifier) return null;
+  if (roll > baseChance + phaseModifier) return null;
 
   const index = Math.floor(Math.random() * allEvents.length);
   return allEvents[index];

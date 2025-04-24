@@ -1,87 +1,90 @@
-import type {
-  GameStatus,
-  GameState,
-  GardenSlot,
-  Season,
-  Weather,
-} from "../../shared/types";
+// backend/turnEngine.ts
+
+import type { GameState, Season, Weather, GardenSlot } from "../../shared/types";
 import { updateMarketAI } from "./marketLogic";
 import { generateMarketEvent } from "./marketEvents";
 
+const SEASON_ORDER: Season[] = ["Spring", "Summer", "Autumn", "Winter"];
+const WEATHER_OPTIONS: Weather[] = ["Sunny", "Rainy", "Foggy", "Stormy", "Cloudy"];
+
 export function advanceTurn(gameState: GameState): GameState {
-  const { moonPhase, season, year, weather } = gameState.status;
+  const updated = structuredClone(gameState);
 
-  const nextPhase = (moonPhase % 56) + 1;
-  const newYear = moonPhase === 56 ? year + 1 : year;
+  // 🌙 Moon and Season
+  const nextMoon = (updated.status.moonPhase % 56) + 1;
+  const newYear = nextMoon === 1 ? updated.status.year + 1 : updated.status.year;
 
-  const seasons: Season[] = ["Spring", "Summer", "Autumn", "Winter"];
-  const nextSeasonIndex = (seasons.indexOf(season) + (nextPhase % 14 === 1 ? 1 : 0)) % 4;
-  const newSeason: Season = seasons[nextSeasonIndex];
+  const newSeason =
+    nextMoon % 14 === 1
+      ? SEASON_ORDER[(SEASON_ORDER.indexOf(updated.status.season) + 1) % 4]
+      : updated.status.season;
 
-  const weatherOptions: Weather[] = ["Sunny", "Rainy", "Foggy", "Stormy", "Cloudy"];
-  const newWeather: Weather =
-    weatherOptions[Math.floor(Math.random() * weatherOptions.length)];
+  const newWeather = WEATHER_OPTIONS[Math.floor(Math.random() * WEATHER_OPTIONS.length)];
 
-  const seasonModifier: Record<Season, number> = {
-    Spring: 1,
-    Summer: 1,
-    Autumn: 1,
-    Winter: 1,
-  };
+  // 📈 Growth and Decay
+  const fullMoon = nextMoon % 14 === 0;
+  const decayWeather = ["Stormy", "Foggy"];
+  let treeFruitGained = 0;
+  let treeManaGained = 0;
+  const newGarden: GardenSlot[] = updated.player.garden.spaces.map((slot) => {
+    if (!slot) return null;
 
-  const weatherModifier: Record<Weather, number> = {
-    Sunny: 1,
-    Rainy: 1,
-    Foggy: 1,
-    Stormy: 1,
-    Cloudy: 1,
-  };
+    if (slot.isDead) return slot;
 
-  const newPlayer = structuredClone(gameState.player);
-  const newGarden = newPlayer.garden.spaces.map((slot) => {
-    if (!slot || !("kind" in slot)) return slot;
+    slot.growth += 1;
 
-    if (!slot.isDead) {
-      slot.growth += 1;
+    if (slot.kind === "tree" && slot.growth >= 3) {
+      updated.player.inventory.fruit += 1;
+      updated.player.mana += 1;
+      treeFruitGained++;
+      treeManaGained++;
     }
 
-    // Passive fruit + mana generation from mature trees
-    if (slot.kind === "tree" && slot.growth >= 3 && !slot.isDead) {
-      newPlayer.inventory.fruit += 1;
-      newPlayer.mana = Math.min(newPlayer.mana + 1, 10);
+    if (decayWeather.includes(newWeather)) {
+      const chance = Math.random();
+      if (chance < 0.1) {
+        slot.isDead = true;
+      }
     }
 
     return slot;
   });
 
-  // Reset actionsUsed and alerts
-  newPlayer.garden.spaces = newGarden;
-  newPlayer.alerts = [];
-  const resetActionsUsed = 0;
-
+  // 🧠 Market logic (placeholder memory — replace later)
   const memory = {
     purchases: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
     sales: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
   };
+  let newMarket = updateMarketAI(updated.market, memory);
 
-  let newMarket = updateMarketAI(gameState.market, memory);
-  const event = generateMarketEvent(newSeason, nextPhase);
-  const newMarketEvent = event
-    ? { name: event.name, description: event.description }
-    : null;
+  const event = generateMarketEvent(newSeason, nextMoon);
+  const newMarketEvent = event ? { name: event.name, description: event.description } : null;
   if (event) newMarket = event.apply(newMarket);
 
+  // 🧾 Alerts
+  const alerts = [`🌙 The moon advances to phase ${nextMoon}.`];
+  if (treeFruitGained) alerts.push(`🍎 ${treeFruitGained} fruit dropped from trees.`);
+  if (treeManaGained) alerts.push(`✨ ${treeManaGained} mana harvested from trees.`);
+  if (decayWeather.includes(newWeather)) alerts.push("💀 A foul weather risks killing your crops...");
+
+  updated.player.alerts = [...(updated.player.alerts || []), ...alerts];
+
   return {
-    ...gameState,
-    player: newPlayer,
-    market: newMarket,
-    marketEvent: newMarketEvent,
+    ...updated,
     status: {
-      moonPhase: nextPhase,
-      season: newSeason,
       year: newYear,
+      season: newSeason,
+      moonPhase: nextMoon,
       weather: newWeather,
     },
-    actionsUsed: resetActionsUsed,
+    market: newMarket,
+    marketEvent: newMarketEvent,
+    player: {
+      ...updated.player,
+      garden: {
+        ...updated.player.garden,
+        spaces: newGarden,
+      },
+    },
   };
 }

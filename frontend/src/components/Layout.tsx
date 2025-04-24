@@ -1,3 +1,4 @@
+// frontend/src/components/Layout.tsx
 import React, { useEffect } from "react";
 import { GardenGrid } from "./GardenGrid";
 import { InventoryBox } from "./InventoryBox";
@@ -6,7 +7,7 @@ import { GameStatusBar } from "./GameStatusBar";
 import { TownRequests } from "./TownRequests";
 import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
-import { calculateScore } from "../../../shared/scoreLogic";
+import { Journal } from "./Journal";
 import type { GameState } from "../../../shared/types";
 
 export const Layout = ({
@@ -51,23 +52,23 @@ export const Layout = ({
       actions: [{ type: "plant", itemType, plotIndex }],
     });
   };
-  
+
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("execute-actions", {
       gameState,
       actions: [{ type: "plant", itemType: "fruit", plotIndex }],
     });
   };
-  
+
   const handleHarvest = (plotIndex: number) => {
     postUpdate("execute-actions", {
       gameState,
       actions: [{ type: "harvest", plotIndex }],
     });
-  };  
+  };
 
-  const handleUpgrade = (upgradeType: string) => {
-    postUpdate("upgrade", { upgradeType, gameState });
+  const handleUpgrade = (upgradeId: string) => {
+    postUpdate("upgrade", { gameState, upgradeId });
   };
 
   const handleFulfill = (index: number) => {
@@ -82,11 +83,11 @@ export const Layout = ({
   };
 
   const handleBuy = (itemType: string) => {
-    postUpdate("buy", { itemType, gameState });
+    postUpdate("buy", { gameState, item: itemType, quantity: 1 });
   };
 
   const handleSell = (itemType: string) => {
-    postUpdate("sell", { itemType, gameState });
+    postUpdate("sell", { gameState, item: itemType, quantity: 1 });
   };
 
   const handleAdvanceTurn = () => {
@@ -147,6 +148,8 @@ export const Layout = ({
           🌙 End Turn / Advance Moon
         </button>
       </div>
+
+      {gameState?.player?.alerts && <Journal alerts={gameState.player.alerts} />}
     </div>
   );
 };
