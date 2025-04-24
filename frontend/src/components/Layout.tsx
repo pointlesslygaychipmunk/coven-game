@@ -36,9 +36,23 @@ export const Layout = ({
       .catch((err) => console.error("Initial load error:", err));
   }, []);
 
-  const handlePlantCrop = (type: 'mushroom' | 'flower' | 'herb' | 'fruit', index: number) => {
-    postUpdate("plant", { type, index, gameState });
-  };
+  const handlePlantCrop = (itemType: 'mushroom' | 'flower' | 'herb' | 'fruit', plotIndex: number) => {
+    postUpdate("play-turn", {
+      gameState: {
+        ...gameState,
+        player: {
+          ...gameState.player,
+          actions: [
+            {
+              type: "plant",
+              itemType,
+              plotIndex
+            }
+          ]
+        }
+      }
+    });
+  };  
 
   const handleUpgrade = (upgradeType: string) => {
     postUpdate("upgrade", { upgradeType, gameState });
