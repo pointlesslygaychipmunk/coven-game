@@ -9,7 +9,6 @@ import { MarketView } from "./MarketView";
 import { GameOver } from "./GameOver";
 import { calculateScore } from "../../../shared/scoreLogic";
 import type { Player, GameStatus, GameState } from "../../../shared/types";
-import { postUpdate } from "../utils";
 
 export const Layout = ({
   gameState,
@@ -36,23 +35,28 @@ export const Layout = ({
       .catch((err) => console.error("Initial load error:", err));
   }, []);
 
-  const handlePlantCrop = (itemType: 'mushroom' | 'flower' | 'herb' | 'fruit', plotIndex: number) => {
-    postUpdate("play-turn", {
-      gameState: {
-        ...gameState,
-        player: {
-          ...gameState.player,
-          actions: [
-            {
-              type: "plant",
-              itemType,
-              plotIndex
-            }
-          ]
-        }
+  // ✅ Correctly formats and sends single-plant actions via full gameState
+  const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
+    const updatedState = {
+      ...gameState,
+      player: {
+        ...gameState.player,
+        actions: [{ type: "plant", itemType, plotIndex }]
       }
-    });
-  };  
+    };
+    postUpdate("play-turn", updatedState);
+  };
+
+  const handlePlantTree = (plotIndex: number) => {
+    const updatedState = {
+      ...gameState,
+      player: {
+        ...gameState.player,
+        actions: [{ type: "plant", itemType: "fruit", plotIndex }]
+      }
+    };
+    postUpdate("play-turn", updatedState);
+  };
 
   const handleUpgrade = (upgradeType: string) => {
     postUpdate("upgrade", { upgradeType, gameState });
@@ -67,7 +71,7 @@ export const Layout = ({
       .then(res => res.json())
       .then(data => setGameState(data))
       .catch(err => console.error("Fulfill error:", err));
-  };  
+  };
 
   const handleBuy = (itemType: string) => {
     postUpdate("buy", { itemType, gameState });
@@ -104,7 +108,7 @@ export const Layout = ({
       .then(res => res.json())
       .then(data => setGameState(data))
       .catch(err => console.error(`${path} error:`, err));
-  };  
+  };
 
   if (gameOver && scoreData) {
     return (
@@ -126,7 +130,7 @@ export const Layout = ({
             spaces={gameState.player.garden.spaces}
             player={gameState.player}
             onPlantCrop={handlePlantCrop}
-            onPlantTree={() => {}} // Placeholder
+            onPlantTree={handlePlantTree}
           />
           <InventoryBox player={gameState.player} />
           <UpgradeShop upgrades={gameState.player.upgrades} onUpgrade={handleUpgrade} />
@@ -136,10 +140,10 @@ export const Layout = ({
           <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
           {gameState?.market && (
             <MarketView
-            market={gameState.market}
-            onBuy={handleBuy}
-            onSell={handleSell}
-          />          
+              market={gameState.market}
+              onBuy={handleBuy}
+              onSell={handleSell}
+            />
           )}
         </div>
       </div>
