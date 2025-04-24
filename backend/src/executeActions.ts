@@ -6,6 +6,7 @@ import { harvestCrop } from "./gardenLogic";
 import { fellTree } from "./gardenLogic";
 import { incrementActionsUsed } from "./canUseAction";
 import { plantTree } from "./gardenLogic";
+import type { GardenSlot } from "../../shared/types";
 
 export function executeActions(gameState: GameState, actions: Action[]): GameState {
     let newState = structuredClone(gameState);

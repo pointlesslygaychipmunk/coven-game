@@ -19,6 +19,7 @@ import { playTurn } from "./playController";
 import type { GameState } from "../../shared/types";
 import { applyBuy } from "./applyBuy";
 import { executeActions } from "./executeActions";
+import type { GardenSlot } from "../../shared/types";
 
 const app = express();
 
@@ -167,8 +168,8 @@ app.post("/play-turn", (req, res) => {
     newState.status.moonPhase += 1;
     newState.status.turn += 1;
 
-    newState.player.garden.spaces = newState.player.garden.spaces.map((slot) => {
-      if (slot?.growth !== undefined && slot?.isDead !== true) {
+    newState.player.garden.spaces = newState.player.garden.spaces.map((slot: GardenSlot | null) => {
+      if (slot?.growth !== undefined && slot.isDead !== true) {
         slot.growth += 1;
       }
       return slot;
