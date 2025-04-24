@@ -1,13 +1,15 @@
-import { Player, TownRequestCard } from "../../shared/types";
+// utils.ts
 
+import type { Player, TownRequestCard, PotionType } from "../../shared/types";
+
+/** 🪴 PLANT CROP */
 export function plantCrop(
   player: Player,
-  cropType: "mushroom" | "flower" | "herb",
+  cropType: Exclude<PotionType, "fruit">,
   plotIndex: number
 ): Player {
   if (plotIndex < 0 || plotIndex >= 8) throw Error("Invalid garden index.");
-  if (player.garden.spaces[plotIndex] !== null)
-    throw Error(`Plot ${plotIndex} is already occupied.`);
+  if (player.garden.spaces[plotIndex] !== null) throw Error(`Plot ${plotIndex} is already occupied.`);
   if (player.inventory[cropType] < 1) throw Error("Not enough crops.");
   const waterLimit = player.upgrades.well * 2;
   if (waterLimit < 1) throw Error("Not enough water in your well.");
@@ -23,10 +25,11 @@ export function plantCrop(
   return newPlayer;
 }
 
+/** 🌳 PLANT TREE */
 export function plantTree(player: Player, plotIndex: number): Player {
   if (plotIndex < 0 || plotIndex >= 8) throw Error("Invalid plot.");
-  if (player.garden.spaces[plotIndex] !== null)
-    throw Error("Plot already occupied.");
+  if (player.garden.spaces[plotIndex] !== null) throw Error("Plot already occupied.");
+
   const newPlayer = structuredClone(player);
   newPlayer.garden.spaces[plotIndex] = {
     kind: "tree",
@@ -36,20 +39,24 @@ export function plantTree(player: Player, plotIndex: number): Player {
   return newPlayer;
 }
 
+/** 🪓 FELL TREE */
 export function fellTree(player: Player, plotIndex: number): Player {
   const slot = player.garden.spaces[plotIndex];
   if (!slot || slot.kind !== "tree") throw Error("No tree here.");
+
   const newPlayer = structuredClone(player);
   newPlayer.garden.spaces[plotIndex] = null;
   return newPlayer;
 }
 
+/** 🌾 HARVEST CROP */
 export function harvestCrop(player: Player, indexes: number[]): Player {
-  const thresholds: Record<"mushroom" | "flower" | "herb", number> = {
+  const thresholds: Record<Exclude<PotionType, "fruit">, number> = {
     mushroom: 4,
     flower: 3,
     herb: 2,
   };
+
   const newPlayer = structuredClone(player);
   for (const i of indexes) {
     const slot = newPlayer.garden.spaces[i];
@@ -62,6 +69,7 @@ export function harvestCrop(player: Player, indexes: number[]): Player {
   return newPlayer;
 }
 
+/** 🌙 GROW GARDEN */
 export function growGarden(player: Player): Player {
   const newPlayer = structuredClone(player);
   for (let i = 0; i < newPlayer.garden.spaces.length; i++) {
@@ -74,50 +82,56 @@ export function growGarden(player: Player): Player {
   return newPlayer;
 }
 
+/** 🧪 BREW POTIONS */
 export function brewPotions(
   player: Player,
-  potionMap: Record<"mushroom" | "flower" | "herb" | "fruit", number>
+  potionMap: Record<PotionType, number>
 ): Player {
   const newPlayer = structuredClone(player);
   for (const key in potionMap) {
-    const k = key as keyof typeof potionMap;
-    if (newPlayer.inventory[k] < potionMap[k])
-      throw Error(`Not enough ${k}s`);
-    newPlayer.inventory[k] -= potionMap[k];
-    newPlayer.potions[k] += potionMap[k];
+    const k = key as PotionType;
+    const required = potionMap[k];
+    if (newPlayer.inventory[k] < required) throw Error(`Not enough ${k}s`);
+    newPlayer.inventory[k] -= required;
+    newPlayer.potions[k] += required;
   }
   newPlayer.mana = Math.max(newPlayer.mana - 1, 0);
   return newPlayer;
 }
 
+/** 📦 FULFILL TOWN REQUEST */
 export function fulfillTownRequest(
   player: Player,
   card: TownRequestCard
 ): Player {
-  const needs = card.potionNeeds;
   const newPlayer = structuredClone(player);
-  for (const key in needs) {
-    const k = key as keyof typeof needs;
-    if (newPlayer.potions[k] < needs[k])
-      throw Error(`Missing ${k} potions`);
-    newPlayer.potions[k] -= needs[k];
+  for (const k in card.potionNeeds) {
+    const key = k as PotionType;
+    if (newPlayer.potions[key] < card.potionNeeds[key]) {
+      throw Error(`Missing ${key} potions`);
+    }
+    newPlayer.potions[key] -= card.potionNeeds[key];
   }
-  newPlayer.gold += 2 + card.craftPoints;
-  newPlayer.renown += 1;
+  newPlayer.gold += card.reward.gold;
+  newPlayer.renown += card.reward.renown;
   return newPlayer;
 }
 
-export const postUpdate = (
+/** 🌐 POST UPDATE TO BACKEND */
+export const postUpdate = async (
   endpoint: string,
   body: any,
-  setGameState: (val: any) => void
+  setGameState: (state: any) => void
 ) => {
-  fetch(`https://api.telecrypt.xyz/${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  })
-    .then(res => res.json())
-    .then(data => setGameState(data))
-    .catch(err => console.error(`${endpoint} error:`, err));
+  try {
+    const res = await fetch(`https://api.telecrypt.xyz/${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    setGameState(data);
+  } catch (err) {
+    console.error(`${endpoint} error:`, err);
+  }
 };

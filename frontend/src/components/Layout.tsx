@@ -5,7 +5,7 @@ import { InventoryBox } from "./InventoryBox";
 import { UpgradeShop } from "./UpgradeShop";
 import { GameStatusBar } from "./GameStatusBar";
 import { TownRequests } from "./TownRequests";
-import { MarketView } from "./MarketView";
+import { Market } from "./Market";
 import { GameOver } from "./GameOver";
 import { Journal } from "./Journal";
 import type { GameState } from "../../../shared/types";
@@ -131,11 +131,17 @@ export const Layout = ({
             onFulfill={handleFulfill}
           />
           {gameState?.market && (
-            <MarketView
-              market={gameState.market}
-              onBuy={handleBuy}
-              onSell={handleSell}
-            />
+            <Market
+            market={gameState.market}
+            onBuy={(item) => postUpdate("execute-actions", {
+              gameState,
+              actions: [{ type: "buy", item, quantity: 1 }],
+            })}
+            onSell={(item) => postUpdate("execute-actions", {
+              gameState,
+              actions: [{ type: "sell", item, quantity: 1 }],
+            })}
+          />          
           )}
         </div>
       </div>
