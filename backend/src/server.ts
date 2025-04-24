@@ -133,8 +133,9 @@ app.post("/advance", (req: Request, res: Response) => {
 });
 
 app.post("/play-turn", (req: Request, res: Response) => {
-  const currentState = req.body as GameState;
-  const newState = playTurn(currentState);
+  const currentState = req.body.gameState as GameState;
+  const actions = req.body.actions; // 👈 extract actions
+  const newState = playTurn(currentState, actions); // 👈 pass both args
   res.json(newState);
 });
 
