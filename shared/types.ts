@@ -30,22 +30,22 @@ export interface Upgrades {
 }
 
 export interface Player {
-  id: string;
-  name: string;
-  alerts?: string[];
-  gold: number;
-  renown: number;
-  craftPoints: number;
-  mana: number;
-  inventory: Record<PotionType, number>;
-  potions: Record<PotionType, number>;
-  upgrades: Upgrades;
-  garden: Garden;
-  actionsUsed: number;
-  blackMarketUnlocked: boolean;
-  blackMarketInventory: Record<PotionType, { stock: number; price: number }>;
-  lastBlackMarketVisit?: number;
-}
+    id: string;
+    name: string;
+    alerts: string[]; // 🔧 Made this non-optional
+    gold: number;
+    renown: number;
+    craftPoints: number;
+    mana: number;
+    inventory: Record<PotionType, number>;
+    potions: Record<PotionType, number>;
+    upgrades: Upgrades;
+    garden: Garden;
+    actionsUsed: number;
+    blackMarketUnlocked: boolean;
+    blackMarketInventory: Record<PotionType, { stock: number; price: number }>;
+    lastBlackMarketVisit?: number;
+  }  
 
 export type Season = "Spring" | "Summer" | "Autumn" | "Winter";
 export type Weather = "Sunny" | "Rainy" | "Foggy" | "Stormy" | "Cloudy";
