@@ -1,69 +1,110 @@
-// frontend/src/components/InventoryBox.tsx
+// src/components/InventoryBox.tsx
 import React from "react";
 import type { Player } from "../../../shared/types";
-import {
-  Droplets,
-  Sparkles,
-  Coins,
-  Hammer,
-  Star,
-  FlaskConical,
-  Leaf,
-  TreePine,
-} from "lucide-react";
+import Tooltip from "./Tooltip";
+import { useTooltip } from "../useTooltip";
 
-export function InventoryBox({ player }: { player: Player }) {
-  if (!player || !player.inventory || !player.potions) {
-    return <div>Loading inventory...</div>;
-  }
+interface InventoryBoxProps {
+  player: Player;
+}
 
-  const statBox = (label: string, value: number | string, Icon: any, color: string) => (
-    <div className={`bg-${color}-100 text-${color}-900 rounded px-3 py-2 flex items-center gap-2 shadow-sm`}>
-      <Icon className="w-4 h-4" />
-      <span className="font-medium">{label}:</span>
-      <span className="font-bold ml-auto">{value}</span>
-    </div>
-  );
+export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
+  const goldTip = useTooltip();
+  const manaTip = useTooltip();
+  const craftTip = useTooltip();
+  const waterTip = useTooltip();
+
+  const resourceTips: Record<string, string> = {
+    gold: "Currency for upgrades and special events.",
+    mana: "Fuel for magical actions like brewing potions and fortune-telling.",
+    craftPoints: "Earned by fulfilling requests; used for rare upgrades.",
+    water: "Essential for planting crops. Refills each turn based on your Well upgrade.",
+  };
+
+  const itemTips: Record<string, string> = {
+    mushroom: "Earthy and potent. Used in potions and town requests.",
+    flower: "Beautiful but fragile. High value in brewing and decor.",
+    herb: "Quick-growing. Essential for basic alchemy.",
+    fruit: "Harvested from trees. Special mana-linked properties!",
+  };
+
+  const potionTips: Record<string, string> = {
+    mushroom: "Mushroom Potion: Heals ailments and grants endurance.",
+    flower: "Flower Potion: Inspires courage and charm.",
+    herb: "Herb Potion: Quick recovery and mental clarity.",
+    fruit: "Fruit Potion: Boosts magical power during full moons.",
+  };
 
   return (
-    <div className="p-4 bg-white/90 rounded-xl shadow-xl space-y-4">
-      <h3 className="text-xl font-bold text-purple-800 tracking-tight">🎒 Inventory & Status</h3>
+    <div className="bg-white/70 rounded-lg shadow-md p-4 space-y-4">
+      <h2 className="text-center font-bold text-xl text-purple-700">Inventory</h2>
 
-      {/* Crops & Trees */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-700 mb-1">🌱 Crops & 🌳 Fruit</h4>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          {["mushroom", "flower", "herb", "fruit"].map((key) => (
-            <div key={key} className="bg-green-100 text-green-900 rounded px-2 py-1 flex justify-between items-center shadow-sm">
-              <span className="capitalize">{key}</span>
-              <span className="font-bold">{player.inventory[key as keyof typeof player.inventory]}</span>
-            </div>
-          ))}
+      {/* Resources */}
+      <div className="flex justify-around text-lg font-semibold">
+        <div onMouseEnter={goldTip.show} onMouseLeave={goldTip.hide} className="relative">
+          🪙 {player.gold}
+          <Tooltip visible={goldTip.visible} position={goldTip.position}>
+            {resourceTips.gold}
+          </Tooltip>
+        </div>
+
+        <div onMouseEnter={manaTip.show} onMouseLeave={manaTip.hide} className="relative">
+          ✨ {player.mana}
+          <Tooltip visible={manaTip.visible} position={manaTip.position}>
+            {resourceTips.mana}
+          </Tooltip>
+        </div>
+
+        <div onMouseEnter={craftTip.show} onMouseLeave={craftTip.hide} className="relative">
+          🛠️ {player.craftPoints}
+          <Tooltip visible={craftTip.visible} position={craftTip.position}>
+            {resourceTips.craftPoints}
+          </Tooltip>
+        </div>
+
+        <div onMouseEnter={waterTip.show} onMouseLeave={waterTip.hide} className="relative">
+          💧 {player.upgrades.well * 2} water
+          <Tooltip visible={waterTip.visible} position={waterTip.position}>
+            {resourceTips.water}
+          </Tooltip>
         </div>
       </div>
 
-      {/* Potions */}
-      <div>
-        <h4 className="text-sm font-semibold text-gray-700 mt-2 mb-1">🧪 Potions</h4>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          {["mushroom", "flower", "herb", "fruit"].map((key) => (
-            <div key={key} className="bg-indigo-100 text-indigo-900 rounded px-2 py-1 flex justify-between items-center shadow-sm">
-              <span className="capitalize">{key}</span>
-              <span className="font-bold">{player.potions[key as keyof typeof player.potions]}</span>
-            </div>
-          ))}
+      {/* Inventory Items */}
+      <div className="mt-6">
+        <h3 className="text-center font-semibold text-purple-500 mb-2">Crops</h3>
+        <div className="flex justify-around">
+          {["mushroom", "flower", "herb", "fruit"].map((item) => {
+            const tip = useTooltip();
+            return (
+              <div key={item} onMouseEnter={tip.show} onMouseLeave={tip.hide} className="relative">
+                🌱 {item}: {player.inventory[item as keyof typeof player.inventory]}
+                <Tooltip visible={tip.visible} position={tip.position}>
+                  {itemTips[item]}
+                </Tooltip>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-2 text-sm pt-2 border-t border-gray-300">
-        {statBox("Water", player.upgrades.well * 2, Droplets, "blue")}
-        {statBox("Mana", player.mana, Sparkles, "indigo")}
-        {statBox("Gold", player.gold, Coins, "yellow")}
-        {statBox("Craft", player.craftPoints, Hammer, "rose")}
-        {statBox("Renown", player.renown, Star, "green")}
-        {statBox("Upgrades", Object.values(player.upgrades).reduce((a, b) => a + b, 0), FlaskConical, "purple")}
+      {/* Potion Inventory */}
+      <div className="mt-6">
+        <h3 className="text-center font-semibold text-purple-500 mb-2">Potions</h3>
+        <div className="flex justify-around">
+          {["mushroom", "flower", "herb", "fruit"].map((potion) => {
+            const tip = useTooltip();
+            return (
+              <div key={potion} onMouseEnter={tip.show} onMouseLeave={tip.hide} className="relative">
+                🧪 {potion}: {player.potions[potion as keyof typeof player.potions]}
+                <Tooltip visible={tip.visible} position={tip.position}>
+                  {potionTips[potion]}
+                </Tooltip>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
-}
+};
