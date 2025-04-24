@@ -30,3 +30,9 @@ export function applyBuy(gameState: GameState, type: PotionType, quantity: numbe
   gameState.player.alerts?.push(`🛒 Bought ${quantity} ${type} for ${cost} gold.`);
   return incrementActionsUsed(gameState);
 }
+
+const item = gameState.market?.[type];
+if (!item) {
+  gameState.player.alerts?.push(`❌ Invalid item type: ${type}`);
+  return gameState;
+}

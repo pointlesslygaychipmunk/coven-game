@@ -108,10 +108,20 @@ app.post("/fell-tree", (req: Request, res: Response) => {
   res.json(result.state);
 });
 
-app.post("/buy", (req: Request, res: Response) => {
-  const { gameState, type } = req.body;
-  const updatedState = applyBuy(gameState, type, 1);
-  res.json(updatedState);
+app.post("/buy", (req, res) => {
+  const { itemType, gameState, quantity = 1 } = req.body;
+
+  if (!itemType || !gameState) {
+    return res.status(400).json({ error: "Missing itemType or gameState" });
+  }
+
+  try {
+    const newState = applyBuy(gameState, itemType, quantity);
+    res.json(newState);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown server error";
+    res.status(500).json({ error: message });
+  }  
 });
 
 app.post("/sell", (req: Request, res: Response) => {

@@ -107,8 +107,8 @@ export const Layout = ({
   };
 
   const handleBuy = (itemType: string) => {
-    postUpdate("buy", { itemType }, setGameState);
-  };
+    postUpdate("buy", { itemType, gameState }, setGameState);
+  };  
 
   const handleSell = (itemType: string) => {
     postUpdate("sell", { itemType }, setGameState);
