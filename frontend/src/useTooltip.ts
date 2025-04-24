@@ -1,15 +1,11 @@
-// src/utils/useTooltip.ts
+// src/useTooltip.ts
 import { useState } from "react";
 
 export function useTooltip() {
   const [visible, setVisible] = useState(false);
-
-  const toggle = () => setVisible(v => !v);
-  const hide = () => setVisible(false);
-
   return {
     visible,
-    toggle,
-    hide,
+    show: () => setVisible(true),
+    hide: () => setVisible(false),
   };
 }

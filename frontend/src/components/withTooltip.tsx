@@ -1,22 +1,26 @@
-// src/components/withTooltip.tsx
+// frontend/src/components/withTooltip.tsx
 import React from "react";
 import Tooltip from "./Tooltip";
 import { useTooltip } from "../useTooltip";
 
-export function withTooltip(
-  Component: React.ComponentType<any>,
-  tooltipContent: React.ReactNode
-) {
-  return function Wrapped(props: any) {
+export function withTooltip<P extends object>(
+    Component: React.ComponentType<P>,
+    tooltipContent: React.ReactNode
+  ) {  
+  return function WrappedComponent(props: P) {
     const { visible, toggle, hide } = useTooltip();
 
     return (
-      <div
-        onMouseEnter={toggle}
-        onMouseLeave={hide}
-        className="relative inline-block"
-      >
+      <div className="relative inline-flex items-center space-x-1">
         <Component {...props} />
+        <button
+          type="button"
+          onClick={toggle}
+          onBlur={hide}
+          className="text-gray-400 hover:text-gray-600 focus:outline-none"
+        >
+          🔍
+        </button>
         <Tooltip visible={visible}>{tooltipContent}</Tooltip>
       </div>
     );
