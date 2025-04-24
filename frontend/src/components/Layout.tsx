@@ -49,32 +49,23 @@ export const Layout = ({
   const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
     postUpdate("play-turn", {
       ...gameState,
-      player: {
-        ...gameState.player,
-        actions: [{ type: "plant", itemType, plotIndex }]
-      }
+      actions: [{ type: "plant", itemType, plotIndex }]
     });
   };
-
+  
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("play-turn", {
       ...gameState,
-      player: {
-        ...gameState.player,
-        actions: [{ type: "plant", itemType: "fruit", plotIndex }]
-      }
+      actions: [{ type: "plant", itemType: "fruit", plotIndex }]
     });
   };
-
+  
   const handleHarvest = (plotIndex: number) => {
     postUpdate("play-turn", {
       ...gameState,
-      player: {
-        ...gameState.player,
-        actions: [{ type: "harvest", plotIndex }]
-      }
+      actions: [{ type: "harvest", plotIndex }]
     });
-  };
+  };  
 
   const handleUpgrade = (upgradeType: string) => {
     postUpdate("upgrade", { upgradeType, gameState });
