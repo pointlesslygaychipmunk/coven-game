@@ -2,27 +2,62 @@ import React from "react";
 import type { Player } from "../../../shared/types";
 
 interface GardenGridProps {
-  spaces: any[];
+  spaces: (Player["garden"]["spaces"][number])[]; // better than 'any[]'
   player: Player;
   onPlantCrop: (type: "mushroom" | "flower" | "herb", index: number) => void;
   onPlantTree: (index: number) => void;
+  onHarvest: (index: number) => void;
 }
 
-export const GardenGrid = ({ spaces, player, onPlantCrop, onPlantTree }: GardenGridProps) => {
+export const GardenGrid = ({
+  spaces,
+  player,
+  onPlantCrop,
+  onPlantTree,
+  onHarvest
+}: GardenGridProps) => {
   const canPlant = (type: "mushroom" | "flower" | "herb" | "fruit") => {
     return (player.inventory[type] ?? 0) > 0;
   };
 
-  const renderPlot = (slot: any, index: number) => {
-    const isEmpty = !slot?.type;
+  const isMatureCrop = (slot: any): boolean => {
+    if (!slot || slot.kind !== "crop") return false;
+  
+    const thresholds: Record<"mushroom" | "flower" | "herb", number> = {
+      mushroom: 4,
+      flower: 3,
+      herb: 2
+    };
+  
+    const type = slot.type as "mushroom" | "flower" | "herb";
+    return slot.growth >= thresholds[type];
+  };  
 
-    const handleClick = (type: "mushroom" | "flower" | "herb" | "fruit") => {
-      if (isEmpty && canPlant(type)) {
-        if (type === "fruit") {
-          onPlantTree(index);
-        } else {
-          onPlantCrop(type as "mushroom" | "flower" | "herb", index);
-        }
+  const renderPlot = (slot: any, index: number) => {
+    const isEmpty = slot === null;
+
+    const handleClickEmpty = (type: "mushroom" | "flower" | "herb" | "fruit") => {
+      if (type === "fruit") {
+        onPlantTree(index);
+      } else {
+        onPlantCrop(type, index);
+      }
+    };
+
+    const handleClickPlanted = () => {
+      if (!slot) return;
+
+      if (slot.kind === "crop") {
+        const mature = isMatureCrop(slot);
+        const confirmed = window.confirm(
+          mature
+            ? `Harvest this mature ${slot.type}?`
+            : `Remove this immature ${slot.type}? It will be lost.`
+        );
+        if (confirmed) onHarvest(index);
+      } else if (slot.kind === "tree") {
+        const confirmed = window.confirm(`Fell this tree? It will be removed permanently.`);
+        if (confirmed) onHarvest(index); // assumed tree felling goes through onHarvest
       }
     };
 
@@ -42,16 +77,19 @@ export const GardenGrid = ({ spaces, player, onPlantCrop, onPlantTree }: GardenG
                     ? "bg-green-200 hover:bg-green-300"
                     : "bg-gray-200 cursor-not-allowed"
                 }`}
-                onClick={() => handleClick(type as any)}
+                onClick={() => handleClickEmpty(type as any)}
               >
                 {type}
               </button>
             ))}
           </div>
         ) : (
-          <div className="text-sm font-medium text-gray-700">
+          <button
+            className="text-sm font-medium text-gray-700 hover:bg-red-100 px-2 py-1 rounded"
+            onClick={handleClickPlanted}
+          >
             {slot.type} 🌱
-          </div>
+          </button>
         )}
       </div>
     );

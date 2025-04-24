@@ -142,10 +142,19 @@ app.post("/advance", (req: Request, res: Response) => {
   res.json(result.state);
 });
 
-app.post("/play-turn", (req: Request, res: Response) => {
+app.post("/play-turn", (req, res) => {
   const { gameState, actions } = req.body;
-  const newState = playTurn(gameState, actions);
-  res.json(newState);
+
+  if (!gameState || !actions) {
+    return res.status(400).json({ error: "Missing gameState or actions" });
+  }
+
+  try {
+    const updated = playTurn(gameState, actions);
+    return res.json(updated); // ✅ This is what was missing
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 8080;
