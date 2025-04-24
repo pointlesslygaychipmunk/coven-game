@@ -1,7 +1,7 @@
 import { plantCrop } from "./gardenLogic";
 import type { GameState } from "../../shared/types";
-
-export type Action = PlantAction;
+import type { Action } from "../../shared/actionTypes";
+import { plantTree } from "./gardenLogic";
 
 export interface PlantAction {
   type: "plant";
@@ -15,16 +15,21 @@ export function executeActions(gameState: GameState, actions: Action[]): GameSta
   for (const action of actions) {
     switch (action.type) {
       case "plant":
-        newState = plantCrop(newState, {
-          plotIndex: action.plotIndex,
-          itemType: action.itemType
-        });
+        if (action.itemType === "fruit") {
+          newState.player = plantTree(newState.player, action.plotIndex);
+        } else {
+          newState.player = plantCrop(
+            newState.player,
+            action.itemType,
+            action.plotIndex
+          );
+        }
         break;
-      // Add more case branches here for new actions
+      // add more cases here
       default:
         throw new Error(`Unknown action type: ${action.type}`);
     }
-  }
+  }  
 
   return newState;
 }
