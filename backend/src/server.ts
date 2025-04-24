@@ -18,6 +18,7 @@ import { createGameState } from "./createGameState";
 import { playTurn } from "./playController";
 import type { GameState } from "../../shared/types";
 import { applyBuy } from "./applyBuy";
+import { executeActions } from "./executeActions";
 
 const app = express();
 
@@ -142,6 +143,12 @@ app.post("/advance", (req: Request, res: Response) => {
   res.json(result.state);
 });
 
+app.post("/execute-actions", (req, res) => {
+  const { gameState, actions } = req.body;
+  const newState = executeActions(gameState, actions);
+  res.json(newState);
+});
+
 app.post("/play-turn", (req, res) => {
   const { gameState, actions } = req.body;
 
@@ -151,7 +158,7 @@ app.post("/play-turn", (req, res) => {
 
   try {
     const updated = playTurn(gameState, actions);
-    return res.json(updated); // ✅ This is what was missing
+    return res.json(updated);
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }

@@ -46,25 +46,25 @@ export const Layout = ({
   };
 
   const handlePlantCrop = (itemType: "mushroom" | "flower" | "herb", plotIndex: number) => {
-    postUpdate("play-turn", {
+    postUpdate("execute-actions", {
       gameState,
       actions: [{ type: "plant", itemType, plotIndex }],
     });
   };
-
+  
   const handlePlantTree = (plotIndex: number) => {
-    postUpdate("play-turn", {
+    postUpdate("execute-actions", {
       gameState,
       actions: [{ type: "plant", itemType: "fruit", plotIndex }],
     });
   };
-
+  
   const handleHarvest = (plotIndex: number) => {
-    postUpdate("play-turn", {
+    postUpdate("execute-actions", {
       gameState,
       actions: [{ type: "harvest", plotIndex }],
     });
-  };
+  };  
 
   const handleUpgrade = (upgradeType: string) => {
     postUpdate("upgrade", { upgradeType, gameState });
@@ -91,7 +91,6 @@ export const Layout = ({
 
   const handleAdvanceTurn = () => {
     postUpdate("play-turn", { gameState, actions: [] });
-    // No extra action performed but still triggers turn logic
   };
 
   if (gameOver && scoreData) {
