@@ -1,3 +1,8 @@
+// --- Enums (as types) ---
+export type Season = "spring" | "summer" | "autumn" | "winter";
+export type Weather = "sunny" | "rainy" | "stormy" | "foggy" | "cloudy";
+export type MoonPhase = number; // you mod this as 0–7, so keep numeric
+
 // --- Crop & Ingredient Types ---
 export type CropType = "mushroom" | "flower" | "herb" | "fruit";
 
@@ -14,16 +19,16 @@ export type Action =
   | { type: "brew"; potion: string }
   | { type: "fulfill"; index: number };
 
-// --- Market Rumors ---
+// --- Market Types ---
 export interface MarketRumor {
   message: string;
 }
 
-// --- Market Items ---
 export interface BasicMarketItem {
   type: "crop" | "ingredient";
   price: number;
   stock: number;
+  currentPrice?: number; // ✅ add this line
   rumors?: MarketRumor[];
 }
 
@@ -33,6 +38,7 @@ export interface PotionMarketItem {
   tier: PotionTier;
   price: number;
   stock: number;
+  currentPrice?: number; // ✅ add this line
   rumors?: MarketRumor[];
 }
 
@@ -81,12 +87,7 @@ export interface Player {
 // --- Town Requests ---
 export interface TownRequestCard {
   id: string;
-  potionNeeds: {
-    mushroom: number;
-    flower: number;
-    herb: number;
-    fruit: number;
-  };
+  potionNeeds: Record<CropType, number>;
   craftPoints: number;
   boardSlot: 1 | 2 | 3 | 4;
   fulfilled?: boolean;
@@ -95,9 +96,9 @@ export interface TownRequestCard {
 // --- Game Status ---
 export interface GameStatus {
   year: number;
-  moonPhase: number;
-  season: "spring" | "summer" | "autumn" | "winter";
-  weather: "sunny" | "rainy" | "stormy";
+  moonPhase: MoonPhase;
+  season: Season;
+  weather: Weather;
 }
 
 // --- Game State ---

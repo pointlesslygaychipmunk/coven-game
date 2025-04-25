@@ -20,7 +20,7 @@ export function advanceTurn(state: GameState, memory: MarketMemory): GameState {
   }
 
   newState.market = updateMarketAI(newState.market, memory);
-  applyMarketEvents(newState.market, newState.status.season);
+  applyMarketEvents(newState.market, newState.status.season, newState.status.moonPhase); 
 
   return newState;
 }

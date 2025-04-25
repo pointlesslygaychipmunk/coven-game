@@ -1,4 +1,5 @@
-import { MarketItem } from "../../shared/types";
+// backend/src/updateMarketAI.ts
+import { MarketItem, MarketState } from "../../shared/types";
 
 export interface MarketMemory {
   purchases: Record<string, number>;
@@ -7,18 +8,20 @@ export interface MarketMemory {
 }
 
 export function updateMarketAI(
-  market: Record<string, MarketItem>,
+  market: MarketState,
   memory: MarketMemory
-): Record<string, MarketItem> {
-  const updated: Record<string, MarketItem> = { ...market };
+): MarketState {
+  const updated: MarketState = {
+    items: { ...market.items },
+  };
 
-  for (const key of Object.keys(market)) {
-    const item = market[key];
+  for (const key of Object.keys(updated.items)) {
+    const item = updated.items[key];
     const bought = memory.purchases[key] ?? 0;
     const sold = memory.sales[key] ?? 0;
 
-    const base = "basePrice" in item ? item.basePrice : item.price;
-    const basePrice = base ?? 3;
+    // Explicitly treat base as number
+    const basePrice: number = item.price;
 
     const scarcity = 5 - (item.stock ?? 0);
     const demandBoost = Math.floor(bought * 0.3);
@@ -34,10 +37,9 @@ export function updateMarketAI(
       newPrice = Math.round((newPrice + avg) / 2);
     }
 
-    updated[key] = {
+    updated.items[key] = {
       ...item,
       price: newPrice,
-      currentPrice: newPrice,
     };
   }
 
