@@ -1,7 +1,13 @@
+// backend/src/modules/questSystem.ts
+
 import { RitualQuestCard, GameState } from '../../../shared/types';
 
 /**
- * Resolve ritual quests: mark fulfilled quests and distribute rewards.
+ * Resolve ritual quests:
+ *  1. When total contributions ≥ goal, mark fulfilled.
+ *  2. Distribute numeric rewards (gold, renown, craftPoints) in proportion to each player's contribution.
+ *  3. Grant any uniqueItem to every contributor.
+ *  4. Log a global journal entry.
  */
 export function resolveQuests(
   quests: RitualQuestCard[],
@@ -9,10 +15,36 @@ export function resolveQuests(
 ): RitualQuestCard[] {
   return quests.map(q => {
     if (!q.fulfilled) {
-      const totalContrib = Object.values(q.contributions).reduce((a, b) => a + b, 0);
-      if (totalContrib >= q.goal) {
+      const total = Object.values(q.contributions).reduce((sum, v) => sum + v, 0);
+      if (total >= q.goal) {
         q.fulfilled = true;
-        // TODO: distribute q.reward to contributing players
+
+        // Distribute rewards
+        Object.entries(q.contributions).forEach(([pid, contrib]) => {
+          const player = state.players.find(p => p.id === pid);
+          if (!player) return;
+          const share = contrib / total;
+
+          if (q.reward.gold) {
+            player.gold += Math.floor(q.reward.gold * share);
+          }
+          if (q.reward.renown) {
+            player.renown += Math.floor(q.reward.renown * share);
+          }
+          if (q.reward.craftPoints) {
+            player.craftPoints += Math.floor(q.reward.craftPoints * share);
+          }
+
+          if (q.reward.uniqueItem) {
+            player.journal = player.journal || [];
+            player.journal.push(
+              `You received the unique item “${q.reward.uniqueItem}” for completing “${q.title}.”`
+            );
+          }
+        });
+
+        // Global log
+        state.journal.push(`Ritual quest "${q.title}" has been completed!`);
       }
     }
     return q;

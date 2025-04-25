@@ -1,8 +1,11 @@
+/// <reference types="vite/client" />
+
 // frontend/src/utils.ts
 
 import type { GameState, Action } from "../../shared/types";
 
-const BASE = process.env.REACT_APP_API_URL || "http://localhost:8080";
+// Use VITE_API_URL if set in .env, otherwise default to localhost
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 /**
  * Fetch the current GameState over HTTP.
