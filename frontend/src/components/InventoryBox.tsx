@@ -27,11 +27,16 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
   const craftTip = useTooltip();
   const waterTip = useTooltip();
 
-  // Aggregate potion counts by name
+  // Tally up potion names
   const potionCounts: Record<string, number> = {};
-  for (const potion of player.potions) {
-    potionCounts[potion.name] = (potionCounts[potion.name] || 0) + 1;
-  }
+  player.potions.forEach((p) => {
+    potionCounts[p.name] = (potionCounts[p.name] || 0) + 1;
+  });
+
+  const inventoryItems = Object.keys(player.inventory) as (keyof typeof player.inventory)[];
+  const ingredientTooltips = inventoryItems.map(() => useTooltip());
+  const potionNames = Object.keys(potionCounts);
+  const potionTooltips = potionNames.map(() => useTooltip());
 
   return (
     <div className="bg-white/70 rounded-lg shadow-md p-4 space-y-6">
@@ -39,70 +44,40 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
 
       {/* Resources */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-lg font-semibold text-center">
-        <div onMouseEnter={goldTip.show} onMouseLeave={goldTip.hide} className="relative">
-          🪙 {player.gold}
-          <Tooltip visible={goldTip.visible}>{resourceTips.gold}</Tooltip>
-        </div>
-        <div onMouseEnter={manaTip.show} onMouseLeave={manaTip.hide} className="relative">
-          ✨ {player.mana}
-          <Tooltip visible={manaTip.visible}>{resourceTips.mana}</Tooltip>
-        </div>
-        <div onMouseEnter={craftTip.show} onMouseLeave={craftTip.hide} className="relative">
-          🛠️ {player.craftPoints}
-          <Tooltip visible={craftTip.visible}>{resourceTips.craftPoints}</Tooltip>
-        </div>
-        <div onMouseEnter={waterTip.show} onMouseLeave={waterTip.hide} className="relative">
-          💧 {player.upgrades.well * 2} water
-          <Tooltip visible={waterTip.visible}>{resourceTips.water}</Tooltip>
-        </div>
+        <div onMouseEnter={goldTip.show} onMouseLeave={goldTip.hide} className="relative">🪙 {player.gold}<Tooltip visible={goldTip.visible}>{resourceTips.gold}</Tooltip></div>
+        <div onMouseEnter={manaTip.show} onMouseLeave={manaTip.hide} className="relative">✨ {player.mana}<Tooltip visible={manaTip.visible}>{resourceTips.mana}</Tooltip></div>
+        <div onMouseEnter={craftTip.show} onMouseLeave={craftTip.hide} className="relative">🛠️ {player.craftPoints}<Tooltip visible={craftTip.visible}>{resourceTips.craftPoints}</Tooltip></div>
+        <div onMouseEnter={waterTip.show} onMouseLeave={waterTip.hide} className="relative">💧 {player.upgrades.well * 2} water<Tooltip visible={waterTip.visible}>{resourceTips.water}</Tooltip></div>
       </div>
 
       {/* Crops */}
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🌱 Crops</h3>
         <div className="flex flex-wrap justify-around gap-3 text-center">
-          {(Object.keys(player.inventory) as (keyof typeof player.inventory)[]).map((item) => {
-            const tip = useTooltip();
-            return (
-              <div
-                key={item}
-                onMouseEnter={tip.show}
-                onMouseLeave={tip.hide}
-                className="relative"
-              >
-                🌾 {item}: {player.inventory[item]}
-                <Tooltip visible={tip.visible}>
-                  {ingredientTips[item]}
-                </Tooltip>
-              </div>
-            );
-          })}
+          {inventoryItems.map((item, i) => (
+            <div key={item} onMouseEnter={ingredientTooltips[i].show} onMouseLeave={ingredientTooltips[i].hide} className="relative">
+              🌾 {item}: {player.inventory[item]}
+              <Tooltip visible={ingredientTooltips[i].visible}>{ingredientTips[item]}</Tooltip>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Potions */}
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🧪 Potions</h3>
-        {Object.keys(potionCounts).length === 0 ? (
+        {potionNames.length === 0 ? (
           <p className="text-sm text-center text-gray-500">No potions brewed yet.</p>
         ) : (
           <div className="flex flex-wrap justify-around gap-3 text-center">
-            {Object.entries(potionCounts).map(([name, count]) => {
-              const tip = useTooltip();
-              return (
-                <div
-                  key={name}
-                  onMouseEnter={tip.show}
-                  onMouseLeave={tip.hide}
-                  className="relative"
-                >
-                  🧪 {name}: {count}
-                  <Tooltip visible={tip.visible}>
-                    {`You have ${count} bottle${count > 1 ? "s" : ""} of "${name}".`}
-                  </Tooltip>
-                </div>
-              );
-            })}
+            {potionNames.map((name, i) => (
+              <div key={name} onMouseEnter={potionTooltips[i].show} onMouseLeave={potionTooltips[i].hide} className="relative">
+                🧪 {name}: {potionCounts[name]}
+                <Tooltip visible={potionTooltips[i].visible}>
+                  {`You have ${potionCounts[name]} bottle${potionCounts[name] > 1 ? "s" : ""} of "${name}".`}
+                </Tooltip>
+              </div>
+            ))}
           </div>
         )}
       </div>
