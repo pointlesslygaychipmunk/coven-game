@@ -1,4 +1,5 @@
 // backend/src/createGameState.ts
+
 import { v4 as uuidv4 } from "uuid";
 import {
   GameState,
@@ -7,77 +8,68 @@ import {
   Potion,
   MarketItem,
   MarketState,
-  CropType,
+  TownRequestCard,
+  RitualQuestCard,
+  Rumor,
   GameStatus,
+  CropType,
   PotionTier,
+  FamiliarPower,
+  AscendancyStatus,
+  MarketMemoryEntry,
 } from "../../shared/types";
 
 // Create a garden with 8 empty slots
-function createEmptyGarden(): (GardenSlot)[] {
-  return Array(8).fill(null);
+function createEmptyGarden(): GardenSlot[] {
+  return Array(8).fill(null).map(() => ({
+    type: "mushroom",    // placeholder until planted
+    kind: "crop",
+    growth: 0,
+    isDead: false,
+  }));
 }
 
-// Create starting potions
-function createStartingPotions(): Potion[] {
-  return [
-    {
-      id: uuidv4(),
-      name: "Soothing Elixir",
-      tier: "common",
-      ingredients: { herb: 1, flower: 0, mushroom: 0, fruit: 0 },
-    },
-    {
-      id: uuidv4(),
-      name: "Moonlight Tonic",
-      tier: "common",
-      ingredients: { herb: 0, flower: 1, mushroom: 0, fruit: 0 },
-    },
-  ];
-}
-
-// Create initial market
+// Bootstrap your initial market here
 function createInitialMarket(): MarketState {
-  const cropTypes: CropType[] = ["herb", "flower", "mushroom", "fruit"];
-  const items: Record<string, MarketItem> = {};
-
-  cropTypes.forEach((type) => {
-    items[type] = {
-      type: "crop",
-      price: 3,
-      stock: 5,
-    };
-  });
-
+  const items: Record<string, MarketItem> = {
+    // example entries; replace with your actual initial items
+    mushroom: { type: "crop", price: 5, stock: 20, basePrice: 5, volatility: 0.1, rumors: [] },
+    flower:   { type: "crop", price: 8, stock: 15, basePrice: 8, volatility: 0.1, rumors: [] },
+    herb:     { type: "ingredient", price: 12, stock: 10, basePrice: 12, volatility: 0.15, rumors: [] },
+    // potions can be added similarly...
+  };
   return { items };
 }
 
-// Main game state initializer
 export function createGameState(): GameState {
+  // --- initialize player ---
   const player: Player = {
     id: uuidv4(),
-    name: "Apprentice",
-    inventory: {
-      herb: 1,
-      flower: 1,
-      mushroom: 0,
-      fruit: 0,
-    },
-    potions: createStartingPotions(),
-    gold: 5,
-    mana: 2,
+    name: "Player 1",
+    inventory: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
+    potions: [],
+    gold: 0,
+    mana: 0,
+    renown: 0,
     craftPoints: 0,
-    renown: 1,
     garden: createEmptyGarden(),
-    upgrades: {
-      well: 1,
-      cart: 0,
-      cellar: 0,
-      cauldron: 0,
-    },
-    alerts: [],
+    upgrades: { well: 0, cart: 0, cellar: 0, cauldron: 0 },
     wateringUsed: 0,
+
+    // new per-player fields
+    journal: [],                  // personal alert log
+    rumorsHeard: [],              // IDs of rumors seen
+    memory: [],                   // market memory entries
+    familiarPowers: [],           // unlocked familiar powers
+    quests: [],                   // personal ritual quest trackers
+    ascendancy: {                 // default ascendancy status
+      path: "",
+      progress: 0,
+      unlocked: false,
+    },
   };
 
+  // --- initial global status ---
   const status: GameStatus = {
     year: 1,
     moonPhase: 0,
@@ -85,13 +77,15 @@ export function createGameState(): GameState {
     weather: "sunny",
   };
 
+  // --- assemble full game state ---
   return {
     players: [player],
     market: createInitialMarket(),
-    townRequests: [],
-    rumors: [],
+    townRequests: [] as TownRequestCard[],
+    quests: [] as RitualQuestCard[],
+    rumors: [] as Rumor[],
+    journal: [],              // global log
     status,
     actionsUsed: 0,
-    journal: [],
   };
 }

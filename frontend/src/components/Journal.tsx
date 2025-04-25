@@ -1,9 +1,10 @@
 // frontend/src/components/Journal.tsx
+
 import React, { useEffect, useRef } from "react";
 
 interface JournalProps {
   alerts: string[];
-  timestamps?: string[]; // Optional array of time strings
+  timestamps?: string[];
 }
 
 export const Journal: React.FC<JournalProps> = ({ alerts, timestamps }) => {
@@ -39,9 +40,9 @@ export const Journal: React.FC<JournalProps> = ({ alerts, timestamps }) => {
         </p>
       ) : (
         <ul className="space-y-2 text-sm font-serif">
-          {alerts.map((alert, index) => (
+          {alerts.map((alert, i) => (
             <li
-              key={index}
+              key={i}
               className={`px-4 py-2 border rounded-lg shadow-inner flex justify-between items-start gap-3 ${parseAlertClass(
                 alert
               )}`}
@@ -50,7 +51,7 @@ export const Journal: React.FC<JournalProps> = ({ alerts, timestamps }) => {
                 {alert}
               </span>
               <span className="text-xs text-gray-500 italic whitespace-nowrap">
-                {timestamps?.[index] || fallbackTimestamp()}
+                {timestamps?.[i] || fallbackTimestamp()}
               </span>
             </li>
           ))}

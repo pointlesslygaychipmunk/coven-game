@@ -1,45 +1,66 @@
-import { GameState, Player, GardenSlot, MarketState } from '../../shared/types';
+// backend/src/gameState.ts
 
-const defaultGarden: GardenSlot[] = [];
+import {
+  GameState,
+  Player,
+  GardenSlot,
+  MarketState,
+  TownRequestCard,
+  RitualQuestCard,
+  Rumor,
+  FamiliarPower,
+  AscendancyStatus,
+  MarketMemoryEntry,
+} from '../../shared/types';
+
+// eight empty garden slots
+const defaultGarden: GardenSlot[] = Array(8).fill({
+  type:      "mushroom",  // placeholder until planted
+  kind:      "crop",
+  growth:    0,
+  isDead:    false,
+});
 
 export const initialGameState: GameState = {
   players: [
     {
-      id: 'player1',
-      name: 'Apprentice',
-      inventory: {
-        mushroom: 0,
-        flower: 0,
-        herb: 0,
-        fruit: 0,
-      },
-      potions: [],
-      garden: defaultGarden,
-      upgrades: {
-        well: 0,
-        cart: 0,
-        cellar: 0,
-        cauldron: 0,
-      },
-      gold: 50,
-      renown: 0,
-      alerts: [],
-      mana: 0,
-      wateringUsed: 0,
-      craftPoints: 0,
-    },
+      id:            'player1',
+      name:          'Apprentice',
+      inventory:     { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
+      potions:       [],
+      gold:          0,
+      mana:          0,
+      renown:        0,
+      craftPoints:   0,
+      garden:        defaultGarden,
+      upgrades:      { well: 0, cart: 0, cellar: 0, cauldron: 0 },
+      wateringUsed:  0,
+
+      // new fields
+      journal:         [],
+      rumorsHeard:     [],
+      memory:          [],
+      familiarPowers:  [] as FamiliarPower[],
+      quests:          [] as RitualQuestCard[],
+      ascendancy:      { path: "", progress: 0, unlocked: false },
+    } as Player,
   ],
+
   market: {
-    items: {}, // ✅ FIXED: required by MarketState
-  },
-  townRequests: [],
+    items: {},   // will be populated via createGameState or server init
+  } as MarketState,
+
+  townRequests: [] as TownRequestCard[],
+  quests:       [] as RitualQuestCard[],
+  rumors:       [] as Rumor[],
+  journal:      [],
+
   status: {
-    season: 'spring',
-    weather: 'sunny',
+    year:      1,
     moonPhase: 0,
-    year: 1,
+    season:    "spring",
+    weather:   "sunny",
   },
-  journal: [],
-  rumors: [],
+
   actionsUsed: 0,
 };

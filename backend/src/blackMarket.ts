@@ -1,31 +1,20 @@
-import { v4 as uuidv4 } from "uuid";
-import { MarketItem } from "../../shared/types";
+// backend/src/blackMarket.ts
 
-export const blackMarketInventory: MarketItem[] = [
-  {
-    id: uuidv4(),
-    type: "ingredient",
-    label: "Nightshade",
-    basePrice: 7,
-    currentPrice: 7,
-    price: 7,
-    stock: 2,
-    memory: [],
-    sentiment: [],
-    volatility: 0.4,
-    rumors: []
-  },
-  {
-    id: uuidv4(),
-    type: "ingredient",
-    label: "Mandrake",
-    basePrice: 10,
-    currentPrice: 10,
-    price: 10,
-    stock: 1,
-    memory: [],
-    sentiment: [],
-    volatility: 0.5,
-    rumors: []
-  }
-];
+import { v4 as uuidv4 } from "uuid";
+import { BlackMarketItem } from "../../shared/types";
+
+const itemId = uuidv4();
+
+export function getBlackMarketItem(): Record<string, BlackMarketItem> {
+  return {
+    [itemId]: {
+      type: "blackMarket",
+      name: "Stolen petals",
+      price: 50,
+      stock: 2,
+      riskLevel: 30,
+      currentPrice: 50,
+      rumors: [],
+    },
+  };
+}

@@ -1,4 +1,3 @@
-// frontend/src/components/Layout.tsx
 import React, { useEffect } from "react";
 import { GardenGrid } from "./GardenGrid";
 import { InventoryBox } from "./InventoryBox";
@@ -8,6 +7,7 @@ import { Market } from "./Market";
 import { GameOver } from "./GameOver";
 import { Journal } from "./Journal";
 import type { GameState } from "../../../shared/types";
+import { postUpdate } from "../utils"; // or wherever your util resides
 
 interface LayoutProps {
   gameState: GameState;
@@ -18,93 +18,45 @@ interface LayoutProps {
   setScoreData: (val: any) => void;
 }
 
-export const Layout = ({
+export const Layout: React.FC<LayoutProps> = ({
   gameState,
   setGameState,
   gameOver,
   setGameOver,
   scoreData,
   setScoreData,
-}: LayoutProps) => {
+}) => {
   useEffect(() => {
-    fetch("https://api.telecrypt.xyz/init")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("🎮 Initial game state loaded:", data);
-        setGameState(data);
-      })
-      .catch((err) => console.error("Initial load error:", err));
+    postUpdate("init", {}, setGameState);
   }, [setGameState]);
 
-  const postUpdate = (path: string, payload: any) => {
-    fetch(`https://api.telecrypt.xyz/${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((data) => setGameState(data))
-      .catch((err) => console.error(`${path} error:`, err));
-  };
-
-  const handlePlantCrop = (
-    crop: "mushroom" | "flower" | "herb",
-    index: number
-  ) => {
-    postUpdate("execute-actions", {
-      gameState,
-      actions: [{ type: "plant", crop, index }],
-    });
+  const handlePlantCrop = (crop: "mushroom" | "flower" | "herb", index: number) => {
+    postUpdate("execute-actions", { actions: [{ type: "plant", crop, index }] }, setGameState);
   };
 
   const handlePlantTree = (index: number) => {
-    postUpdate("execute-actions", {
-      gameState,
-      actions: [{ type: "plant", crop: "fruit", index }],
-    });
+    postUpdate("execute-actions", { actions: [{ type: "plant", crop: "fruit", index }] }, setGameState);
   };
 
   const handleHarvest = (index: number) => {
-    postUpdate("execute-actions", {
-      gameState,
-      actions: [{ type: "harvest", index }],
-    });
+    postUpdate("execute-actions", { actions: [{ type: "harvest", index }] }, setGameState);
   };
 
-  const handleFulfill = (index: number) => {
-    fetch("https://api.telecrypt.xyz/fulfill", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ index, gameState }),
-    })
-      .then((res) => res.json())
-      .then((data) => setGameState(data))
-      .catch((err) => console.error("Fulfill error:", err));
+  const handleFulfill = (requestId: string) => {
+    postUpdate("execute-actions", { actions: [{ type: "fulfill", requestId }] }, setGameState);
   };
 
   const handleAdvanceTurn = () => {
-    postUpdate("play-turn", { gameState, actions: [] });
+    postUpdate("play-turn", {}, setGameState);
   };
 
-  // --- GUARD EVERYTHING ---
-  if (
-    !gameState ||
-    !Array.isArray(gameState.players) ||
-    !gameState.players[0]
-  ) {
-    return <div className="text-center text-purple-700 text-lg">🌀 Loading game...</div>;
+  if (!gameState.players.length) {
+    return <div>Loading game...</div>;
   }
-
   const player = gameState.players[0];
 
   if (gameOver && scoreData) {
-    return (
-      <GameOver
-        score={scoreData.total}
-        breakdown={scoreData.breakdown}
-        lost={scoreData.lost}
-      />
-    );
+    return <GameOver score={scoreData.total} breakdown={scoreData.breakdown} lost={scoreData.lost} />;
   }
 
   return (
@@ -124,44 +76,25 @@ export const Layout = ({
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          {Array.isArray(gameState.townRequests) && (
-            <TownRequests
-              cards={gameState.townRequests}
-              onFulfill={handleFulfill}
-            />
-          )}
-          {gameState.market && typeof gameState.market === "object" && (
-            <Market
-            marketItems={gameState.market?.items ?? {}}
-            onBuy={(itemKey: string) =>
-              postUpdate("execute-actions", {
-                gameState,
-                actions: [{ type: "buy", item: itemKey, quantity: 1 }],
-              })
-            }
-            onSell={(itemKey: string) =>
-              postUpdate("execute-actions", {
-                gameState,
-                actions: [{ type: "sell", item: itemKey, quantity: 1 }],
-              })
-            }
-          />                    
-          )}
+          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+
+          <Market
+            marketItems={gameState.market.items}
+            onBuy={(key) => postUpdate("execute-actions", { actions: [{ type: "buy", itemId: key, quantity: 1 }] }, setGameState)}
+            onSell={(key) => postUpdate("execute-actions", { actions: [{ type: "sell", itemId: key, quantity: 1 }] }, setGameState)}
+            onAcquireBlack={(key) => postUpdate("execute-actions", { actions: [{ type: "buy", itemId: key, quantity: 1 }] }, setGameState)}
+          />
         </div>
       </div>
 
-      <div className="flex justify-center">
-        <button
-          className="mt-4 px-6 py-3 bg-pink-300 hover:bg-pink-400 text-white font-bold shadow-lg rounded-full transition-transform transform hover:scale-105 border border-white/60 backdrop-blur"
-          onClick={handleAdvanceTurn}
-        >
-          🌙 End Turn / Advance Moon
-        </button>
-      </div>
+      <button
+        className="mt-4 px-6 py-3 bg-pink-300 hover:bg-pink-400 text-white font-bold rounded-full"
+        onClick={handleAdvanceTurn}
+      >
+        🌙 End Turn
+      </button>
 
-      {Array.isArray(player.alerts) && player.alerts.length > 0 && (
-        <Journal alerts={player.alerts} />
-      )}
+      <Journal alerts={gameState.journal} />
     </div>
   );
 };

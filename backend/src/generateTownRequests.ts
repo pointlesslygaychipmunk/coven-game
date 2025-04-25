@@ -25,8 +25,6 @@ export function generateTownRequests(): TownRequestCard[] {
       potionNeeds,
       craftPoints: 1,
       fulfilled: false,
-      type: "standard",
-      count: 1,
       season: randomSeason,
     };
 

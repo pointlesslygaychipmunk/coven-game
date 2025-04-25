@@ -2,93 +2,99 @@
 
 import express, { Request, Response } from "express";
 import http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import cors from "cors";
 
 import { createGameState } from "./createGameState";
-import { playTurn } from "./playController";
-import { executeActions } from "./executeActions";
+import { advanceTurn }      from "./turnEngine";
+import { executeActions }   from "./executeActions";
 
-import {
-  validateWater,
-  validatePlant,
-  validateHarvest,
-  validateBrew,
-  validateSell,
-  validateBuy
-} from "./validate";
+import { GameState, Action } from "../../shared/types";
 
 const app = express();
-
-const corsOptions = {
-  origin: [
-    "https://playcoven.com",
-    "https://coven-frontend.onrender.com",
-    "http://localhost:5173",
-    "null"
-  ],
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
-app.options("*", (_req, res) => {
-  res.set({
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: "*" }
+});
+
+// In‐memory single game instance (or swap for a map of games)
+let gameState: GameState = createGameState();
+
+// --- Socket.IO real‐time handlers ---
+io.on("connection", (socket: Socket) => {
+  console.log(`🔌 Socket connected: ${socket.id}`);
+  // Send current state immediately
+  socket.emit("state", gameState);
+
+  // Optional: client can register its playerId
+  socket.on("register", (data: { playerId: string }) => {
+    socket.data.playerId = data.playerId;
   });
-  res.sendStatus(204);
+
+  // Player submits actions
+  socket.on("executeActions", (data: { playerId: string; actions: Action[] }) => {
+    const { playerId, actions } = data;
+    try {
+      gameState = executeActions(gameState, actions, playerId);
+      // Broadcast updated state
+      io.emit("state", gameState);
+    } catch (err: any) {
+      console.error("Action execution error:", err);
+      socket.emit("error", { message: err.message });
+    }
+  });
+
+  // Advance global turn / moon phase
+  socket.on("advanceTurn", () => {
+    try {
+      gameState = advanceTurn(gameState);
+      io.emit("state", gameState);
+    } catch (err: any) {
+      console.error("Turn advance error:", err);
+      socket.emit("error", { message: err.message });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`🔌 Socket disconnected: ${socket.id}`);
+  });
 });
 
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: { origin: "https://coven-frontend.onrender.com" }
-});
-
-app.get("/ping", (_req: Request, res: Response) => {
-  res.json({ message: "pong" });
-});
-
-app.get("/init", (_req: Request, res: Response) => {
-  const initialState = createGameState();
-  res.json(initialState);
+// --- HTTP‐fallback endpoints ---
+app.get("/state", (_req: Request, res: Response) => {
+  return res.json(gameState);
 });
 
 app.post("/execute-actions", (req: Request, res: Response) => {
-  const { gameState, actions, playerId } = req.body;
-  if (!gameState || !actions || !playerId) {
-    return res.status(400).json({ error: "Missing gameState, actions, or playerId" });
+  const { playerId, actions } = req.body as { playerId?: string; actions?: Action[] };
+  if (!playerId || !Array.isArray(actions)) {
+    return res.status(400).json({ error: "Missing playerId or actions" });
   }
-
   try {
-    const newState = executeActions(gameState, actions, playerId);
-    res.json(newState);
+    gameState = executeActions(gameState, actions, playerId);
+    io.emit("state", gameState);
+    return res.json(gameState);
   } catch (err: any) {
-    console.error("Execution failed", err);
-    res.status(500).json({ error: err.message });
+    console.error("HTTP execute‐actions error:", err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
-app.post("/play-turn", (req: Request, res: Response) => {
-  const { gameState, actions, playerId } = req.body;
-  if (!gameState || !playerId) {
-    return res.status(400).json({ error: "Missing gameState or playerId" });
-  }
-
+app.post("/play-turn", (_req: Request, res: Response) => {
   try {
-    const newState = playTurn(gameState, actions || [], playerId); // ✅ Corrected
-    res.json(newState);
+    gameState = advanceTurn(gameState);
+    io.emit("state", gameState);
+    return res.json(gameState);
   } catch (err: any) {
-    console.error("Turn processing failed", err);
-    res.status(500).json({ error: err.message });
+    console.error("HTTP play-turn error:", err);
+    return res.status(500).json({ error: err.message });
   }
 });
 
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`🌙 Coven backend listening on port ${PORT}`);
 });

@@ -29,11 +29,10 @@ const defaultMemory: MarketMemory = {
 
 export function playTurn(
   state: GameState,
-  actions: Action[] = [],
-  playerId: string,
-  memory: MarketMemory = defaultMemory // fallback in case none is passed
+  actions: Action[],
+  playerId: string
 ): GameState {
   const acted = executeActions(state, actions, playerId);
-  const advanced = advanceTurn(acted, memory);
+  const advanced = advanceTurn(acted);
   return advanced;
 }
