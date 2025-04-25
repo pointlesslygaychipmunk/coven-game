@@ -1,6 +1,6 @@
 // src/components/InventoryBox.tsx
 import React from "react";
-import type { Player } from "../../shared/types";
+import type { Player } from "../../../shared/types";
 import Tooltip from "./Tooltip";
 import { useTooltip } from "../useTooltip";
 
@@ -8,44 +8,37 @@ interface InventoryBoxProps {
   player: Player;
 }
 
-const resourceTips: Record<string, string> = {
+const resourceTips = {
   gold: "Currency for upgrades and special events.",
   mana: "Fuel for magical actions like brewing potions and fortune-telling.",
   craftPoints: "Earned by fulfilling requests; used for rare upgrades.",
   water: "Essential for planting crops. Refills each turn based on your Well upgrade.",
-};
+} as const;
 
-const ingredientTips: Record<string, string> = {
+const ingredientTips = {
   mushroom: "Earthy and potent. Used in potions and town requests.",
   flower: "Beautiful but fragile. High value in brewing and decor.",
   herb: "Quick-growing. Essential for basic alchemy.",
   fruit: "Harvested from trees. Special mana-linked properties!",
-};
+} as const;
 
 export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
+  // Fixed, unconditional tooltip hooks
   const goldTip = useTooltip();
   const manaTip = useTooltip();
   const craftTip = useTooltip();
   const waterTip = useTooltip();
 
-  // Prepare potion counts
+  const allIngredients = Object.keys(player.inventory) as (keyof typeof ingredientTips)[];
+  const ingredientHooks = allIngredients.map(() => useTooltip());
+
   const potionCounts: Record<string, number> = {};
-  player.potions.forEach((p) => {
-    potionCounts[p.name] = (potionCounts[p.name] || 0) + 1;
-  });
+  for (const potion of player.potions) {
+    potionCounts[potion.name] = (potionCounts[potion.name] || 0) + 1;
+  }
 
-  // Predefine ingredient tooltips to avoid useTooltip() in a loop
-  const ingredientTooltips = (Object.keys(player.inventory) as (keyof typeof player.inventory)[])
-    .reduce((acc, key) => {
-      acc[key] = useTooltip();
-      return acc;
-    }, {} as Record<string, ReturnType<typeof useTooltip>>);
-
-  const potionTooltips = Object.keys(potionCounts)
-    .reduce((acc, name) => {
-      acc[name] = useTooltip();
-      return acc;
-    }, {} as Record<string, ReturnType<typeof useTooltip>>);
+  const potionNames = Object.keys(potionCounts);
+  const potionHooks = potionNames.map(() => useTooltip());
 
   return (
     <div className="bg-white/70 rounded-lg shadow-md p-4 space-y-6">
@@ -75,10 +68,15 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🌱 Crops</h3>
         <div className="flex flex-wrap justify-around gap-3 text-center">
-          {(Object.keys(player.inventory) as (keyof typeof player.inventory)[]).map((item) => (
-            <div key={item} onMouseEnter={ingredientTooltips[item].show} onMouseLeave={ingredientTooltips[item].hide} className="relative">
+          {allIngredients.map((item, i) => (
+            <div
+              key={item}
+              onMouseEnter={ingredientHooks[i].show}
+              onMouseLeave={ingredientHooks[i].hide}
+              className="relative"
+            >
               🌾 {item}: {player.inventory[item]}
-              <Tooltip visible={ingredientTooltips[item].visible}>
+              <Tooltip visible={ingredientHooks[i].visible}>
                 {ingredientTips[item]}
               </Tooltip>
             </div>
@@ -89,15 +87,20 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
       {/* Potions */}
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🧪 Potions</h3>
-        {Object.keys(potionCounts).length === 0 ? (
+        {potionNames.length === 0 ? (
           <p className="text-sm text-center text-gray-500">No potions brewed yet.</p>
         ) : (
           <div className="flex flex-wrap justify-around gap-3 text-center">
-            {Object.entries(potionCounts).map(([name, count]) => (
-              <div key={name} onMouseEnter={potionTooltips[name].show} onMouseLeave={potionTooltips[name].hide} className="relative">
-                🧪 {name}: {count}
-                <Tooltip visible={potionTooltips[name].visible}>
-                  {`You have ${count} bottle${count > 1 ? "s" : ""} of "${name}".`}
+            {potionNames.map((name, i) => (
+              <div
+                key={name}
+                onMouseEnter={potionHooks[i].show}
+                onMouseLeave={potionHooks[i].hide}
+                className="relative"
+              >
+                🧪 {name}: {potionCounts[name]}
+                <Tooltip visible={potionHooks[i].visible}>
+                  You have {potionCounts[name]} bottle{potionCounts[name] > 1 ? "s" : ""} of "{name}".
                 </Tooltip>
               </div>
             ))}
