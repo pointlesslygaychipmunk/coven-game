@@ -1,3 +1,4 @@
+// src/components/InventoryBox.tsx
 import React from "react";
 import type { Player } from "../../../shared/types";
 import Tooltip from "./Tooltip";
@@ -27,16 +28,16 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
   const craftTip = useTooltip();
   const waterTip = useTooltip();
 
-  // Tally up potion names
   const potionCounts: Record<string, number> = {};
   player.potions.forEach((p) => {
     potionCounts[p.name] = (potionCounts[p.name] || 0) + 1;
   });
 
-  const inventoryItems = Object.keys(player.inventory) as (keyof typeof player.inventory)[];
-  const ingredientTooltips = inventoryItems.map(() => useTooltip());
+  const ingredientKeys = Object.keys(player.inventory) as (keyof typeof player.inventory)[];
+  const ingredientTipsArray = ingredientKeys.map(() => useTooltip());
+
   const potionNames = Object.keys(potionCounts);
-  const potionTooltips = potionNames.map(() => useTooltip());
+  const potionTipsArray = potionNames.map(() => useTooltip());
 
   return (
     <div className="bg-white/70 rounded-lg shadow-md p-4 space-y-6">
@@ -44,20 +45,39 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
 
       {/* Resources */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-lg font-semibold text-center">
-        <div onMouseEnter={goldTip.show} onMouseLeave={goldTip.hide} className="relative">🪙 {player.gold}<Tooltip visible={goldTip.visible}>{resourceTips.gold}</Tooltip></div>
-        <div onMouseEnter={manaTip.show} onMouseLeave={manaTip.hide} className="relative">✨ {player.mana}<Tooltip visible={manaTip.visible}>{resourceTips.mana}</Tooltip></div>
-        <div onMouseEnter={craftTip.show} onMouseLeave={craftTip.hide} className="relative">🛠️ {player.craftPoints}<Tooltip visible={craftTip.visible}>{resourceTips.craftPoints}</Tooltip></div>
-        <div onMouseEnter={waterTip.show} onMouseLeave={waterTip.hide} className="relative">💧 {player.upgrades.well * 2} water<Tooltip visible={waterTip.visible}>{resourceTips.water}</Tooltip></div>
+        <div onMouseEnter={goldTip.show} onMouseLeave={goldTip.hide} className="relative">
+          🪙 {player.gold}
+          <Tooltip visible={goldTip.visible}>{resourceTips.gold}</Tooltip>
+        </div>
+        <div onMouseEnter={manaTip.show} onMouseLeave={manaTip.hide} className="relative">
+          ✨ {player.mana}
+          <Tooltip visible={manaTip.visible}>{resourceTips.mana}</Tooltip>
+        </div>
+        <div onMouseEnter={craftTip.show} onMouseLeave={craftTip.hide} className="relative">
+          🛠️ {player.craftPoints}
+          <Tooltip visible={craftTip.visible}>{resourceTips.craftPoints}</Tooltip>
+        </div>
+        <div onMouseEnter={waterTip.show} onMouseLeave={waterTip.hide} className="relative">
+          💧 {player.upgrades.well * 2} water
+          <Tooltip visible={waterTip.visible}>{resourceTips.water}</Tooltip>
+        </div>
       </div>
 
       {/* Crops */}
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🌱 Crops</h3>
         <div className="flex flex-wrap justify-around gap-3 text-center">
-          {inventoryItems.map((item, i) => (
-            <div key={item} onMouseEnter={ingredientTooltips[i].show} onMouseLeave={ingredientTooltips[i].hide} className="relative">
+          {ingredientKeys.map((item, i) => (
+            <div
+              key={item}
+              onMouseEnter={ingredientTipsArray[i].show}
+              onMouseLeave={ingredientTipsArray[i].hide}
+              className="relative"
+            >
               🌾 {item}: {player.inventory[item]}
-              <Tooltip visible={ingredientTooltips[i].visible}>{ingredientTips[item]}</Tooltip>
+              <Tooltip visible={ingredientTipsArray[i].visible}>
+                {ingredientTips[item]}
+              </Tooltip>
             </div>
           ))}
         </div>
@@ -71,10 +91,15 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
         ) : (
           <div className="flex flex-wrap justify-around gap-3 text-center">
             {potionNames.map((name, i) => (
-              <div key={name} onMouseEnter={potionTooltips[i].show} onMouseLeave={potionTooltips[i].hide} className="relative">
+              <div
+                key={name}
+                onMouseEnter={potionTipsArray[i].show}
+                onMouseLeave={potionTipsArray[i].hide}
+                className="relative"
+              >
                 🧪 {name}: {potionCounts[name]}
-                <Tooltip visible={potionTooltips[i].visible}>
-                  {`You have ${potionCounts[name]} bottle${potionCounts[name] > 1 ? "s" : ""} of "${name}".`}
+                <Tooltip visible={potionTipsArray[i].visible}>
+                  You have {potionCounts[name]} bottle{potionCounts[name] > 1 ? "s" : ""} of "{name}".
                 </Tooltip>
               </div>
             ))}
