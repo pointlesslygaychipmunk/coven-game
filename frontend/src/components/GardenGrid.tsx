@@ -6,6 +6,14 @@ import type { GardenSlot, Player } from "../../../shared/types";
 const validCropTypes = ["mushroom", "flower", "herb"] as const;
 type PlantableCrop = (typeof validCropTypes)[number];
 
+const growthIcons: Record<string, string[]> = {
+  mushroom: ["🟤", "🍄", "🍄🍄", "🍄🍄🍄"],
+  flower:   ["🌱", "🪷", "🌸", "🪻"],
+  herb:     ["🌱", "☘️", "🍀", "🌾"],
+};
+
+const treeStages = ["🌰", "🌿", "🌳", "🌳🍎"];
+
 export function GardenGrid({
   spaces,
   player,
@@ -22,12 +30,16 @@ export function GardenGrid({
   const renderEmptySlot = (index: number) => (
     <div
       key={index}
-      className="border bg-white/40 backdrop-blur rounded p-2 text-xs space-y-1 shadow-sm"
+      className="border bg-white/40 backdrop-blur rounded-lg p-2 text-xs space-y-1 shadow-sm flex flex-col justify-center items-center"
     >
       {validCropTypes.map((type) => (
         <button
           key={type}
-          className="bg-green-100 hover:bg-green-200 rounded w-full py-1 transition"
+          className={`rounded w-full py-1 text-sm ${
+            player.inventory[type] > 0
+              ? "bg-green-100 hover:bg-green-200"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+          } transition`}
           disabled={player.inventory[type] <= 0}
           onClick={() => onPlantCrop(type, index)}
         >
@@ -35,8 +47,12 @@ export function GardenGrid({
         </button>
       ))}
       <button
-        className="bg-yellow-100 hover:bg-yellow-200 rounded w-full py-1 transition"
-        disabled={!player.inventory["fruit"] || player.inventory["fruit"] <= 0}
+        className={`rounded w-full py-1 text-sm ${
+          player.inventory["fruit"] > 0
+            ? "bg-yellow-100 hover:bg-yellow-200"
+            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+        } transition`}
+        disabled={player.inventory["fruit"] <= 0}
         onClick={() => onPlantTree(index)}
       >
         🌳 plant tree
@@ -46,17 +62,23 @@ export function GardenGrid({
 
   const renderOccupiedSlot = (slot: GardenSlot, index: number) => {
     const isDead = slot.isDead;
-    const growth = Math.floor(slot.growth);
+    const growth = Math.min(Math.floor(slot.growth), 3);
     const isTree = slot.kind === "tree";
-    const emoji = isTree ? "🌳" : "🌱";
-    const label = isDead ? "💀 Dead" : `${emoji} ${slot.type} (${growth})`;
+
+    const icon = isDead
+      ? "💀"
+      : isTree
+      ? treeStages[growth]
+      : growthIcons[slot.type]?.[growth] ?? "❓";
+
+    const label = isDead ? "Dead" : `${slot.type}`;
 
     const baseStyle =
-      "border rounded p-2 text-center text-sm font-semibold cursor-pointer transition-all shadow";
+      "border rounded-lg p-3 text-center text-lg font-semibold cursor-pointer transition-all shadow flex flex-col items-center justify-center";
     const activeStyle = isDead
       ? "bg-gray-300 text-gray-600 line-through"
       : isTree
-      ? "bg-green-100 text-green-800"
+      ? "bg-emerald-100 text-emerald-800"
       : "bg-green-200 text-green-900";
 
     return (
@@ -65,7 +87,8 @@ export function GardenGrid({
         className={`${baseStyle} ${activeStyle}`}
         onClick={() => onHarvest(index)}
       >
-        {label}
+        <div className="text-2xl">{icon}</div>
+        <div className="text-xs mt-1 capitalize">{label}</div>
       </div>
     );
   };

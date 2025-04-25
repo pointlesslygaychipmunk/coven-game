@@ -9,6 +9,15 @@ import { GameOver } from "./GameOver";
 import { Journal } from "./Journal";
 import type { GameState } from "../../../shared/types";
 
+interface LayoutProps {
+  gameState: GameState;
+  setGameState: (val: GameState) => void;
+  gameOver: boolean;
+  setGameOver: (val: boolean) => void;
+  scoreData: any;
+  setScoreData: (val: any) => void;
+}
+
 export const Layout = ({
   gameState,
   setGameState,
@@ -16,14 +25,7 @@ export const Layout = ({
   setGameOver,
   scoreData,
   setScoreData,
-}: {
-  gameState: GameState;
-  setGameState: (val: GameState) => void;
-  gameOver: boolean;
-  setGameOver: (val: boolean) => void;
-  scoreData: any;
-  setScoreData: (val: any) => void;
-}) => {
+}: LayoutProps) => {
   useEffect(() => {
     fetch("https://api.telecrypt.xyz/init")
       .then((res) => res.json())
@@ -32,7 +34,7 @@ export const Layout = ({
         setGameState(data);
       })
       .catch((err) => console.error("Initial load error:", err));
-  }, []);
+  }, [setGameState]);
 
   const postUpdate = (path: string, payload: any) => {
     fetch(`https://api.telecrypt.xyz/${path}`, {
@@ -45,24 +47,27 @@ export const Layout = ({
       .catch((err) => console.error(`${path} error:`, err));
   };
 
-  const handlePlantCrop = (crop: "mushroom" | "flower" | "herb", index: number) => {
+  const handlePlantCrop = (
+    crop: "mushroom" | "flower" | "herb",
+    index: number
+  ) => {
     postUpdate("execute-actions", {
       gameState,
       actions: [{ type: "plant", crop, index }],
     });
   };
 
-  const handlePlantTree = (plotIndex: number) => {
+  const handlePlantTree = (index: number) => {
     postUpdate("execute-actions", {
       gameState,
-      actions: [{ type: "plant", crop: "fruit", index: plotIndex }],
+      actions: [{ type: "plant", crop: "fruit", index }],
     });
   };
 
-  const handleHarvest = (plotIndex: number) => {
+  const handleHarvest = (index: number) => {
     postUpdate("execute-actions", {
       gameState,
-      actions: [{ type: "harvest", index: plotIndex }],
+      actions: [{ type: "harvest", index }],
     });
   };
 
@@ -111,8 +116,10 @@ export const Layout = ({
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-        <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
-        {gameState.market && (
+          <TownRequests
+            cards={gameState.townRequests}
+            onFulfill={handleFulfill}
+          />
           <Market
             market={gameState.market}
             onBuy={(itemKey: string) =>
@@ -128,7 +135,6 @@ export const Layout = ({
               })
             }
           />
-        )}
         </div>
       </div>
 
