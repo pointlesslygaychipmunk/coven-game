@@ -2,7 +2,6 @@
 import React, { useEffect } from "react";
 import { GardenGrid } from "./GardenGrid";
 import { InventoryBox } from "./InventoryBox";
-import { UpgradeShop } from "./UpgradeShop";
 import { GameStatusBar } from "./GameStatusBar";
 import { TownRequests } from "./TownRequests";
 import { Market } from "./Market";
@@ -51,7 +50,7 @@ export const Layout = ({
       gameState,
       actions: [{ type: "plant", crop, index }],
     });
-  };  
+  };
 
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("execute-actions", {
@@ -67,10 +66,6 @@ export const Layout = ({
     });
   };
 
-  const handleUpgrade = (upgradeId: string) => {
-    postUpdate("upgrade", { gameState, upgradeId });
-  };
-
   const handleFulfill = (index: number) => {
     fetch("https://api.telecrypt.xyz/fulfill", {
       method: "POST",
@@ -82,17 +77,11 @@ export const Layout = ({
       .catch((err) => console.error("Fulfill error:", err));
   };
 
-  const handleBuy = (itemType: string) => {
-    postUpdate("buy", { gameState, item: itemType, quantity: 1 });
-  };
-
-  const handleSell = (itemType: string) => {
-    postUpdate("sell", { gameState, item: itemType, quantity: 1 });
-  };
-
   const handleAdvanceTurn = () => {
     postUpdate("play-turn", { gameState, actions: [] });
   };
+
+  const player = gameState.players[0];
 
   if (gameOver && scoreData) {
     return (
@@ -111,18 +100,13 @@ export const Layout = ({
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
           <GardenGrid
-            spaces={gameState.player.garden.spaces}
-            player={gameState.player}
+            spaces={player.garden}
+            player={player}
             onPlantCrop={handlePlantCrop}
             onPlantTree={handlePlantTree}
             onHarvest={handleHarvest}
           />
-
-          <InventoryBox player={gameState.player} />
-          <UpgradeShop
-            upgrades={gameState.player.upgrades}
-            onUpgrade={handleUpgrade}
-          />
+          <InventoryBox player={player} />
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
@@ -132,16 +116,20 @@ export const Layout = ({
           />
           {gameState?.market && (
             <Market
-            market={gameState.market}
-            onBuy={(item) => postUpdate("execute-actions", {
-              gameState,
-              actions: [{ type: "buy", item, quantity: 1 }],
-            })}
-            onSell={(item) => postUpdate("execute-actions", {
-              gameState,
-              actions: [{ type: "sell", item, quantity: 1 }],
-            })}
-          />          
+              market={gameState.market}
+              onBuy={(item) =>
+                postUpdate("execute-actions", {
+                  gameState,
+                  actions: [{ type: "buy", item, quantity: 1 }],
+                })
+              }
+              onSell={(item) =>
+                postUpdate("execute-actions", {
+                  gameState,
+                  actions: [{ type: "sell", item, quantity: 1 }],
+                })
+              }
+            />
           )}
         </div>
       </div>
@@ -155,7 +143,7 @@ export const Layout = ({
         </button>
       </div>
 
-      {gameState?.player?.alerts && <Journal alerts={gameState.player.alerts} />}
+      {player?.alerts && <Journal alerts={player.alerts} />}
     </div>
   );
 };
