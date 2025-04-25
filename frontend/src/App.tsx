@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-// Make sure to install these:
+// Ensure you have installed:
 //   npm install socket.io-client
 //   npm install --save-dev @types/socket.io-client
 import type { GameState, Action } from "../../shared/types";
 import { Market } from "./components/Market";
 import { TownRequests } from "./components/TownRequests";
 import { Journal } from "./components/Journal";
-import { postUpdate } from "./utils";
 
 const socket = io("http://localhost:8080");
 
