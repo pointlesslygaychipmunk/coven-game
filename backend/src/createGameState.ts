@@ -12,7 +12,7 @@ import {
   PotionTier,
 } from "../../shared/types";
 
-// Create a garden with 8 empty slots of type 'herb'
+// Create a garden with 8 empty slots
 function createEmptyGarden(): (GardenSlot | null)[] {
   return Array(8).fill(null);
 }
@@ -21,19 +21,21 @@ function createEmptyGarden(): (GardenSlot | null)[] {
 function createStartingPotions(): Potion[] {
   return [
     {
+      id: uuidv4(),
       name: "Soothing Elixir",
       tier: "common",
-      ingredients: ["herb"],
+      ingredients: { herb: 1, flower: 0, mushroom: 0, fruit: 0 },
     },
     {
+      id: uuidv4(),
       name: "Moonlight Tonic",
       tier: "common",
-      ingredients: ["flower"],
+      ingredients: { herb: 0, flower: 1, mushroom: 0, fruit: 0 },
     },
   ];
 }
 
-// Create a market with basic crop items
+// Create initial market
 function createInitialMarket(): MarketState {
   const cropTypes: CropType[] = ["herb", "flower", "mushroom", "fruit"];
   const items: Record<string, MarketItem> = {};
@@ -53,6 +55,7 @@ function createInitialMarket(): MarketState {
 export function createGameState(): GameState {
   const player: Player = {
     id: uuidv4(),
+    name: "Apprentice",
     inventory: {
       herb: 1,
       flower: 1,
@@ -71,11 +74,12 @@ export function createGameState(): GameState {
       cauldron: 0,
     },
     alerts: [],
+    wateringUsed: 0,
   };
 
   const status: GameStatus = {
     year: 1,
-    moon: 0,
+    moonPhase: 0,
     season: "spring",
     weather: "sunny",
   };
@@ -86,5 +90,7 @@ export function createGameState(): GameState {
     townRequests: [],
     rumors: [],
     status,
+    actionsUsed: 0,
+    journal: [],
   };
 }

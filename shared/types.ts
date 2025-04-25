@@ -1,12 +1,22 @@
-// shared/types.ts
-
 // --- Crop & Ingredient Types ---
 export type CropType = "mushroom" | "flower" | "herb" | "fruit";
 
 // --- Potion Tier ---
 export type PotionTier = "common" | "rare" | "epic";
 
-// --- Market Item Definitions ---
+// --- Action Types ---
+export type Action =
+  | { type: "plant"; crop: CropType; index: number }
+  | { type: "harvest"; index: number }
+  | { type: "buy"; item: string; quantity: number }
+  | { type: "sell"; item: string; quantity: number };
+
+// --- Market Rumors ---
+export interface MarketRumor {
+  message: string;
+}
+
+// --- Market Items ---
 export interface BasicMarketItem {
   type: "crop" | "ingredient";
   price: number;
@@ -25,16 +35,11 @@ export interface PotionMarketItem {
 
 export type MarketItem = BasicMarketItem | PotionMarketItem;
 
-export interface MarketRumor {
-  message: string;
-}
-
-// --- Market State ---
 export interface MarketState {
   items: Record<string, MarketItem>;
 }
 
-// --- Garden ---
+// --- Garden Slot ---
 export interface GardenSlot {
   type: CropType;
   kind: "crop" | "tree";
@@ -44,15 +49,17 @@ export interface GardenSlot {
 
 // --- Potion ---
 export interface Potion {
+  id: string;
   name: string;
   tier: PotionTier;
-  ingredients: CropType[];
+  ingredients: Record<CropType, number>;
 }
 
 // --- Player ---
 export interface Player {
   id: string;
-  inventory: Record<string, number>;
+  name: string;
+  inventory: Record<CropType, number>;
   potions: Potion[];
   gold: number;
   mana: number;
@@ -64,6 +71,7 @@ export interface Player {
     cellar: number;
     cauldron: number;
   };
+  wateringUsed: number;
   alerts?: string[];
 }
 
@@ -84,7 +92,7 @@ export interface TownRequestCard {
 // --- Game Status ---
 export interface GameStatus {
   year: number;
-  moon: number;
+  moonPhase: number;
   season: "spring" | "summer" | "autumn" | "winter";
   weather: "sunny" | "rainy" | "stormy";
 }
@@ -96,4 +104,6 @@ export interface GameState {
   townRequests: TownRequestCard[];
   status: GameStatus;
   rumors: MarketRumor[];
+  journal: string[];
+  actionsUsed: number;
 }
