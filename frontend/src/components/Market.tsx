@@ -1,29 +1,18 @@
-// components/Market.tsx
 import React from "react";
 import type {
-  MarketItem,
-  MarketState,
   BasicMarketItem,
   PotionMarketItem,
 } from "../../../shared/types";
 
+type MarketItem = BasicMarketItem | PotionMarketItem;
+
 interface MarketProps {
-  market: MarketState | undefined | null;
+  marketItems: { [key: string]: MarketItem };
   onBuy: (item: string) => void;
   onSell: (item: string) => void;
 }
 
-export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
-  if (!market?.items || typeof market.items !== "object") {
-    return (
-      <div className="bg-white border border-red-300 text-red-600 px-4 py-3 rounded shadow">
-        ⚠️ Market data unavailable. Try ending the turn or refreshing.
-      </div>
-    );
-  }
-
-  const items = market.items;
-
+export const Market: React.FC<MarketProps> = ({ marketItems, onBuy, onSell }) => {
   const emojiMap: Record<string, string> = {
     mushroom: "🍄",
     flower: "🌸",
@@ -37,13 +26,18 @@ export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
   const isBasic = (item: MarketItem): item is BasicMarketItem =>
     item.type === "crop" || item.type === "ingredient";
 
-  const cropItems = Object.entries(items).filter(([, item]) => isBasic(item));
-  const potionItems = Object.entries(items).filter(([, item]) => isPotion(item));
+  const cropItems = Object.entries(marketItems).filter(([, item]) =>
+    isBasic(item)
+  );
+
+  const potionItems = Object.entries(marketItems).filter(([, item]) =>
+    isPotion(item)
+  );
 
   const renderItem = (key: string, item: MarketItem) => {
     const label = isPotion(item) ? item.name : key;
     const tier = isPotion(item) ? item.tier : null;
-    const rumor = item.rumors?.[0]?.message;
+    const rumor = "rumors" in item ? item.rumors?.[0]?.message : null;
 
     return (
       <li

@@ -132,20 +132,20 @@ export const Layout = ({
           )}
           {gameState.market && typeof gameState.market === "object" && (
             <Market
-              market={gameState.market}
-              onBuy={(itemKey: string) =>
-                postUpdate("execute-actions", {
-                  gameState,
-                  actions: [{ type: "buy", item: itemKey, quantity: 1 }],
-                })
-              }
-              onSell={(itemKey: string) =>
-                postUpdate("execute-actions", {
-                  gameState,
-                  actions: [{ type: "sell", item: itemKey, quantity: 1 }],
-                })
-              }
-            />
+            marketItems={gameState.market?.items ?? {}}
+            onBuy={(itemKey: string) =>
+              postUpdate("execute-actions", {
+                gameState,
+                actions: [{ type: "buy", item: itemKey, quantity: 1 }],
+              })
+            }
+            onSell={(itemKey: string) =>
+              postUpdate("execute-actions", {
+                gameState,
+                actions: [{ type: "sell", item: itemKey, quantity: 1 }],
+              })
+            }
+          />                    
           )}
         </div>
       </div>

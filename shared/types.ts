@@ -1,117 +1,78 @@
 // shared/types.ts
 
+// --- Crop & Ingredient Types ---
 export type CropType = "mushroom" | "flower" | "herb" | "fruit";
-export type PotionIngredient = "mushroom" | "flower" | "herb" | "fruit";
-export type PotionTier = "common" | "rare" | "epic" | "legendary";
-export type Season = "spring" | "summer" | "autumn" | "winter";
-export type Weather = "sunny" | "rainy" | "stormy" | "foggy" | "cloudy";
-export type MoonPhase = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-export interface GardenSlot {
-  kind: "crop" | "tree";
-  type: CropType;
-  growth: number;
-  isDead?: boolean;
-}
+// --- Potion Tier ---
+export type PotionTier = "common" | "rare" | "epic";
 
-export interface Potion {
-  id: string;
-  name: string;
-  tier: PotionTier;
-  ingredients: Record<PotionIngredient, number>;
-}
-
-export interface MarketRumor {
-  id: string;
-  message: string;
-}
-
+// --- Market Item Types ---
 export interface BasicMarketItem {
-  id: string;
-  type: "ingredient" | "crop";
+  type: "crop" | "ingredient";
   price: number;
-  label?: string;
-  stock?: number;
-  memory?: number[];
-  sentiment?: number[];
-  basePrice?: number;
-  volatility?: number;
-  currentPrice?: number;
-  rumors?: MarketRumor[];
+  stock: number;
+  rumors?: { message: string }[];
 }
 
 export interface PotionMarketItem {
-  id: string;
   type: "potion";
   name: string;
   tier: PotionTier;
   price: number;
-  stock?: number;
-  volatility?: number;
-  currentPrice?: number;
-  rumors?: MarketRumor[];
-  memory?: number[];
-  sentiment?: number[];
+  stock: number;
+  rumors?: { message: string }[];
 }
 
 export type MarketItem = BasicMarketItem | PotionMarketItem;
-export type MarketState = Record<string, MarketItem>;
 
-export interface Player {
-  id: string;
-  name: string;
-  inventory: Record<PotionIngredient, number>; // tree removed
-  potions: Potion[];
-  garden: GardenSlot[];
-  upgrades: {
-    well: number;
-    cart: number;
-    cellar: number;
-    cauldron: number;
-  };
-  gold: number;
-  renown: number;
-  alerts: string[];
-  mana: number;
-  wateringUsed: number;
-  craftPoints: number;
+// --- Market State ---
+export interface MarketState {
+  items: { [key: string]: MarketItem }; // Allows both basic and potion items
 }
 
-export interface GameStatus {
-  year: number;
-  season: Season;
-  moonPhase: MoonPhase;
-  weather: Weather;
+// --- Example Player and GameState types for context (optional) ---
+export interface Player {
+  inventory: Record<string, number>;
+  potions: { name: string }[];
+  gold: number;
+  mana: number;
+  craftPoints: number;
+  upgrades: {
+    well: number;
+    [key: string]: number;
+  };
+  garden: (GardenSlot | null)[];
+  alerts?: string[];
+}
+
+export interface GardenSlot {
+  type: CropType;
+  kind: "crop" | "tree";
+  growth: number;
+  isDead?: boolean;
 }
 
 export interface GameState {
   players: Player[];
-  market: MarketState;
-  rumors: MarketRumor[];
+  market?: MarketState;
   townRequests: TownRequestCard[];
-  actionsUsed: number;
-  status: GameStatus;
-  journal: string[];
+  status: {
+    year: number;
+    moon: number;
+    season: "spring" | "summer" | "autumn" | "winter";
+    weather: "sunny" | "rainy" | "stormy";
+  };
 }
 
 export interface TownRequestCard {
   id: string;
-  description: string;
-  reward: number;
-  boardSlot: 1 | 2 | 3;
-  potionNeeds: Record<PotionIngredient, number>;
+  potionNeeds: {
+    mushroom: number;
+    flower: number;
+    herb: number;
+    fruit: number;
+  };
   craftPoints: number;
-  fulfilled: boolean;
-  type: "standard" | "elite";
-  count: number;
-  season: Season;
+  boardSlot: 1 | 2 | 3 | 4;
+  fulfilled?: boolean;
 }
-
-export interface Action {
-  type: string;
-  payload?: any;
-}
-
-export type ValidationResult =
-  | { valid: true; state: GameState }
-  | { valid: false; error: string };
