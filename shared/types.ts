@@ -1,3 +1,5 @@
+// shared/types.ts
+
 export type CropType = "tree" | "mushroom" | "flower" | "herb" | "fruit";
 export type PotionIngredient = "mushroom" | "flower" | "herb" | "fruit";
 export type PotionTier = "common" | "rare" | "epic" | "legendary";
@@ -58,16 +60,21 @@ export type MarketState = Record<string, MarketItem>;
 export interface Player {
   id: string;
   name: string;
+  inventory: Record<PotionIngredient, number>; // tree removed
+  potions: Potion[];
+  garden: GardenSlot[];
+  upgrades: {
+    well: number;
+    cart: number;
+    cellar: number;
+    cauldron: number;
+  };
   gold: number;
   renown: number;
-  craftPoints: number;
-  mana: number;
-  inventory: Record<CropType, number>;
-  garden: GardenSlot[];
-  potions: Potion[];
-  upgrades: string[];
   alerts: string[];
+  mana: number;
   wateringUsed: number;
+  craftPoints: number;
 }
 
 export interface GameStatus {
@@ -81,7 +88,7 @@ export interface GameState {
   players: Player[];
   market: MarketState;
   rumors: MarketRumor[];
-  townRequests: any[];
+  townRequests: TownRequestCard[];
   actionsUsed: number;
   status: GameStatus;
   journal: string[];
@@ -92,7 +99,7 @@ export interface TownRequestCard {
   description: string;
   reward: number;
   boardSlot: 1 | 2 | 3;
-  potionNeeds: Record<string, number>;
+  potionNeeds: Record<PotionIngredient, number>;
   craftPoints: number;
   fulfilled: boolean;
   type: "standard" | "elite";
@@ -105,6 +112,6 @@ export interface Action {
   payload?: any;
 }
 
-export type ValidationResult = 
+export type ValidationResult =
   | { valid: true; state: GameState }
   | { valid: false; error: string };

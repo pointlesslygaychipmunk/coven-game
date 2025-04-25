@@ -55,14 +55,14 @@ export const Layout = ({
   const handlePlantTree = (plotIndex: number) => {
     postUpdate("execute-actions", {
       gameState,
-      actions: [{ type: "plant", itemType: "fruit", plotIndex }],
+      actions: [{ type: "plant", crop: "fruit", index: plotIndex }],
     });
   };
 
   const handleHarvest = (plotIndex: number) => {
     postUpdate("execute-actions", {
       gameState,
-      actions: [{ type: "harvest", plotIndex }],
+      actions: [{ type: "harvest", index: plotIndex }],
     });
   };
 
@@ -81,7 +81,8 @@ export const Layout = ({
     postUpdate("play-turn", { gameState, actions: [] });
   };
 
-  const player = gameState.players[0];
+  const player = gameState.players?.[0];
+  if (!player) return <div>🌀 Loading player data...</div>;
 
   if (gameOver && scoreData) {
     return (
@@ -95,7 +96,7 @@ export const Layout = ({
 
   return (
     <div className="p-4 space-y-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 min-h-screen">
-      <GameStatusBar status={gameState?.status} />
+      <GameStatusBar status={gameState.status} />
 
       <div className="flex flex-row gap-6 items-start">
         <div className="flex flex-col gap-4 w-1/2">
@@ -110,11 +111,8 @@ export const Layout = ({
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          <TownRequests
-            cards={gameState.townRequests}
-            onFulfill={handleFulfill}
-          />
-          {gameState?.market && (
+          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+          {gameState.market && (
             <Market
               market={gameState.market}
               onBuy={(item) =>
@@ -143,7 +141,7 @@ export const Layout = ({
         </button>
       </div>
 
-      {player?.alerts && <Journal alerts={player.alerts} />}
+      {player.alerts?.length > 0 && <Journal alerts={player.alerts} />}
     </div>
   );
 };

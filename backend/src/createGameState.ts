@@ -10,7 +10,7 @@ import {
   PotionTier,
   MarketState,
   CropType,
-  GameStatus
+  GameStatus,
 } from "../../shared/types";
 
 function createEmptyGarden(): GardenSlot[] {
@@ -28,19 +28,19 @@ function createStartingPotions(): Potion[] {
       id: uuidv4(),
       name: "Soothing Elixir",
       tier: "common",
-      ingredients: { herb: 1, flower: 0, mushroom: 0, fruit: 0 },
+      ingredients: { herb: 1, flower: 0, mushroom: 0, fruit: 0, tree: 0 },
     },
     {
       id: uuidv4(),
       name: "Moonlight Tonic",
       tier: "common",
-      ingredients: { herb: 0, flower: 1, mushroom: 0, fruit: 0 },
+      ingredients: { herb: 0, flower: 1, mushroom: 0, fruit: 0, tree: 0 },
     },
   ];
 }
 
 function createInitialMarket(): MarketState {
-  const types: CropType[] = ["herb", "flower", "mushroom", "fruit"];
+  const types: CropType[] = ["herb", "flower", "mushroom", "fruit", "tree"];
   const market: MarketState = {};
   types.forEach((type) => {
     market[type] = {
@@ -73,10 +73,15 @@ export function createGameState(): GameState {
       flower: 1,
       mushroom: 0,
       fruit: 0,
-      tree: 0
+      // 🔧 tree removed from inventory
     },
     potions: createStartingPotions(),
-    upgrades: [],
+    upgrades: {
+      well: 1,
+      cart: 0,
+      cellar: 0,
+      cauldron: 0,
+    },
     garden: createEmptyGarden(),
     alerts: [],
     wateringUsed: 0,
@@ -95,7 +100,7 @@ export function createGameState(): GameState {
     rumors: [],
     townRequests: [],
     actionsUsed: 0,
+    journal: [],
     status: gameStatus,
-    journal: [], // ✅ REQUIRED FIELD ADDED
   };
 }
