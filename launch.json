@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Backend Server",
+      "program": "${workspaceFolder}/${input:backendEntryPoint}",
+      "preLaunchTask": "tsc: build - backend",
+      "outFiles": ["${workspaceFolder}/backend/**/*.js"],
+      "cwd": "${workspaceFolder}/backend",
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    }
+  ],
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "backendEntryPoint",
+      "description": "Enter the relative path to the backend entry point (e.g., backend/src/server.ts)"
+    }
+  ]
+}

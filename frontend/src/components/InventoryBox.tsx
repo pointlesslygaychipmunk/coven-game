@@ -28,16 +28,18 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
   const craftTip = useTooltip();
   const waterTip = useTooltip();
 
+  // Tally up potion names
   const potionCounts: Record<string, number> = {};
   player.potions.forEach((p) => {
     potionCounts[p.name] = (potionCounts[p.name] || 0) + 1;
   });
 
-  const ingredientKeys = Object.keys(player.inventory) as (keyof typeof player.inventory)[];
-  const ingredientTipsArray = ingredientKeys.map(() => useTooltip());
+  // Precompute hooks for each inventory item (fixed order)
+  const inventoryKeys = Object.keys(player.inventory) as (keyof typeof player.inventory)[];
+  const inventoryTooltips = inventoryKeys.map(() => useTooltip());
 
   const potionNames = Object.keys(potionCounts);
-  const potionTipsArray = potionNames.map(() => useTooltip());
+  const potionTooltips = potionNames.map(() => useTooltip());
 
   return (
     <div className="bg-white/70 rounded-lg shadow-md p-4 space-y-6">
@@ -67,19 +69,15 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🌱 Crops</h3>
         <div className="flex flex-wrap justify-around gap-3 text-center">
-          {ingredientKeys.map((item, i) => (
-            <div
-              key={item}
-              onMouseEnter={ingredientTipsArray[i].show}
-              onMouseLeave={ingredientTipsArray[i].hide}
-              className="relative"
-            >
-              🌾 {item}: {player.inventory[item]}
-              <Tooltip visible={ingredientTipsArray[i].visible}>
-                {ingredientTips[item]}
-              </Tooltip>
-            </div>
-          ))}
+          {inventoryKeys.map((item, i) => {
+            const tip = inventoryTooltips[i];
+            return (
+              <div key={item} onMouseEnter={tip.show} onMouseLeave={tip.hide} className="relative">
+                🌾 {item}: {player.inventory[item]}
+                <Tooltip visible={tip.visible}>{ingredientTips[item]}</Tooltip>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -90,19 +88,18 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
           <p className="text-sm text-center text-gray-500">No potions brewed yet.</p>
         ) : (
           <div className="flex flex-wrap justify-around gap-3 text-center">
-            {potionNames.map((name, i) => (
-              <div
-                key={name}
-                onMouseEnter={potionTipsArray[i].show}
-                onMouseLeave={potionTipsArray[i].hide}
-                className="relative"
-              >
-                🧪 {name}: {potionCounts[name]}
-                <Tooltip visible={potionTipsArray[i].visible}>
-                  You have {potionCounts[name]} bottle{potionCounts[name] > 1 ? "s" : ""} of "{name}".
-                </Tooltip>
-              </div>
-            ))}
+            {potionNames.map((name, i) => {
+              const count = potionCounts[name];
+              const tip = potionTooltips[i];
+              return (
+                <div key={name} onMouseEnter={tip.show} onMouseLeave={tip.hide} className="relative">
+                  🧪 {name}: {count}
+                  <Tooltip visible={tip.visible}>
+                    You have {count} bottle{count > 1 ? "s" : ""} of "{name}".
+                  </Tooltip>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
