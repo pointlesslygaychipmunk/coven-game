@@ -6,12 +6,12 @@ export type CropType = "mushroom" | "flower" | "herb" | "fruit";
 // --- Potion Tier ---
 export type PotionTier = "common" | "rare" | "epic";
 
-// --- Market Item Types ---
+// --- Market Item Definitions ---
 export interface BasicMarketItem {
   type: "crop" | "ingredient";
   price: number;
   stock: number;
-  rumors?: { message: string }[];
+  rumors?: MarketRumor[];
 }
 
 export interface PotionMarketItem {
@@ -20,31 +20,21 @@ export interface PotionMarketItem {
   tier: PotionTier;
   price: number;
   stock: number;
-  rumors?: { message: string }[];
+  rumors?: MarketRumor[];
 }
 
 export type MarketItem = BasicMarketItem | PotionMarketItem;
 
+export interface MarketRumor {
+  message: string;
+}
+
 // --- Market State ---
 export interface MarketState {
-  items: { [key: string]: MarketItem }; // Allows both basic and potion items
+  items: Record<string, MarketItem>;
 }
 
-// --- Example Player and GameState types for context (optional) ---
-export interface Player {
-  inventory: Record<string, number>;
-  potions: { name: string }[];
-  gold: number;
-  mana: number;
-  craftPoints: number;
-  upgrades: {
-    well: number;
-    [key: string]: number;
-  };
-  garden: (GardenSlot | null)[];
-  alerts?: string[];
-}
-
+// --- Garden ---
 export interface GardenSlot {
   type: CropType;
   kind: "crop" | "tree";
@@ -52,18 +42,32 @@ export interface GardenSlot {
   isDead?: boolean;
 }
 
-export interface GameState {
-  players: Player[];
-  market?: MarketState;
-  townRequests: TownRequestCard[];
-  status: {
-    year: number;
-    moon: number;
-    season: "spring" | "summer" | "autumn" | "winter";
-    weather: "sunny" | "rainy" | "stormy";
-  };
+// --- Potion ---
+export interface Potion {
+  name: string;
+  tier: PotionTier;
+  ingredients: CropType[];
 }
 
+// --- Player ---
+export interface Player {
+  id: string;
+  inventory: Record<string, number>;
+  potions: Potion[];
+  gold: number;
+  mana: number;
+  craftPoints: number;
+  garden: (GardenSlot | null)[];
+  upgrades: {
+    well: number;
+    cart: number;
+    cellar: number;
+    cauldron: number;
+  };
+  alerts?: string[];
+}
+
+// --- Town Requests ---
 export interface TownRequestCard {
   id: string;
   potionNeeds: {
@@ -75,4 +79,21 @@ export interface TownRequestCard {
   craftPoints: number;
   boardSlot: 1 | 2 | 3 | 4;
   fulfilled?: boolean;
+}
+
+// --- Game Status ---
+export interface GameStatus {
+  year: number;
+  moon: number;
+  season: "spring" | "summer" | "autumn" | "winter";
+  weather: "sunny" | "rainy" | "stormy";
+}
+
+// --- Game State ---
+export interface GameState {
+  players: Player[];
+  market: MarketState;
+  townRequests: TownRequestCard[];
+  status: GameStatus;
+  rumors: MarketRumor[];
 }
