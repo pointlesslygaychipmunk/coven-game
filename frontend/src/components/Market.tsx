@@ -29,12 +29,12 @@ export function Market({
   const isBasicItem = (item: MarketItem): item is BasicMarketItem =>
     item.type === "ingredient" || item.type === "crop";
 
-  const cropItems = Object.entries(market).filter(
-    ([, item]) => isBasicItem(item)
+  const cropItems = Object.entries(market ?? {}).filter(([, item]) =>
+    isBasicItem(item)
   );
 
-  const potionItems = Object.entries(market).filter(
-    ([, item]) => isPotionItem(item)
+  const potionItems = Object.entries(market ?? {}).filter(([, item]) =>
+    isPotionItem(item)
   );
 
   const renderItem = (key: string, item: MarketItem) => {
@@ -51,7 +51,9 @@ export function Market({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-xl">{emojiMap[key] ?? "🧪"}</span>
-            <span className="capitalize font-medium text-purple-800">{label}</span>
+            <span className="capitalize font-medium text-purple-800">
+              {label ?? "Unnamed"}
+            </span>
             {tier && (
               <span className="text-xs text-purple-500 italic">({tier})</span>
             )}
@@ -86,7 +88,7 @@ export function Market({
     <div className="bg-white shadow rounded-xl p-4 border border-purple-200 space-y-5">
       <h2 className="text-lg font-bold text-purple-700">🏬 Market</h2>
 
-      {cropItems.length > 0 && (
+      {Array.isArray(cropItems) && cropItems.length > 0 && (
         <div>
           <h3 className="text-md font-semibold text-purple-500 mb-1">🌱 Crops</h3>
           <ul className="space-y-2">
@@ -95,7 +97,7 @@ export function Market({
         </div>
       )}
 
-      {potionItems.length > 0 && (
+      {Array.isArray(potionItems) && potionItems.length > 0 && (
         <div>
           <h3 className="text-md font-semibold text-purple-500 mb-1">🧪 Potions</h3>
           <ul className="space-y-2">
