@@ -1,12 +1,12 @@
-// frontend/src/components/withTooltip.tsx
+// src/components/withTooltip.tsx
 import React from "react";
 import Tooltip from "./Tooltip";
 import { useTooltip } from "../useTooltip";
 
 export function withTooltip<P extends object>(
-    Component: React.ComponentType<P>,
-    tooltipContent: React.ReactNode
-  ) {  
+  Component: React.ComponentType<P>,
+  tooltipContent: React.ReactNode
+) {
   return function WrappedComponent(props: P) {
     const { visible, toggle, hide } = useTooltip();
 
@@ -18,6 +18,7 @@ export function withTooltip<P extends object>(
           onClick={toggle}
           onBlur={hide}
           className="text-gray-400 hover:text-gray-600 focus:outline-none"
+          aria-label="Show tooltip"
         >
           🔍
         </button>
