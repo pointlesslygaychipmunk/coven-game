@@ -8,13 +8,21 @@ import type {
 } from "../../../shared/types";
 
 interface MarketProps {
-  market: MarketState;
+  market: MarketState | undefined | null;
   onBuy: (item: string) => void;
   onSell: (item: string) => void;
 }
 
 export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
-  const items = market.items; // ✅ FIXED: use `items`, not `market` directly
+  if (!market?.items || typeof market.items !== "object") {
+    return (
+      <div className="bg-white border border-red-300 text-red-600 px-4 py-3 rounded shadow">
+        ⚠️ Market data unavailable. Try ending the turn or refreshing.
+      </div>
+    );
+  }
+
+  const items = market.items;
 
   const emojiMap: Record<string, string> = {
     mushroom: "🍄",
@@ -23,7 +31,6 @@ export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
     fruit: "🍎",
   };
 
-  // Type guards
   const isPotion = (item: MarketItem): item is PotionMarketItem =>
     item.type === "potion";
 
