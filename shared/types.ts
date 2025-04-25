@@ -1,6 +1,6 @@
 // shared/types.ts
 
-export type CropType = "tree" | "mushroom" | "flower" | "herb" | "fruit";
+export type CropType = "mushroom" | "flower" | "herb" | "fruit";
 export type PotionIngredient = "mushroom" | "flower" | "herb" | "fruit";
 export type PotionTier = "common" | "rare" | "epic" | "legendary";
 export type Season = "spring" | "summer" | "autumn" | "winter";

@@ -28,19 +28,19 @@ function createStartingPotions(): Potion[] {
       id: uuidv4(),
       name: "Soothing Elixir",
       tier: "common",
-      ingredients: { herb: 1, flower: 0, mushroom: 0, fruit: 0, tree: 0 },
+      ingredients: { herb: 1, flower: 0, mushroom: 0, fruit: 0 },
     },
     {
       id: uuidv4(),
       name: "Moonlight Tonic",
       tier: "common",
-      ingredients: { herb: 0, flower: 1, mushroom: 0, fruit: 0, tree: 0 },
+      ingredients: { herb: 0, flower: 1, mushroom: 0, fruit: 0 },
     },
   ];
 }
 
 function createInitialMarket(): MarketState {
-  const types: CropType[] = ["herb", "flower", "mushroom", "fruit", "tree"];
+  const types: CropType[] = ["herb", "flower", "mushroom", "fruit"];
   const market: MarketState = {};
   types.forEach((type) => {
     market[type] = {
