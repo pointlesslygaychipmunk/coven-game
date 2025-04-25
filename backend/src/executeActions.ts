@@ -18,7 +18,7 @@ export function executeActions(gameState: GameState, actions: Action[], playerId
         const crop = payload.crop as CropType;
         if (crop && player.inventory[crop] > 0) {
           player.garden.push({
-            kind: crop === "tree" ? "tree" : "crop",
+            kind: crop === "tree" as CropType ? "tree" : "crop",
             type: crop,
             growth: 0,
             isDead: false,
