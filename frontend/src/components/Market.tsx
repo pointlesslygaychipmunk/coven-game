@@ -23,22 +23,25 @@ export function Market({
     fruit: "🍎",
   };
 
+  const isPotionItem = (item: MarketItem): item is PotionMarketItem =>
+    item.type === "potion";
+
+  const isBasicItem = (item: MarketItem): item is BasicMarketItem =>
+    item.type === "ingredient" || item.type === "crop";
+
   const cropItems = Object.entries(market).filter(
-    ([_, item]) => item.type !== "potion"
-  ) as [string, BasicMarketItem][];
+    ([, item]) => isBasicItem(item)
+  );
 
   const potionItems = Object.entries(market).filter(
-    ([_, item]) => item.type === "potion"
-  ) as [string, PotionMarketItem][];
+    ([, item]) => isPotionItem(item)
+  );
 
-  const renderItem = (
-    key: string,
-    item: MarketItem
-  ) => {
-    const isPotion = item.type === "potion";
-    const label = isPotion && "name" in item ? item.name : key;
-    const tier = isPotion && "tier" in item ? item.tier : null;
-    const rumorMessage = item.rumors?.[0]?.message;
+  const renderItem = (key: string, item: MarketItem) => {
+    const isPotion = isPotionItem(item);
+    const label = isPotion ? item.name : key;
+    const tier = isPotion ? item.tier : null;
+    const rumor = item.rumors?.[0]?.message;
 
     return (
       <li
@@ -48,9 +51,7 @@ export function Market({
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-xl">{emojiMap[key] ?? "🧪"}</span>
-            <span className="capitalize font-medium text-purple-800">
-              {label}
-            </span>
+            <span className="capitalize font-medium text-purple-800">{label}</span>
             {tier && (
               <span className="text-xs text-purple-500 italic">({tier})</span>
             )}
@@ -72,9 +73,9 @@ export function Market({
             </button>
           </div>
         </div>
-        {rumorMessage && (
+        {rumor && (
           <div className="mt-2 ml-8 text-sm italic text-purple-600">
-            🗣️ {rumorMessage}
+            🗣️ {rumor}
           </div>
         )}
       </li>
