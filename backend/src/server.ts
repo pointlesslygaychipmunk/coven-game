@@ -10,19 +10,13 @@ import { playTurn } from "./playController";
 import { executeActions } from "./executeActions";
 
 import {
-  validatePlantCrop,
-  validatePlantTree,
+  validateWater,
+  validatePlant,
   validateHarvest,
   validateBrew,
-  validateFulfill,
-  validateFellTree,
-  validateBuy,
   validateSell,
-  validateUpgrade,
-  validateAdvance
+  validateBuy
 } from "./validate";
-
-import type { GameState, GardenSlot } from "../../shared/types";
 
 const app = express();
 
@@ -31,11 +25,11 @@ const corsOptions = {
     "https://playcoven.com",
     "https://coven-frontend.onrender.com",
     "http://localhost:5173",
-    "null",
+    "null"
   ],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type"],
-  credentials: true,
+  credentials: true
 };
 
 app.use(cors(corsOptions));
@@ -45,20 +39,15 @@ app.options("*", (_req, res) => {
   res.set({
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type"
   });
   res.sendStatus(204);
 });
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "https://coven-frontend.onrender.com" },
+  cors: { origin: "https://coven-frontend.onrender.com" }
 });
-
-// Utility to validate result shape
-function isValidationResult(obj: any): obj is { valid: boolean; error?: string; state?: any } {
-  return obj && typeof obj === "object" && "valid" in obj;
-}
 
 app.get("/ping", (_req: Request, res: Response) => {
   res.json({ message: "pong" });
@@ -69,80 +58,14 @@ app.get("/init", (_req: Request, res: Response) => {
   res.json(initialState);
 });
 
-app.post("/plant", (req: Request, res: Response) => {
-  const { type, index, gameState } = req.body;
-  const result = validatePlantCrop(gameState, type, index);
-  if (!result.valid) return res.status(400).json({ error: result.error });
-  res.json(result.state);
-});
-
-app.post("/plant-tree", (req: Request, res: Response) => {
-  const { gameState, index } = req.body;
-  const result = validatePlantTree(gameState, index);
-  if (!result.valid) return res.status(400).json({ error: result.error });
-  res.json(result.state);
-});
-
-app.post("/harvest", (req: Request, res: Response) => {
-  const result = validateHarvest(req.body.gameState);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid harvest" });
-  res.json(result.state);
-});
-
-app.post("/brew", (req: Request, res: Response) => {
-    const { gameState, potion } = req.body;
-    const result = validateBrew(gameState, potion);
-    if (!result.valid) return res.status(400).json({ error: result.error || "Invalid brew" });
-    res.json(result.state);
-  });  
-
-app.post("/fulfill", (req: Request, res: Response) => {
-  const { card, gameState } = req.body;
-  const result = validateFulfill(gameState, card);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid fulfill" });
-  res.json(result.state);
-});
-
-app.post("/fell-tree", (req: Request, res: Response) => {
-  const { index, gameState } = req.body;
-  const result = validateFellTree(gameState, index);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid fell" });
-  res.json(result.state);
-});
-
-app.post("/buy", (req: Request, res: Response) => {
-    const { gameState, item, quantity = 1 } = req.body;
-    const result = validateBuy(gameState, item, quantity);
-    if (!result.valid) return res.status(400).json({ error: result.error || "Invalid buy" });
-    res.json(result.state);
-  });  
-
-  app.post("/sell", (req: Request, res: Response) => {
-    const { gameState, item, quantity = 1 } = req.body;
-    const result = validateSell(gameState, item, quantity);
-    if (!result.valid) return res.status(400).json({ error: result.error || "Invalid sell" });
-    res.json(result.state);
-  });  
-
-app.post("/upgrade", (req: Request, res: Response) => {
-  const { gameState, upgradeId } = req.body;
-  const result = validateUpgrade(gameState, upgradeId);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid upgrade" });
-  res.json(result.state);
-});
-
-app.post("/advance", (req: Request, res: Response) => {
-  const result = validateAdvance(req.body.gameState);
-  if (!isValidationResult(result) || !result.valid) return res.status(400).json({ error: result?.error || "Invalid advance" });
-  res.json(result.state);
-});
-
 app.post("/execute-actions", (req: Request, res: Response) => {
-  const { gameState, actions } = req.body;
-  if (!gameState || !actions) return res.status(400).json({ error: "Missing gameState or actions" });
+  const { gameState, actions, playerId } = req.body;
+  if (!gameState || !actions || !playerId) {
+    return res.status(400).json({ error: "Missing gameState, actions, or playerId" });
+  }
 
   try {
-    const newState = executeActions(gameState, actions);
+    const newState = executeActions(gameState, actions, playerId);
     res.json(newState);
   } catch (err: any) {
     console.error("Execution failed", err);
@@ -151,11 +74,13 @@ app.post("/execute-actions", (req: Request, res: Response) => {
 });
 
 app.post("/play-turn", (req: Request, res: Response) => {
-  const { gameState, actions } = req.body;
-  if (!gameState) return res.status(400).json({ error: "Missing gameState" });
+  const { gameState, actions, playerId } = req.body;
+  if (!gameState || !playerId) {
+    return res.status(400).json({ error: "Missing gameState or playerId" });
+  }
 
   try {
-    const newState = playTurn(gameState, actions || []);
+    const newState = playTurn(gameState, actions || [], playerId); // ✅ Corrected
     res.json(newState);
   } catch (err: any) {
     console.error("Turn processing failed", err);

@@ -1,30 +1,35 @@
 import { v4 as uuidv4 } from "uuid";
-import type { TownRequestCard } from "../../shared/types";
+import type { TownRequestCard, PotionIngredient, Season } from "../../shared/types";
 
 export function generateTownRequests(): TownRequestCard[] {
-  const slots: (1 | 2 | 3)[] = [1, 2, 3];
-  const generateNeeds = (): Record<"mushroom" | "flower" | "herb" | "fruit", number> => ({
-    mushroom: Math.floor(Math.random() * 2),
-    flower: Math.floor(Math.random() * 2),
-    herb: Math.floor(Math.random() * 2),
-    fruit: Math.floor(Math.random() * 2),
-  });
+  const ingredients: PotionIngredient[] = ["herb", "flower", "mushroom", "fruit"];
+  const seasons: Season[] = ["spring", "summer", "autumn", "winter"];
 
-  return slots.map((slot) => {
-    const potionNeeds = generateNeeds();
-    const total = Object.values(potionNeeds).reduce((a, b) => a + b, 0);
-    return {
-      id: uuidv4(),
-      potionNeeds,
-      boardSlot: slot,
-      craftPoints: Math.floor(Math.random() * 5) + 1,
-      reward: {
-        gold: 1 + (4 - slot),
-        renown: 2 - slot,
-      },
-      fulfilled: false,
-      type: "standard",   // <- required field
-      count: total        // <- required field
+  return Array.from({ length: 3 }, (_, i) => {
+    const randomIngredient = ingredients[Math.floor(Math.random() * ingredients.length)];
+    const randomSeason = seasons[Math.floor(Math.random() * seasons.length)];
+
+    const potionNeeds: Record<PotionIngredient, number> = {
+      herb: 0,
+      flower: 0,
+      mushroom: 0,
+      fruit: 0,
     };
+    potionNeeds[randomIngredient] = 1;
+
+    const card: TownRequestCard = {
+      id: uuidv4(),
+      description: `Deliver 1 ${randomIngredient} potion`,
+      reward: 10, // Adjusted: fixed gold reward (could randomize later)
+      boardSlot: (i % 3) + 1 as 1 | 2 | 3,
+      potionNeeds,
+      craftPoints: 1,
+      fulfilled: false,
+      type: "standard",
+      count: 1,
+      season: randomSeason,
+    };
+
+    return card;
   });
 }

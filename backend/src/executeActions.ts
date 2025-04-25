@@ -1,89 +1,85 @@
-import type { GameState } from "../../shared/types";
-import type { Action } from "../../shared/actionTypes";
+import { GameState, Action, Potion, Player, CropType } from "../../shared/types";
+import { v4 as uuidv4 } from "uuid";
 
-import {
-  validateHarvest,
-  validatePlantCrop,
-  validatePlantTree,
-  validateFellTree,
-  validateWater,
-  validateBrew,
-  validateFulfill,
-  validateBuy,
-  validateSell,
-  validateUpgrade,
-  validateAdvance,
-} from "./validate";
+function getPlayerById(state: GameState, playerId: string): Player {
+  const player = state.players.find((p: Player) => p.id === playerId);
+  if (!player) throw new Error(`Player with ID "${playerId}" not found`);
+  return player;
+}
 
-export function executeActions(gameState: GameState, actions: Action[]): GameState {
-  let currentState = structuredClone(gameState);
+export function executeActions(gameState: GameState, actions: Action[], playerId: string): GameState {
+  const player = getPlayerById(gameState, playerId);
 
   for (const action of actions) {
-    let result;
+    const payload = action.payload || {};
 
     switch (action.type) {
-      case "plant":
-        result = validatePlantCrop(currentState, action.crop, action.index);
-        break;
-
-      case "plant-tree":
-        result = validatePlantTree(currentState, action.index);
-        break;
-
-      case "fell-tree":
-        result = validateFellTree(currentState, action.index);
-        break;
-
-      case "harvest":
-        result = validateHarvest(currentState);
-        break;
-
-      case "water":
-        // For now, always try to water slot 0 (adapt if needed)
-        result = validateWater(currentState, 0);
-        break;
-
-      case "brew":
-        result = validateBrew(currentState, action.potion);
-        break;
-
-      case "fulfill":
-        const card = currentState.townRequests.find(c => c.id === action.requestId);
-        if (!card) {
-          currentState.player.alerts?.push(`❌ Invalid request ID: ${action.requestId}`);
-          continue;
+      case "plant": {
+        const crop = payload.crop as CropType;
+        if (crop && player.inventory[crop] > 0) {
+          player.garden.push({
+            kind: crop === "tree" ? "tree" : "crop",
+            type: crop,
+            growth: 0,
+            isDead: false,
+          });
+          player.inventory[crop]--;
         }
-        result = validateFulfill(currentState, card);
         break;
+      }
 
-      case "buy":
-        result = validateBuy(currentState, action.item, action.quantity ?? 1);
+      case "harvest": {
+        const crop = payload.crop as CropType;
+        if (!crop) break;
+        const index = player.garden.findIndex(
+          (slot) => slot.type === crop && slot.growth >= 3 && !slot.isDead
+        );
+        if (index >= 0) {
+          player.inventory[crop]++;
+          player.garden.splice(index, 1);
+        }
         break;
+      }
 
-      case "sell":
-        result = validateSell(currentState, action.item, action.quantity ?? 1);
+      case "water": {
+        player.wateringUsed++;
         break;
+      }
 
-      case "upgrade":
-        result = validateUpgrade(currentState, action.upgraded);
+      case "brew": {
+        const { name, tier, ingredients } = payload;
+        if (name && tier && ingredients) {
+          const newPotion: Potion = {
+            id: uuidv4(),
+            name,
+            tier,
+            ingredients,
+          };
+          player.potions.push(newPotion);
+          player.craftPoints += tier === "common" ? 1 :
+                                tier === "rare"   ? 2 :
+                                tier === "epic"   ? 3 :
+                                tier === "legendary" ? 4 : 0;
+        }
         break;
+      }
 
-      case "advance":
-        result = validateAdvance(currentState);
+      case "sell": {
+        const { potionName, goldEarned } = payload;
+        if (potionName && typeof goldEarned === "number") {
+          const index = player.potions.findIndex((p) => p.name === potionName);
+          if (index !== -1) {
+            player.potions.splice(index, 1);
+            player.gold += goldEarned;
+          }
+        }
         break;
+      }
 
       default:
-        currentState.player.alerts?.push(`❌ Unknown action type: ${(action as any).type}`);
-        continue;
-    }
-
-    if (!result.valid) {
-      currentState.player.alerts?.push(`❌ Action failed: ${result.error}`);
-    } else {
-      currentState = result.state;
-      currentState.actionsUsed += 1;
+        console.warn(`Unknown action type: ${action.type}`);
     }
   }
 
-  return currentState;
+  return gameState;
 }

@@ -1,34 +1,21 @@
-import type { GameState, PotionType } from "../../shared/types";
-import { canUseAction, incrementActionsUsed } from "./canUseAction";
+import { GameState, MarketItem, CropType } from "../../shared/types";
 
-export function applyBuy(gameState: GameState, type: PotionType, quantity: number = 1): GameState {
-  if (!canUseAction(gameState)) {
-    gameState.player.alerts?.push("❌ You’ve already used 2 actions this moon.");
-    return gameState;
+export function applyBuy(
+  state: GameState,
+  playerId: string,
+  item: MarketItem
+): GameState {
+  const player = state.players.find((p) => p.id === playerId);
+  if (!player) throw new Error(`Player with ID ${playerId} not found`);
+
+  const inventoryKey = item.type === "potion" ? item.name : item.type;
+
+  if (item.type === "ingredient" || item.type === "crop") {
+    const key = inventoryKey as CropType;
+    player.inventory[key] = (player.inventory[key] ?? 0) + 1;
   }
 
-  const item = gameState.market?.[type];
-  if (!item) {
-    gameState.player.alerts?.push(`❌ Invalid item type: ${type}`);
-    return gameState;
-  }
+  player.gold -= item.currentPrice ?? item.price;
 
-  const cost = item.price * quantity;
-
-  if (item.stock < quantity) {
-    gameState.player.alerts?.push(`❌ Not enough ${type} in stock.`);
-    return gameState;
-  }
-
-  if (gameState.player.gold < cost) {
-    gameState.player.alerts?.push(`❌ Not enough gold to buy ${quantity} ${type}.`);
-    return gameState;
-  }
-
-  gameState.player.gold -= cost;
-  gameState.player.inventory[type] += quantity;
-  gameState.market[type].stock -= quantity;
-
-  gameState.player.alerts?.push(`🛒 Bought ${quantity} ${type} for ${cost} gold.`);
-  return incrementActionsUsed(gameState);
+  return state;
 }

@@ -1,99 +1,50 @@
-import type { PotionType } from "../shared/types";
+// shared/actionTypes.ts
 
-// 🌱 Planting a crop (non-fruit)
-export type PlantAction = {
+import type { CropType, PotionIngredient, PotionTier } from "./types";
+
+// --- Strongly Typed Action Payloads ---
+
+export interface PlantAction {
   type: "plant";
-  crop: Exclude<PotionType, "fruit">;
-  index: number; // plot index
-};
+  payload: {
+    crop: CropType;
+  };
+}
 
-// 🌳 Planting a tree
-export type PlantTreeAction = {
-  type: "plant-tree";
-  index: number;
-};
-
-// 🪓 Felling a tree
-export type FellTreeAction = {
-  type: "fell-tree";
-  index: number;
-};
-
-// 🌾 Harvesting (global, no index needed)
-export type HarvestAction = {
+export interface HarvestAction {
   type: "harvest";
-};
+  payload: {
+    crop: CropType;
+  };
+}
 
-// 💧 Watering a plot
-export type WaterAction = {
+export interface WaterAction {
   type: "water";
-  index: number;
-};
+  payload?: undefined; // no payload needed
+}
 
-// 🧪 Brewing a potion
-export type BrewAction = {
-    type: "brew";
-    potion: PotionType;
-  };  
+export interface BrewAction {
+  type: "brew";
+  payload: {
+    name: string;
+    tier: PotionTier;
+    ingredients: Record<PotionIngredient, number>;
+  };
+}
 
-// 🛒 Buying an item (ingredient)
-export type BuyAction = {
-  type: "buy";
-  item: PotionType;
-  quantity?: number;
-};
-
-// 💰 Selling an item
-export type SellAction = {
+export interface SellAction {
   type: "sell";
-  item: PotionType;
-  quantity?: number;
-};
+  payload: {
+    potionName: string;
+    goldEarned: number;
+  };
+}
 
-// 🛠️ Upgrading a station
-export type UpgradeAction = {
-  type: "upgrade";
-  upgraded: "well" | "cellar" | "cart" | "cauldron";
-};
-
-// 📦 Fulfilling a town request
-export type FulfillAction = {
-  type: "fulfill";
-  requestId: string;
-};
-
-// 🌲 Foraging (future use)
-export type ForageAction = {
-  type: "forage";
-};
-
-// 🔮 Fortune-telling
-export type FortuneAction = {
-  type: "fortune";
-};
-
-// 🌕 Lady consultation
-export type LadyAction = {
-  type: "lady";
-};
-
-// ⏭️ Advancing to next moon phase
-export type AdvanceAction = {
-  type: "advance";
-};
+// --- Union of All Action Types ---
 
 export type Action =
   | PlantAction
-  | PlantTreeAction
-  | FellTreeAction
   | HarvestAction
   | WaterAction
   | BrewAction
-  | BuyAction
-  | SellAction
-  | UpgradeAction
-  | FulfillAction
-  | ForageAction
-  | FortuneAction
-  | LadyAction
-  | AdvanceAction;
+  | SellAction;

@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
+    "target": "ESNext",
+    "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "outDir": "./dist"
+    "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["backend/**/*.ts", "shared/**/*.ts", "frontend/**/*.ts"],
+  "exclude": ["node_modules"]
 }
