@@ -1,4 +1,4 @@
-import { Player, MarketState, GameStatus, MarketMemoryEntry } from '../../shared/types';
+import { Player, MarketState, GameStatus, MarketMemoryEntry } from '../../../shared/types';
 
 /**
  * Record a player's interaction with the market.
