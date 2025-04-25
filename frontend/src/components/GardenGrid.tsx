@@ -2,17 +2,15 @@
 import React from "react";
 import type { GardenSlot, Player } from "../../../shared/types";
 
-// Only valid crops, not "fruit" / "tree" which require special logic
 const validCropTypes = ["mushroom", "flower", "herb"] as const;
 type PlantableCrop = (typeof validCropTypes)[number];
 
 const growthIcons: Record<string, string[]> = {
   mushroom: ["🟤", "🍄", "🍄🍄", "🍄🍄🍄"],
-  flower:   ["🌱", "🪷", "🌸", "🪻"],
-  herb:     ["🌱", "☘️", "🍀", "🌾"],
+  flower: ["🌱", "🪷", "🌸", "🪻"],
+  herb: ["🌱", "☘️", "🍀", "🌾"],
+  fruit: ["🌱", "🌿", "🌳", "🌳"], // used visually before tree state
 };
-
-const treeStages = ["🌰", "🌿", "🌳", "🌳🍎"];
 
 export function GardenGrid({
   spaces,
@@ -30,65 +28,51 @@ export function GardenGrid({
   const renderEmptySlot = (index: number) => (
     <div
       key={index}
-      className="border bg-white/40 backdrop-blur rounded-lg p-2 text-xs space-y-1 shadow-sm flex flex-col justify-center items-center"
+      className="border-2 border-dashed border-green-300 bg-white/40 rounded-lg p-2 text-xs space-y-1 text-center shadow-sm"
     >
       {validCropTypes.map((type) => (
         <button
           key={type}
-          className={`rounded w-full py-1 text-sm ${
-            player.inventory[type] > 0
-              ? "bg-green-100 hover:bg-green-200"
-              : "bg-gray-100 text-gray-400 cursor-not-allowed"
-          } transition`}
+          className="bg-green-100 hover:bg-green-200 rounded w-full py-1 font-medium transition disabled:opacity-30"
           disabled={player.inventory[type] <= 0}
           onClick={() => onPlantCrop(type, index)}
         >
-          🌱 {type}
+          🌱 Plant {type}
         </button>
       ))}
       <button
-        className={`rounded w-full py-1 text-sm ${
-          player.inventory["fruit"] > 0
-            ? "bg-yellow-100 hover:bg-yellow-200"
-            : "bg-gray-100 text-gray-400 cursor-not-allowed"
-        } transition`}
+        className="bg-yellow-100 hover:bg-yellow-200 rounded w-full py-1 font-medium transition disabled:opacity-30"
         disabled={player.inventory["fruit"] <= 0}
         onClick={() => onPlantTree(index)}
       >
-        🌳 plant tree
+        🌳 Plant Tree
       </button>
     </div>
   );
 
   const renderOccupiedSlot = (slot: GardenSlot, index: number) => {
     const isDead = slot.isDead;
-    const growth = Math.min(Math.floor(slot.growth), 3);
     const isTree = slot.kind === "tree";
+    const growth = Math.min(Math.floor(slot.growth), 3);
+    const icon = isTree ? "🌳" : growthIcons[slot.type]?.[growth] ?? "❓";
+    const label = isDead ? "💀 Dead" : `${icon}`;
 
-    const icon = isDead
-      ? "💀"
-      : isTree
-      ? treeStages[growth]
-      : growthIcons[slot.type]?.[growth] ?? "❓";
-
-    const label = isDead ? "Dead" : `${slot.type}`;
-
-    const baseStyle =
-      "border rounded-lg p-3 text-center text-lg font-semibold cursor-pointer transition-all shadow flex flex-col items-center justify-center";
-    const activeStyle = isDead
-      ? "bg-gray-300 text-gray-600 line-through"
-      : isTree
-      ? "bg-emerald-100 text-emerald-800"
-      : "bg-green-200 text-green-900";
+    const base =
+      "rounded-lg p-2 text-center text-sm font-semibold cursor-pointer transition shadow-md";
+    const live = isTree
+      ? "bg-green-200 text-green-900"
+      : "bg-lime-100 text-lime-800";
+    const dead = "bg-gray-200 text-gray-600 line-through";
 
     return (
       <div
         key={index}
-        className={`${baseStyle} ${activeStyle}`}
+        className={`${base} ${isDead ? dead : live}`}
         onClick={() => onHarvest(index)}
+        title={isDead ? "Click to clear" : `Harvest ${slot.type}`}
       >
-        <div className="text-2xl">{icon}</div>
-        <div className="text-xs mt-1 capitalize">{label}</div>
+        {label}
+        <div className="text-xs">{slot.type}</div>
       </div>
     );
   };
