@@ -14,6 +14,8 @@ interface MarketProps {
 }
 
 export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
+  const items = market.items; // ✅ FIXED: use `items`, not `market` directly
+
   const emojiMap: Record<string, string> = {
     mushroom: "🍄",
     flower: "🌸",
@@ -28,8 +30,8 @@ export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
   const isBasic = (item: MarketItem): item is BasicMarketItem =>
     item.type === "crop" || item.type === "ingredient";
 
-  const cropItems = Object.entries(market).filter(([, item]) => isBasic(item));
-  const potionItems = Object.entries(market).filter(([, item]) => isPotion(item));
+  const cropItems = Object.entries(items).filter(([, item]) => isBasic(item));
+  const potionItems = Object.entries(items).filter(([, item]) => isPotion(item));
 
   const renderItem = (key: string, item: MarketItem) => {
     const label = isPotion(item) ? item.name : key;
