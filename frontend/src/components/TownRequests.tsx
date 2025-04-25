@@ -20,7 +20,7 @@ const slotBonuses = {
   4: { gold: 1, renown: -2, color: 'from-red-200 to-pink-100' },
 };
 
-const potionIcons = {
+const potionIcons: Record<string, string> = {
   mushroom: '🍄',
   flower: '🌸',
   herb: '🌿',
@@ -37,17 +37,18 @@ export const TownRequests = ({
   if (!cards?.length) return null;
 
   return (
-    <div className="p-4 bg-white/70 rounded-xl shadow space-y-2">
+    <div className="p-4 bg-white/70 rounded-xl shadow space-y-3">
       <h3 className="text-lg font-bold text-purple-700">📜 Town Requests</h3>
       <div className="grid grid-cols-2 gap-4">
         {cards.map((card, index) => {
           const { gold, renown, color } = slotBonuses[card.boardSlot];
+          const isFulfilled = !!card.fulfilled;
 
           return (
             <div
               key={card.id}
               className={`rounded-xl p-3 border bg-gradient-to-br ${color} ${
-                card.fulfilled ? 'opacity-40 line-through' : 'hover:ring-2 hover:ring-purple-400'
+                isFulfilled ? 'opacity-40 line-through' : 'hover:ring-2 hover:ring-purple-400'
               } shadow-md transition-all`}
             >
               <div className="flex justify-between items-center mb-1 text-sm">
@@ -56,13 +57,14 @@ export const TownRequests = ({
               </div>
 
               <div className="my-2 flex flex-wrap gap-1">
-                {Object.entries(card.potionNeeds).map(([type, count]) =>
+                {Object.entries(card.potionNeeds || {}).map(([type, count]) =>
                   count > 0 ? (
                     <div
                       key={type}
                       className="px-2 py-1 bg-white/70 text-sm rounded-full border border-white/60 shadow"
+                      title={`${count} ${type} potion${count > 1 ? 's' : ''}`}
                     >
-                      {potionIcons[type as keyof typeof potionIcons]} × {count}
+                      {potionIcons[type] ?? '🧪'} × {count}
                     </div>
                   ) : null
                 )}
@@ -73,7 +75,7 @@ export const TownRequests = ({
                 <span>📈 {renown > 0 ? '+' : ''}{renown} renown</span>
               </div>
 
-              {!card.fulfilled && (
+              {!isFulfilled && (
                 <button
                   onClick={() => onFulfill(index)}
                   className="mt-2 w-full py-1 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded shadow"
