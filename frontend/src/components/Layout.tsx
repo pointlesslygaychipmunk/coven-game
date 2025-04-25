@@ -86,8 +86,16 @@ export const Layout = ({
     postUpdate("play-turn", { gameState, actions: [] });
   };
 
-  const player = gameState.players?.[0];
-  if (!player) return <div>🌀 Loading player data...</div>;
+  // --- GUARD EVERYTHING ---
+  if (
+    !gameState ||
+    !Array.isArray(gameState.players) ||
+    !gameState.players[0]
+  ) {
+    return <div className="text-center text-purple-700 text-lg">🌀 Loading game...</div>;
+  }
+
+  const player = gameState.players[0];
 
   if (gameOver && scoreData) {
     return (
@@ -116,25 +124,29 @@ export const Layout = ({
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          <TownRequests
-            cards={gameState.townRequests}
-            onFulfill={handleFulfill}
-          />
-          <Market
-            market={gameState.market}
-            onBuy={(itemKey: string) =>
-              postUpdate("execute-actions", {
-                gameState,
-                actions: [{ type: "buy", item: itemKey, quantity: 1 }],
-              })
-            }
-            onSell={(itemKey: string) =>
-              postUpdate("execute-actions", {
-                gameState,
-                actions: [{ type: "sell", item: itemKey, quantity: 1 }],
-              })
-            }
-          />
+          {Array.isArray(gameState.townRequests) && (
+            <TownRequests
+              cards={gameState.townRequests}
+              onFulfill={handleFulfill}
+            />
+          )}
+          {gameState.market && typeof gameState.market === "object" && (
+            <Market
+              market={gameState.market}
+              onBuy={(itemKey: string) =>
+                postUpdate("execute-actions", {
+                  gameState,
+                  actions: [{ type: "buy", item: itemKey, quantity: 1 }],
+                })
+              }
+              onSell={(itemKey: string) =>
+                postUpdate("execute-actions", {
+                  gameState,
+                  actions: [{ type: "sell", item: itemKey, quantity: 1 }],
+                })
+              }
+            />
+          )}
         </div>
       </div>
 
@@ -147,7 +159,9 @@ export const Layout = ({
         </button>
       </div>
 
-      {player.alerts?.length > 0 && <Journal alerts={player.alerts} />}
+      {Array.isArray(player.alerts) && player.alerts.length > 0 && (
+        <Journal alerts={player.alerts} />
+      )}
     </div>
   );
 };

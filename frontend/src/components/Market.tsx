@@ -3,19 +3,17 @@ import React from "react";
 import type {
   MarketItem,
   MarketState,
-  PotionMarketItem,
   BasicMarketItem,
+  PotionMarketItem,
 } from "../../../shared/types";
 
-export function Market({
-  market,
-  onBuy,
-  onSell,
-}: {
+interface MarketProps {
   market: MarketState;
   onBuy: (item: string) => void;
   onSell: (item: string) => void;
-}) {
+}
+
+export const Market: React.FC<MarketProps> = ({ market, onBuy, onSell }) => {
   const emojiMap: Record<string, string> = {
     mushroom: "🍄",
     flower: "🌸",
@@ -23,24 +21,19 @@ export function Market({
     fruit: "🍎",
   };
 
-  const isPotionItem = (item: MarketItem): item is PotionMarketItem =>
+  // Type guards
+  const isPotion = (item: MarketItem): item is PotionMarketItem =>
     item.type === "potion";
 
-  const isBasicItem = (item: MarketItem): item is BasicMarketItem =>
-    item.type === "ingredient" || item.type === "crop";
+  const isBasic = (item: MarketItem): item is BasicMarketItem =>
+    item.type === "crop" || item.type === "ingredient";
 
-  const cropItems = Object.entries(market ?? {}).filter(([, item]) =>
-    isBasicItem(item)
-  );
-
-  const potionItems = Object.entries(market ?? {}).filter(([, item]) =>
-    isPotionItem(item)
-  );
+  const cropItems = Object.entries(market).filter(([, item]) => isBasic(item));
+  const potionItems = Object.entries(market).filter(([, item]) => isPotion(item));
 
   const renderItem = (key: string, item: MarketItem) => {
-    const isPotion = isPotionItem(item);
-    const label = isPotion ? item.name : key;
-    const tier = isPotion ? item.tier : null;
+    const label = isPotion(item) ? item.name : key;
+    const tier = isPotion(item) ? item.tier : null;
     const rumor = item.rumors?.[0]?.message;
 
     return (
@@ -52,7 +45,7 @@ export function Market({
           <div className="flex items-center gap-2">
             <span className="text-xl">{emojiMap[key] ?? "🧪"}</span>
             <span className="capitalize font-medium text-purple-800">
-              {label ?? "Unnamed"}
+              {label}
             </span>
             {tier && (
               <span className="text-xs text-purple-500 italic">({tier})</span>
@@ -88,23 +81,27 @@ export function Market({
     <div className="bg-white shadow rounded-xl p-4 border border-purple-200 space-y-5">
       <h2 className="text-lg font-bold text-purple-700">🏬 Market</h2>
 
-      {Array.isArray(cropItems) && cropItems.length > 0 && (
-        <div>
+      {cropItems.length > 0 && (
+        <section>
           <h3 className="text-md font-semibold text-purple-500 mb-1">🌱 Crops</h3>
           <ul className="space-y-2">
             {cropItems.map(([key, item]) => renderItem(key, item))}
           </ul>
-        </div>
+        </section>
       )}
 
-      {Array.isArray(potionItems) && potionItems.length > 0 && (
-        <div>
+      {potionItems.length > 0 && (
+        <section>
           <h3 className="text-md font-semibold text-purple-500 mb-1">🧪 Potions</h3>
           <ul className="space-y-2">
             {potionItems.map(([key, item]) => renderItem(key, item))}
           </ul>
-        </div>
+        </section>
+      )}
+
+      {cropItems.length === 0 && potionItems.length === 0 && (
+        <p className="text-gray-500 italic">No items available for sale.</p>
       )}
     </div>
   );
-}
+};

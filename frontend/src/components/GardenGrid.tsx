@@ -9,8 +9,16 @@ const growthIcons: Record<string, string[]> = {
   mushroom: ["🟤", "🍄", "🍄🍄", "🍄🍄🍄"],
   flower: ["🌱", "🪷", "🌸", "🪻"],
   herb: ["🌱", "☘️", "🍀", "🌾"],
-  fruit: ["🌱", "🌿", "🌳", "🌳"], // used visually before tree state
+  fruit: ["🌱", "🌿", "🌳", "🌳"], // visual progression pre-tree
 };
+
+interface GardenGridProps {
+  spaces: (GardenSlot | null)[];
+  player: Player;
+  onPlantCrop: (type: PlantableCrop, index: number) => void;
+  onPlantTree: (index: number) => void;
+  onHarvest: (index: number) => void;
+}
 
 export function GardenGrid({
   spaces,
@@ -18,13 +26,7 @@ export function GardenGrid({
   onPlantCrop,
   onPlantTree,
   onHarvest,
-}: {
-  spaces: (GardenSlot | null)[];
-  player: Player;
-  onPlantCrop: (type: PlantableCrop, index: number) => void;
-  onPlantTree: (index: number) => void;
-  onHarvest: (index: number) => void;
-}) {
+}: GardenGridProps) {
   const renderEmptySlot = (index: number) => (
     <div
       key={index}
@@ -51,11 +53,11 @@ export function GardenGrid({
   );
 
   const renderOccupiedSlot = (slot: GardenSlot, index: number) => {
-    const isDead = slot.isDead;
-    const isTree = slot.kind === "tree";
-    const growth = Math.min(Math.floor(slot.growth), 3);
-    const icon = isTree ? "🌳" : growthIcons[slot.type]?.[growth] ?? "❓";
-    const label = isDead ? "💀 Dead" : `${icon}`;
+    const { type, growth, isDead, kind } = slot;
+    const stage = Math.min(Math.floor(growth), 3);
+    const isTree = kind === "tree";
+    const icon = isTree ? "🌳" : growthIcons[type]?.[stage] ?? "❓";
+    const label = isDead ? "💀 Dead" : icon;
 
     const base =
       "rounded-lg p-2 text-center text-sm font-semibold cursor-pointer transition shadow-md";
@@ -69,10 +71,10 @@ export function GardenGrid({
         key={index}
         className={`${base} ${isDead ? dead : live}`}
         onClick={() => onHarvest(index)}
-        title={isDead ? "Click to clear" : `Harvest ${slot.type}`}
+        title={isDead ? "Click to clear" : `Harvest ${type}`}
       >
         {label}
-        <div className="text-xs">{slot.type}</div>
+        <div className="text-xs mt-1">{type}</div>
       </div>
     );
   };
