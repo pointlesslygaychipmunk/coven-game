@@ -111,24 +111,24 @@ export const Layout = ({
         </div>
 
         <div className="flex flex-col gap-4 w-1/2">
-          <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
-          {gameState.market && (
-            <Market
-              market={gameState.market}
-              onBuy={(item) =>
-                postUpdate("execute-actions", {
-                  gameState,
-                  actions: [{ type: "buy", item, quantity: 1 }],
-                })
-              }
-              onSell={(item) =>
-                postUpdate("execute-actions", {
-                  gameState,
-                  actions: [{ type: "sell", item, quantity: 1 }],
-                })
-              }
-            />
-          )}
+        <TownRequests cards={gameState.townRequests} onFulfill={handleFulfill} />
+        {gameState.market && (
+          <Market
+            market={gameState.market}
+            onBuy={(itemKey: string) =>
+              postUpdate("execute-actions", {
+                gameState,
+                actions: [{ type: "buy", item: itemKey, quantity: 1 }],
+              })
+            }
+            onSell={(itemKey: string) =>
+              postUpdate("execute-actions", {
+                gameState,
+                actions: [{ type: "sell", item: itemKey, quantity: 1 }],
+              })
+            }
+          />
+        )}
         </div>
       </div>
 
