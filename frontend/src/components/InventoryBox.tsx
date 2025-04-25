@@ -1,6 +1,6 @@
 // src/components/InventoryBox.tsx
 import React from "react";
-import type { Player } from "../../../shared/types";
+import type { Player } from "../../shared/types";
 import Tooltip from "./Tooltip";
 import { useTooltip } from "../useTooltip";
 
@@ -28,18 +28,24 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
   const craftTip = useTooltip();
   const waterTip = useTooltip();
 
-  // Tally up potion names
+  // Prepare potion counts
   const potionCounts: Record<string, number> = {};
   player.potions.forEach((p) => {
     potionCounts[p.name] = (potionCounts[p.name] || 0) + 1;
   });
 
-  // Precompute hooks for each inventory item (fixed order)
-  const inventoryKeys = Object.keys(player.inventory) as (keyof typeof player.inventory)[];
-  const inventoryTooltips = inventoryKeys.map(() => useTooltip());
+  // Predefine ingredient tooltips to avoid useTooltip() in a loop
+  const ingredientTooltips = (Object.keys(player.inventory) as (keyof typeof player.inventory)[])
+    .reduce((acc, key) => {
+      acc[key] = useTooltip();
+      return acc;
+    }, {} as Record<string, ReturnType<typeof useTooltip>>);
 
-  const potionNames = Object.keys(potionCounts);
-  const potionTooltips = potionNames.map(() => useTooltip());
+  const potionTooltips = Object.keys(potionCounts)
+    .reduce((acc, name) => {
+      acc[name] = useTooltip();
+      return acc;
+    }, {} as Record<string, ReturnType<typeof useTooltip>>);
 
   return (
     <div className="bg-white/70 rounded-lg shadow-md p-4 space-y-6">
@@ -69,37 +75,32 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🌱 Crops</h3>
         <div className="flex flex-wrap justify-around gap-3 text-center">
-          {inventoryKeys.map((item, i) => {
-            const tip = inventoryTooltips[i];
-            return (
-              <div key={item} onMouseEnter={tip.show} onMouseLeave={tip.hide} className="relative">
-                🌾 {item}: {player.inventory[item]}
-                <Tooltip visible={tip.visible}>{ingredientTips[item]}</Tooltip>
-              </div>
-            );
-          })}
+          {(Object.keys(player.inventory) as (keyof typeof player.inventory)[]).map((item) => (
+            <div key={item} onMouseEnter={ingredientTooltips[item].show} onMouseLeave={ingredientTooltips[item].hide} className="relative">
+              🌾 {item}: {player.inventory[item]}
+              <Tooltip visible={ingredientTooltips[item].visible}>
+                {ingredientTips[item]}
+              </Tooltip>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Potions */}
       <div>
         <h3 className="text-center font-semibold text-purple-500 mb-1">🧪 Potions</h3>
-        {potionNames.length === 0 ? (
+        {Object.keys(potionCounts).length === 0 ? (
           <p className="text-sm text-center text-gray-500">No potions brewed yet.</p>
         ) : (
           <div className="flex flex-wrap justify-around gap-3 text-center">
-            {potionNames.map((name, i) => {
-              const count = potionCounts[name];
-              const tip = potionTooltips[i];
-              return (
-                <div key={name} onMouseEnter={tip.show} onMouseLeave={tip.hide} className="relative">
-                  🧪 {name}: {count}
-                  <Tooltip visible={tip.visible}>
-                    You have {count} bottle{count > 1 ? "s" : ""} of "{name}".
-                  </Tooltip>
-                </div>
-              );
-            })}
+            {Object.entries(potionCounts).map(([name, count]) => (
+              <div key={name} onMouseEnter={potionTooltips[name].show} onMouseLeave={potionTooltips[name].hide} className="relative">
+                🧪 {name}: {count}
+                <Tooltip visible={potionTooltips[name].visible}>
+                  {`You have ${count} bottle${count > 1 ? "s" : ""} of "${name}".`}
+                </Tooltip>
+              </div>
+            ))}
           </div>
         )}
       </div>
