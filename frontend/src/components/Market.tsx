@@ -33,9 +33,12 @@ export function Market({
 
   const renderItem = (
     key: string,
-    item: BasicMarketItem | PotionMarketItem
+    item: MarketItem
   ) => {
     const isPotion = item.type === "potion";
+    const label = isPotion && "name" in item ? item.name : key;
+    const tier = isPotion && "tier" in item ? item.tier : null;
+    const rumorMessage = item.rumors?.[0]?.message;
 
     return (
       <li
@@ -46,14 +49,14 @@ export function Market({
           <div className="flex items-center gap-2">
             <span className="text-xl">{emojiMap[key] ?? "🧪"}</span>
             <span className="capitalize font-medium text-purple-800">
-              {isPotion ? item.name : key}
+              {label}
             </span>
-            {isPotion && (
-              <span className="text-xs text-purple-500 italic">({item.tier})</span>
+            {tier && (
+              <span className="text-xs text-purple-500 italic">({tier})</span>
             )}
           </div>
           <div className="flex items-center gap-3 text-sm text-gray-600">
-            <span>💰 {item.price}</span>
+            <span>💰 {item.price ?? "?"}</span>
             <span>📦 {item.stock ?? 0}</span>
             <button
               className="px-2 py-1 bg-green-200 text-green-800 rounded hover:bg-green-300"
@@ -69,9 +72,9 @@ export function Market({
             </button>
           </div>
         </div>
-        {item.rumors && item.rumors.length > 0 && (
+        {rumorMessage && (
           <div className="mt-2 ml-8 text-sm italic text-purple-600">
-            🗣️ {item.rumors[0].message}
+            🗣️ {rumorMessage}
           </div>
         )}
       </li>
