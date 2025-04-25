@@ -9,7 +9,10 @@ export type Action =
   | { type: "plant"; crop: CropType; index: number }
   | { type: "harvest"; index: number }
   | { type: "buy"; item: string; quantity: number }
-  | { type: "sell"; item: string; quantity: number };
+  | { type: "sell"; item: string; quantity: number }
+  | { type: "water"; index: number }
+  | { type: "brew"; potion: string }
+  | { type: "fulfill"; index: number };
 
 // --- Market Rumors ---
 export interface MarketRumor {

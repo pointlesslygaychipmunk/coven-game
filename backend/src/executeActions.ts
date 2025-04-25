@@ -1,4 +1,9 @@
-import { GameState, Action, Potion, Player, CropType } from "../../shared/types";
+import { GameState, Potion, Player, CropType } from "../../shared/types";
+
+interface Action {
+  type: string;
+  payload?: any;
+}
 import { v4 as uuidv4 } from "uuid";
 
 function getPlayerById(state: GameState, playerId: string): Player {
@@ -32,7 +37,7 @@ export function executeActions(gameState: GameState, actions: Action[], playerId
         const crop = payload.crop as CropType;
         if (!crop) break;
         const index = player.garden.findIndex(
-          (slot) => slot.type === crop && slot.growth >= 3 && !slot.isDead
+          (slot) => slot && slot.type === crop && slot.growth >= 3 && !slot.isDead
         );
         if (index >= 0) {
           player.inventory[crop]++;
