@@ -1,4 +1,4 @@
-import { GameState, Rumor } from '../../shared/types';
+import { GameState, Rumor } from '../../../shared/types';
 
 /**
  * Generate new rumors based on game state.

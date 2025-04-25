@@ -1,4 +1,4 @@
-import { Player, GameState } from '../../shared/types';
+import { Player, GameState } from '../../../shared/types';
 
 /**
  * Update a single player's ascendancy progress.

@@ -1,4 +1,4 @@
-import { FamiliarPower, Player, GameStatus } from '../../shared/types';
+import { FamiliarPower, Player, GameStatus } from '../../../shared/types';
 
 /**
  * Generate available familiar powers for a player at game start.

@@ -1,4 +1,4 @@
-import { RitualQuestCard, GameState } from '../../shared/types';
+import { RitualQuestCard, GameState } from '../../../shared/types';
 
 /**
  * Resolve ritual quests: mark fulfilled quests and distribute rewards.
