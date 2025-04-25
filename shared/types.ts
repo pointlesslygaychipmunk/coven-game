@@ -5,6 +5,7 @@ export type MoonPhase = number; // you mod this as 0–7, so keep numeric
 
 // --- Crop & Ingredient Types ---
 export type CropType = "mushroom" | "flower" | "herb" | "fruit";
+export type PotionIngredient = CropType;
 
 // --- Potion Tier ---
 export type PotionTier = "common" | "rare" | "epic";
@@ -21,6 +22,7 @@ export type Action =
 
 // --- Market Types ---
 export interface MarketRumor {
+  id: string;
   message: string;
 }
 
@@ -28,7 +30,9 @@ export interface BasicMarketItem {
   type: "crop" | "ingredient";
   price: number;
   stock: number;
-  currentPrice?: number; // ✅ add this line
+  basePrice?: number;
+  currentPrice?: number;
+  volatility?: number; 
   rumors?: MarketRumor[];
 }
 
@@ -72,8 +76,9 @@ export interface Player {
   potions: Potion[];
   gold: number;
   mana: number;
+  renown: number;
   craftPoints: number;
-  garden: (GardenSlot | null)[];
+  garden: (GardenSlot)[];
   upgrades: {
     well: number;
     cart: number;
@@ -91,6 +96,15 @@ export interface TownRequestCard {
   craftPoints: number;
   boardSlot: 1 | 2 | 3 | 4;
   fulfilled?: boolean;
+  description?: string;
+    reward?: {
+      gold?: number;
+      renown?: number;
+      craftPoints?: number;
+    };
+  type?: string;
+  count?: number;
+  season?: Season;
 }
 
 // --- Game Status ---

@@ -50,6 +50,6 @@ export function validateSell(player: Player, potionName: string): boolean {
  * Validate if the player can buy a given item from the market.
  */
 export function validateBuy(player: Player, market: MarketState, itemId: string): boolean {
-  const item = market[itemId];
-  return !!item && player.gold >= (item.currentPrice ?? item.price);
+  const item = market[itemId as keyof MarketState];
+  return !!item && typeof item.currentPrice === 'number' && player.gold >= item.currentPrice;
 }

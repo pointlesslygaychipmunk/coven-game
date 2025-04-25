@@ -1,6 +1,4 @@
-// backend/src/gameState.ts
-
-import { GameState, Player, GardenSlot, Potion, MarketItem } from '../../shared/types';
+import { GameState, Player, GardenSlot, MarketState } from '../../shared/types';
 
 const defaultGarden: GardenSlot[] = [];
 
@@ -31,7 +29,9 @@ export const initialGameState: GameState = {
       craftPoints: 0,
     },
   ],
-  market: {}, // ✅ Matches MarketState = Record<string, MarketItem>
+  market: {
+    items: {}, // ✅ FIXED: required by MarketState
+  },
   townRequests: [],
   status: {
     season: 'spring',
@@ -40,6 +40,6 @@ export const initialGameState: GameState = {
     year: 1,
   },
   journal: [],
-  rumors: [], // ✅ REQUIRED FIELD ADDED
+  rumors: [],
   actionsUsed: 0,
 };

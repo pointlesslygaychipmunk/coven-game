@@ -13,7 +13,7 @@ import {
 } from "../../shared/types";
 
 // Create a garden with 8 empty slots
-function createEmptyGarden(): (GardenSlot | null)[] {
+function createEmptyGarden(): (GardenSlot)[] {
   return Array(8).fill(null);
 }
 
@@ -66,6 +66,7 @@ export function createGameState(): GameState {
     gold: 5,
     mana: 2,
     craftPoints: 0,
+    renown: 1,
     garden: createEmptyGarden(),
     upgrades: {
       well: 1,

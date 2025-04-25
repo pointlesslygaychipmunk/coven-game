@@ -20,7 +20,7 @@ export function generateTownRequests(): TownRequestCard[] {
     const card: TownRequestCard = {
       id: uuidv4(),
       description: `Deliver 1 ${randomIngredient} potion`,
-      reward: 10, // Adjusted: fixed gold reward (could randomize later)
+      reward: { gold: 10 },
       boardSlot: (i % 3) + 1 as 1 | 2 | 3,
       potionNeeds,
       craftPoints: 1,
