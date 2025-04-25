@@ -1,6 +1,11 @@
 // components/Market.tsx
 import React from "react";
-import type { MarketItem, MarketState } from "../../../shared/types";
+import type {
+  MarketItem,
+  MarketState,
+  PotionMarketItem,
+  BasicMarketItem,
+} from "../../../shared/types";
 
 export function Market({
   market,
@@ -18,10 +23,20 @@ export function Market({
     fruit: "🍎",
   };
 
-  const cropItems = Object.entries(market).filter(([_, item]) => item.type !== "potion");
-  const potionItems = Object.entries(market).filter(([_, item]) => item.type === "potion");
+  const cropItems = Object.entries(market).filter(
+    ([_, item]) => item.type !== "potion"
+  ) as [string, BasicMarketItem][];
 
-  const renderItem = (key: string, item: MarketItem) => {
+  const potionItems = Object.entries(market).filter(
+    ([_, item]) => item.type === "potion"
+  ) as [string, PotionMarketItem][];
+
+  const renderItem = (
+    key: string,
+    item: BasicMarketItem | PotionMarketItem
+  ) => {
+    const isPotion = item.type === "potion";
+
     return (
       <li
         key={key}
@@ -31,17 +46,15 @@ export function Market({
           <div className="flex items-center gap-2">
             <span className="text-xl">{emojiMap[key] ?? "🧪"}</span>
             <span className="capitalize font-medium text-purple-800">
-              {item.type === "potion" ? (item as any).name : key}
+              {isPotion ? item.name : key}
             </span>
-            {item.type === "potion" && (
-              <span className="text-xs text-purple-500 italic">
-                ({(item as any).tier})
-              </span>
+            {isPotion && (
+              <span className="text-xs text-purple-500 italic">({item.tier})</span>
             )}
           </div>
           <div className="flex items-center gap-3 text-sm text-gray-600">
             <span>💰 {item.price}</span>
-            <span>📦 {item.stock}</span>
+            <span>📦 {item.stock ?? 0}</span>
             <button
               className="px-2 py-1 bg-green-200 text-green-800 rounded hover:bg-green-300"
               onClick={() => onBuy(key)}
