@@ -1,89 +1,98 @@
 // backend/src/server.ts
-
-import fs from "fs";
 import path from "path";
-import http from "http";
-import https from "https";
 import express from "express";
 import cors from "cors";
-import { Server as IOServer } from "socket.io";
-import type { GameState, Action } from "../../shared/types";
-
+import http from "http";
+import crypto from "crypto";
+import { exec } from "child_process";
+import dotenv from "dotenv";
 import { setupPlayController } from "./playController";
 import { executeActions }      from "./executeActions";
 import { advanceTurn }         from "./turnEngine";
 import { createGameState }     from "./createGameState";
+import type { GameState, Action } from "../../shared/types";
+import { Server as IOServer }  from "socket.io";
+
+dotenv.config();
+const SECRET = process.env.WEBHOOK_SECRET!;
+if (!SECRET) throw new Error("WEBHOOK_SECRET missing in .env");
 
 const app = express();
 app.use(cors());
+
+// --- WEBHOOK before JSON parser ---
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const sig = req.header("x-hub-signature-256") || "";
+    const hmac = crypto
+      .createHmac("sha256", SECRET)
+      .update(req.body as Buffer)
+      .digest("hex");
+    if (sig !== `sha256=${hmac}`) {
+      console.warn("✋ invalid webhook signature", sig);
+      return res.status(401).send("Invalid signature");
+    }
+
+    let payload: any;
+    try {
+      payload = JSON.parse((req.body as Buffer).toString());
+    } catch {
+      return res.status(400).send("Invalid JSON");
+    }
+
+    // only deploy on pushes to main
+    if (payload.ref === "refs/heads/main") {
+      console.log("🔔  Received push to main — deploying…");
+      try {
+        await run("git pull origin main",  { cwd: path.resolve(__dirname, "../..") });
+        await run("npm install",           { cwd: path.resolve(__dirname, "../..", "backend") });
+        await run("npm run build",         { cwd: path.resolve(__dirname, "../..", "backend") });
+        await run("nssm restart CovenGame",{ cwd: undefined });
+        console.log("✅  Deploy complete");
+      } catch (err) {
+        console.error("❌  Deploy failed", err);
+      }
+    }
+
+    res.sendStatus(200);
+  }
+);
+
+// now regular JSON body parser
 app.use(express.json());
 
-// --- In-memory state ----------------------------------------
-
+// —————————————————————————————————
+// your existing API + static + socket.io…
 let state: GameState = createGameState();
+app.get("/state",      (_req, res) => res.json(state));
+app.post("/execute-actions", (req, res) => { /*…*/ });
+app.post("/play-turn", (_req, res) => { /*…*/ });
 
-// --- API Endpoints ----------------------------------------
-
-app.get("/state", (_req, res) => {
-  res.json(state);
-});
-
-app.post("/execute-actions", (req, res) => {
-  const { playerId, actions } = req.body as {
-    playerId: string;
-    actions: Action[];
-  };
-  state = executeActions(state, playerId, actions);
-  res.json(state);
-});
-
-app.post("/play-turn", (_req, res) => {
-  state = advanceTurn(state);
-  res.json(state);
-});
-
-// --- Static front-end -------------------------------------
-
-const staticDir = path.join(__dirname, "../../frontend/dist");
+const staticDir = path.join(__dirname, "../frontend/dist");
 app.use(express.static(staticDir));
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(staticDir, "index.html"));
-});
+app.get("*", (_req, res) => res.sendFile(path.join(staticDir, "index.html")));
 
-// --- Redirector (HTTP → HTTPS) ----------------------------
-
-const httpServer = http.createServer((req, res) => {
-  // preserve host and path
-  const host = req.headers.host;
-  res.writeHead(301, {
-    Location: `https://${host}${req.url ?? ""}`,
-  });
-  res.end();
-});
-
-// --- HTTPS server w/ your Win-ACME certs -------------------
-
-const CERT_DIR = process.env.CERT_DIR ||
-  // edit your actual folder name here:
-  "C:\certs";
-
-const credentials = {
-  key:  fs.readFileSync(path.join(CERT_DIR, "privateKey.pem")),
-  cert: fs.readFileSync(path.join(CERT_DIR, "fullchain.pem")),
-};
-
-const httpsServer = https.createServer(credentials, app);
-
-// --- Socket.IO on HTTPS -----------------------------------
-
-const io = new IOServer(httpsServer);
+const server = http.createServer(app);
+const io     = new IOServer(server);
 setupPlayController(io);
 
-// --- Launch both -----------------------------------------
+const PORT = process.env.PORT ? +process.env.PORT : 8080;
+server.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 
-httpServer.listen(80,  () =>
-  console.log(`🌝 HTTP redirector listening on port 80`)
-);
-httpsServer.listen(443, () =>
-  console.log(`🌙 HTTPS server listening on port 443`)
-);
+// —————————————————————————————————
+// helper to shell out commands
+function run(cmd: string, opts: { cwd?: string }): Promise<void> {
+  return new Promise((resolve, reject) => {
+    console.log(`> ${cmd}`);
+    exec(cmd, { cwd: opts.cwd, windowsHide: true }, (err, stdout, stderr) => {
+      if (err) {
+        console.error(stderr);
+        return reject(err);
+      }
+      console.log(stdout);
+      resolve();
+    });
+  });
+}
