@@ -1,90 +1,90 @@
-import React from "react";
-import type { GardenSlot, CropType } from "../../../shared/types";
+import React from 'react';
+import type { GardenSlot, Player } from '../../../shared/types';
 
-interface GardenGridProps {
-  spaces: GardenSlot[];
-  onPlantCrop: (crop: CropType, index: number) => void;
-  onWater:      (index: number) => void;
-  onHarvest:    (index: number) => void;
-  onPlantTree:  (index: number) => void;
-}
+const validCropTypes = ['mushroom', 'flower', 'herb'] as const;
+type CropType = (typeof validCropTypes)[number];
 
-const EMOJI: Record<CropType, string> = {
-  mushroom: "🍄",
-  flower:   "🌸",
-  herb:     "🌿",
-  fruit:    "🍎",
+const growthIcons: Record<string, string[]> = {
+  mushroom: ['🟤', '🍄', '🍄🍄', '🍄🍄🍄'],
+  flower:   ['🌱', '🪷', '🌸', '🪻'],
+  herb:     ['🌱', '☘️', '🍀', '🌾'],
+  fruit:    ['🌱', '🌿', '🌳', '🌳'],
 };
 
-const GardenGrid: React.FC<GardenGridProps> = ({
-  spaces,
-  onPlantCrop,
-  onWater,
-  onHarvest,
-  onPlantTree,
-}) => (
-  <div className="grid grid-cols-4 gap-4">
-    {spaces.map((slot, idx) => {
-      const empty  = slot.growth === 0 && !slot.isDead;
-      const dead   = slot.isDead;
-      const mature = slot.growth >= 3 && !dead;
+interface GardenGridProps {
+  spaces: (GardenSlot | null)[];
+  player: Player;
+  onPlantCrop: (type: CropType, index: number) => void;
+  onPlantTree: (index: number) => void;
+  onWater: (index: number) => void;
+  onHarvest: (index: number) => void;
+}
 
-      let bg = "bg-green-100";
-      if (dead)        bg = "bg-gray-200";
-      else if (!empty) bg = "bg-yellow-100";
+export function GardenGrid({
+  spaces, player, onPlantCrop, onPlantTree, onWater, onHarvest
+}: GardenGridProps) {
+  return (
+    <div className="grid grid-cols-4 gap-4">
+      {spaces.map((slot, idx) =>
+        slot ? renderSlot(slot, idx) : renderEmpty(idx)
+      )}
+    </div>
+  );
 
-      return (
-        <div
-          key={idx}
-          className={`relative h-32 rounded-lg ${bg} ring-1 ring-purple-200 flex flex-col items-center justify-center`}
+  function renderEmpty(index: number) {
+    return (
+      <div key={index} className="border-2 border-dashed border-green-300 bg-white/40 rounded-lg p-2 text-center space-y-1 shadow-sm">
+        {validCropTypes.map((type) => (
+          <button
+            key={type}
+            className="w-full py-1 bg-green-100 hover:bg-green-200 rounded font-medium transition disabled:opacity-50"
+            disabled={player.inventory[type] <= 0}
+            onClick={() => onPlantCrop(type, index)}
+          >
+            🌱 {type}
+          </button>
+        ))}
+        <button
+          className="w-full py-1 bg-yellow-100 hover:bg-yellow-200 rounded font-medium transition disabled:opacity-50"
+          disabled={player.inventory.fruit <= 0}
+          onClick={() => onPlantTree(index)}
         >
-          <span className="text-2xl">
-            {dead ? "💀" : empty ? "🌱" : mature ? EMOJI[slot.type] : EMOJI[slot.type]}
-          </span>
-          <span className="italic text-sm capitalize mt-1 text-purple-800">
-            {dead ? "dead" : empty ? "empty" : slot.type}
-          </span>
+          🌳 Tree
+        </button>
+      </div>
+    );
+  }
 
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/20 rounded-lg space-x-2 transition-opacity">
-            {empty && (
-              (Object.keys(EMOJI) as CropType[]).map((c) => (
-                <button
-                  key={c}
-                  onClick={() => onPlantCrop(c, idx)}
-                  className="p-1 bg-white rounded-full shadow hover:bg-white/80"
-                  title={`Plant ${c}`}
-                >
-                  {EMOJI[c]}
-                </button>
-              ))
-            )}
+  function renderSlot(slot: GardenSlot, index: number) {
+    const { type, growth, isDead, kind } = slot;
+    const stage = Math.min(Math.floor(growth), 3);
+    const isTree = kind === 'tree';
+    const icon = isDead
+      ? '💀'
+      : isTree
+      ? '🌳'
+      : growthIcons[type]?.[stage] ?? '❓';
+    const liveClass = isDead
+      ? 'bg-gray-200 text-gray-600 line-through'
+      : isTree
+      ? 'bg-green-200 text-green-900'
+      : 'bg-lime-100 text-lime-800';
 
-            {!empty && !dead && (
-              <>
-                <button
-                  onClick={() => onHarvest(idx)}
-                  className="p-1 bg-white rounded-full shadow hover:bg-white/80"
-                  title="Harvest"
-                >🌾</button>
-                <button
-                  onClick={() => onWater(idx)}
-                  className="p-1 bg-white rounded-full shadow hover:bg-white/80"
-                  title="Water"
-                >💧</button>
-                {mature && (
-                  <button
-                    onClick={() => onPlantTree(idx)}
-                    className="p-1 bg-white rounded-full shadow hover:bg-white/80"
-                    title="Grow Tree"
-                  >🌳</button>
-                )}
-              </>
-            )}
-          </div>
+    return (
+      <div key={index} className={`rounded-lg p-2 text-center shadow-md transition ${liveClass}`}>
+        <div className="text-2xl">{icon}</div>
+        <div className="text-xs font-semibold">{type}</div>
+        <div className="flex justify-around mt-2 space-x-1 text-sm">
+          {!isDead ? (
+            <>
+              <button onClick={() => onHarvest(index)} className="px-1 py-0.5 bg-red-200 hover:bg-red-300 rounded">🚜</button>
+              <button onClick={() => onWater(index)}   className="px-1 py-0.5 bg-blue-200 hover:bg-blue-300 rounded">💧</button>
+            </>
+          ) : (
+            <button onClick={() => onHarvest(index)} className="px-1 py-0.5 bg-gray-300 hover:bg-gray-400 rounded">🧹</button>
+          )}
         </div>
-      );
-    })}
-  </div>
-);
-
-export default GardenGrid;
+      </div>
+    );
+  }
+}

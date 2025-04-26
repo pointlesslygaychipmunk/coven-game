@@ -1,22 +1,25 @@
-import React from "react";
-import type { Rumor } from "../../../shared/types";
+import React from 'react';
+import type { Rumor } from '../../../shared/types';
 
-export interface RumorFeedProps {
+interface RumorFeedProps {
   rumors: Rumor[];
 }
 
-const RumorFeed: React.FC<RumorFeedProps> = ({ rumors }) => {
-  if (!rumors.length) return null;
-  return (
-    <div className="bg-yellow-50 rounded-lg p-4 ring-1 ring-yellow-200">
-      <h2 className="text-xl font-semibold mb-2">🗣️ Rumors</h2>
-      <ul className="list-disc ml-5 text-sm text-yellow-800">
-        {rumors.map((r) => (
-          <li key={r.id}>{r.message}</li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+const RumorFeed: React.FC<RumorFeedProps> = ({ rumors }) => (
+  <div className="bg-white shadow rounded p-4 border border-purple-200">
+    <h2 className="font-bold mb-2">🗣️ Rumor Feed</h2>
+    <ul className="space-y-1 text-sm italic text-gray-700">
+      {rumors.length > 0 ? (
+        rumors.map((r) => (
+          <li key={r.id}>
+            “{r.message}”
+          </li>
+        ))
+      ) : (
+        <li className="text-gray-500">No rumors at the moment…</li>
+      )}
+    </ul>
+  </div>
+);
 
 export default RumorFeed;
