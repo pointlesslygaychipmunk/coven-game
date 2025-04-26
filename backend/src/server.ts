@@ -66,7 +66,7 @@ if (hasCerts) {
   setupPlayController(io);
 
   httpsServer.listen(443, () => {
-    console.log("🔒 HTTPS server listening on port 443");
+    console.log("🌝 HTTPS server listening on port 443");
   });
 
   // HTTP → HTTPS redirect
@@ -79,7 +79,7 @@ if (hasCerts) {
       res.end();
     })
     .listen(80, () => {
-      console.log("➡️  HTTP redirecting to HTTPS on port 80");
+      console.log("🌚  HTTP redirecting to HTTPS on port 80");
     });
 } else {
   // No certs: fallback to HTTP only on PORT or 8080
@@ -89,6 +89,6 @@ if (hasCerts) {
 
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
   httpServer.listen(PORT, () => {
-    console.log(`⚠️  HTTP server listening on port ${PORT}`);
+    console.log(`🌙  HTTP server listening on port ${PORT}`);
   });
 }
