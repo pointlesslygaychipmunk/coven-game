@@ -1,6 +1,7 @@
 // backend/src/server.ts
 
 import express from "express";
+import cors from "cors";
 import http from "http";
 import { setupPlayController } from "./playController";
 import { executeActions } from "./executeActions";
@@ -10,7 +11,13 @@ import type { GameState, Action } from "../../shared/types";
 
 import { Server as IOServer } from "socket.io";
 
+// CORS setup
 const app = express();
+app.use(cors({
+  origin: ["http://localhost:5173", "https://playcoven.com"], 
+  methods: ["GET","POST","OPTIONS"],
+}));
+app.options("*", cors());
 app.use(express.json());
 
 let state: GameState = createGameState();
