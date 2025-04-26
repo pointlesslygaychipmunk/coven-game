@@ -1,90 +1,117 @@
-import React from 'react';
-import type { GardenSlot, Player } from '../../../shared/types';
+// frontend/src/components/GardenGrid.tsx
+import React from "react";
+import type { GardenSlot, Player, CropType } from "../../../shared/types";
 
-const validCropTypes = ['mushroom', 'flower', 'herb'] as const;
-type CropType = (typeof validCropTypes)[number];
+interface GardenSlotExtra extends GardenSlot {
+  isDead?: boolean;
+  watered?: boolean;
+}
 
-const growthIcons: Record<string, string[]> = {
-  mushroom: ['🟤', '🍄', '🍄🍄', '🍄🍄🍄'],
-  flower:   ['🌱', '🪷', '🌸', '🪻'],
-  herb:     ['🌱', '☘️', '🍀', '🌾'],
-  fruit:    ['🌱', '🌿', '🌳', '🌳'],
+type PlantableCrop = Exclude<CropType, "fruit">;
+
+const plantableTypes: PlantableCrop[] = ["mushroom", "flower", "herb"];
+
+const growthIcons: Record<CropType, string[]> = {
+  mushroom: ["🟤", "🍄", "🍄🍄", "🍄🍄🍄"],
+  flower:   ["🌱", "🪷", "🌸", "🪻"],
+  herb:     ["🌱", "☘️", "🍀", "🌾"],
+  fruit:    ["🌱", "🌿", "🌳", "🌳"],  // tree growth progression
+};
+
+const harvestThresholds: Record<CropType, number> = {
+  mushroom: 4,
+  flower:   3,
+  herb:     2,
+  fruit:    Infinity,
 };
 
 interface GardenGridProps {
-  spaces: (GardenSlot | null)[];
+  spaces: (GardenSlotExtra | null)[];
   player: Player;
-  onPlantCrop: (type: CropType, index: number) => void;
+  onPlantCrop: (crop: PlantableCrop, index: number) => void;
   onPlantTree: (index: number) => void;
-  onWater: (index: number) => void;
-  onHarvest: (index: number) => void;
+  onWater:     (index: number) => void;
+  onHarvest:   (index: number) => void;
 }
 
-export function GardenGrid({
-  spaces, player, onPlantCrop, onPlantTree, onWater, onHarvest
-}: GardenGridProps) {
-  return (
-    <div className="grid grid-cols-4 gap-4">
-      {spaces.map((slot, idx) =>
-        slot ? renderSlot(slot, idx) : renderEmpty(idx)
-      )}
+export const GardenGrid: React.FC<GardenGridProps> = ({
+  spaces,
+  player,
+  onPlantCrop,
+  onPlantTree,
+  onWater,
+  onHarvest,
+}) => {
+  const renderEmptySlot = (index: number) => (
+    <div
+      key={index}
+      className="border-2 border-dashed border-green-300 bg-white/40 rounded-lg p-2 text-xs space-y-1 text-center shadow-sm"
+    >
+      {plantableTypes.map((crop) => (
+        <button
+          key={crop}
+          className="bg-green-100 hover:bg-green-200 rounded w-full py-1 font-medium transition disabled:opacity-30"
+          disabled={player.inventory[crop] <= 0}
+          onClick={() => onPlantCrop(crop, index)}
+        >
+          🌱 Plant {crop}
+        </button>
+      ))}
+      <button
+        className="bg-yellow-100 hover:bg-yellow-200 rounded w-full py-1 font-medium transition disabled:opacity-30"
+        disabled={player.inventory["fruit"] <= 0}
+        onClick={() => onPlantTree(index)}
+      >
+        🌳 Plant Tree
+      </button>
     </div>
   );
 
-  function renderEmpty(index: number) {
-    return (
-      <div key={index} className="border-2 border-dashed border-green-300 bg-white/40 rounded-lg p-2 text-center space-y-1 shadow-sm">
-        {validCropTypes.map((type) => (
-          <button
-            key={type}
-            className="w-full py-1 bg-green-100 hover:bg-green-200 rounded font-medium transition disabled:opacity-50"
-            disabled={player.inventory[type] <= 0}
-            onClick={() => onPlantCrop(type, index)}
-          >
-            🌱 {type}
-          </button>
-        ))}
-        <button
-          className="w-full py-1 bg-yellow-100 hover:bg-yellow-200 rounded font-medium transition disabled:opacity-50"
-          disabled={player.inventory.fruit <= 0}
-          onClick={() => onPlantTree(index)}
-        >
-          🌳 Tree
-        </button>
-      </div>
-    );
-  }
-
-  function renderSlot(slot: GardenSlot, index: number) {
-    const { type, growth, isDead, kind } = slot;
+  const renderOccupiedSlot = (slot: GardenSlotExtra, index: number) => {
+    const { type, kind, growth, isDead = false, watered = false } = slot;
     const stage = Math.min(Math.floor(growth), 3);
-    const isTree = kind === 'tree';
-    const icon = isDead
-      ? '💀'
-      : isTree
-      ? '🌳'
-      : growthIcons[type]?.[stage] ?? '❓';
-    const liveClass = isDead
-      ? 'bg-gray-200 text-gray-600 line-through'
-      : isTree
-      ? 'bg-green-200 text-green-900'
-      : 'bg-lime-100 text-lime-800';
+    const isTree = kind === "tree";
+    const icon = isTree ? "🌳" : growthIcons[type]?.[stage] || "❓";
+    const label = isDead ? "💀 Dead" : icon;
+
+    const baseClasses = "rounded-lg p-2 text-center text-sm font-semibold cursor-pointer transition shadow-md relative";
+    const liveClasses = isTree
+      ? "bg-green-200 text-green-900"
+      : "bg-lime-100 text-lime-800";
+    const deadClasses = "bg-gray-200 text-gray-600 line-through";
+
+    const needsWater = !isDead && !isTree && growth < harvestThresholds[type] && !watered;
 
     return (
-      <div key={index} className={`rounded-lg p-2 text-center shadow-md transition ${liveClass}`}>
-        <div className="text-2xl">{icon}</div>
-        <div className="text-xs font-semibold">{type}</div>
-        <div className="flex justify-around mt-2 space-x-1 text-sm">
-          {!isDead ? (
-            <>
-              <button onClick={() => onHarvest(index)} className="px-1 py-0.5 bg-red-200 hover:bg-red-300 rounded">🚜</button>
-              <button onClick={() => onWater(index)}   className="px-1 py-0.5 bg-blue-200 hover:bg-blue-300 rounded">💧</button>
-            </>
-          ) : (
-            <button onClick={() => onHarvest(index)} className="px-1 py-0.5 bg-gray-300 hover:bg-gray-400 rounded">🧹</button>
-          )}
-        </div>
+      <div
+        key={index}
+        className={`${baseClasses} ${isDead ? deadClasses : liveClasses}`}
+        onClick={() => onHarvest(index)}
+        title={isDead ? "Click to clear" : `Harvest ${type}`}
+      >
+        {label}
+        <div className="text-xs mt-1">{type}</div>
+        {needsWater && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onWater(index);
+            }}
+            title="Water this plant"
+            className="absolute bottom-1 right-1 text-blue-500 hover:text-blue-700"
+          >
+            💧
+          </button>
+        )}
       </div>
     );
-  }
-}
+  };
+
+  return (
+    <div className="grid grid-cols-4 gap-4">
+      {spaces.map((slot, idx) =>
+        slot ? renderOccupiedSlot(slot, idx) : renderEmptySlot(idx)
+      )}
+    </div>
+  );
+};
