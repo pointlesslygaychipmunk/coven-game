@@ -1,12 +1,13 @@
 // frontend/src/components/GardenGrid.tsx
 import React from "react";
 import type { GardenSlot, Player } from "../../../shared/types";
+import type { CropType } from "../../../shared/types";
 
 const plantable: Array<"mushroom" | "flower" | "herb"> = [
   "mushroom", "flower", "herb"
 ];
 
-const growthIcons: Record<string, string[]> = {
+const growthIcons: Record<CropType, string[]> = {
   mushroom: ["🟤","🍄","🍄🍄","🍄🍄🍄"],
   flower:   ["🌱","🪷","🌸","🪻"],
   herb:     ["🌱","☘️","🍀","🌾"],
@@ -16,7 +17,7 @@ const growthIcons: Record<string, string[]> = {
 interface GardenGridProps {
   spaces: (GardenSlot | null)[];
   player: Player;
-  onPlantCrop: (type: keyof typeof growthIcons, idx: number) => void;
+  onPlantCrop: (crop: CropType, idx: number) => void;
   onPlantTree: (idx: number) => void;
   onHarvest: (idx: number) => void;
 }
@@ -97,7 +98,7 @@ export function GardenGrid({
       <h2 className="text-xl font-bold mb-2 text-purple-800">
         🌾 Your Enchanted Garden
       </h2>
-      <div className="grid grid-cols-4 gap-3">
+      <div className="p-4 grid grid-cols-4 gap-3">
         {spaces.map((s, i) => (s ? renderSlot(s, i) : renderEmpty(i)))}
       </div>
     </div>

@@ -15,12 +15,12 @@ export type PotionTier = "common" | "rare" | "epic";
 
 // --- Action Types ---
 export type Action =
-  | { type: "plant";   crop: CropType;   index: number }
+  | { type: "plant"; crop: CropType; index: number }
   | { type: "harvest"; index: number }
-  | { type: "buy";     itemId: string;   quantity: number }
-  | { type: "sell";    itemId: string;   quantity: number }
-  | { type: "water";   index: number }
-  | { type: "brew";    potionId: string }
+  | { type: "buy"; itemId: string; quantity: number }
+  | { type: "sell"; itemId: string; quantity: number }
+  | { type: "water"; index: number }
+  | { type: "brew"; potionId: string }
   | { type: "fulfill"; requestId: string };
 
 // --- Rumors ---
