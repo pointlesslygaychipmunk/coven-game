@@ -44,7 +44,7 @@ app.post("/play-turn", (_req, res) => {
 
 // --- Static front-end -------------------------------------
 
-const staticDir = path.join(__dirname, "../frontend/dist");
+const staticDir = path.join(__dirname, "../../frontend/dist");
 app.use(express.static(staticDir));
 app.get("*", (_req, res) => {
   res.sendFile(path.join(staticDir, "index.html"));
