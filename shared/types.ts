@@ -1,12 +1,13 @@
 // shared/types.ts
+// ──────────────────────────────────────────────────────────────────────────────
 
 // --- Enums (as types) ---
-export type Season = "spring" | "summer" | "autumn" | "winter";
-export type Weather = "sunny" | "rainy" | "stormy" | "foggy" | "cloudy";
+export type Season    = "spring" | "summer" | "autumn" | "winter";
+export type Weather   = "sunny" | "rainy" | "stormy" | "foggy" | "cloudy";
 export type MoonPhase = number; // 0–7
 
 // --- Crop & Ingredient Types ---
-export type CropType = "mushroom" | "flower" | "herb" | "fruit";
+export type CropType         = "mushroom" | "flower" | "herb" | "fruit";
 export type PotionIngredient = CropType;
 
 // --- Potion Tier ---
@@ -14,187 +15,173 @@ export type PotionTier = "common" | "rare" | "epic";
 
 // --- Action Types ---
 export type Action =
-  | { type: "plant";   crop: CropType; index: number }
+  | { type: "plant";   crop: CropType;   index: number }
   | { type: "harvest"; index: number }
-  | { type: "buy";     itemId: string; quantity: number }
-  | { type: "sell";    itemId: string; quantity: number }
+  | { type: "buy";     itemId: string;   quantity: number }
+  | { type: "sell";    itemId: string;   quantity: number }
   | { type: "water";   index: number }
   | { type: "brew";    potionId: string }
   | { type: "fulfill"; requestId: string };
 
 // --- Rumors ---
 export interface Rumor {
-  id: string;
-  message: string;
-  source: "market" | "town" | "blackMarket" | "quest";
-  effect?: any;
+  id:        string;
+  message:   string;
+  source:    "market" | "town" | "blackMarket" | "quest";
+  effect?:   any;
   timestamp: number;
 }
 export type MarketRumor = Pick<Rumor, "id" | "message">;
 
 // --- Market Items ---
 export interface BasicMarketItem {
-  type: "crop" | "ingredient";
-  price: number;
-  stock: number;
-  /** Last computed price, if any */
+  type:       "crop" | "ingredient";
+  price:      number;
+  stock:      number;
   currentPrice?: number;
-  basePrice?: number;
-  volatility?: number;
-  rumors?: MarketRumor[];
+  basePrice?:    number;
+  volatility?:   number;
+  rumors?:       Pick<Rumor,"id"|"message">[];
 }
 
 export interface PotionMarketItem {
-  type: "potion";
-  name: string;
-  tier: PotionTier;
-  price: number;
-  stock: number;
+  type:       "potion";
+  name:       string;
+  tier:       PotionTier;
+  price:      number;
+  stock:      number;
   currentPrice?: number;
-  rumors?: MarketRumor[];
+  rumors?:       Pick<Rumor,"id"|"message">[];
 }
 
 export interface BlackMarketItem {
-  type: "blackMarket";
-  name: string;
-  price: number;
-  stock: number;
-  riskLevel: number;
+  type:       "blackMarket";
+  name:       string;
+  price:      number;
+  stock:      number;
+  riskLevel:  number;
   currentPrice?: number;
-  rumors?: MarketRumor[];
+  rumors?:       Pick<Rumor,"id"|"message">[];
 }
 
-export type MarketItem =
-  | BasicMarketItem
-  | PotionMarketItem
-  | BlackMarketItem;
-
-// --- Market State ---
+export type MarketItem = BasicMarketItem | PotionMarketItem | BlackMarketItem;
 export interface MarketState {
-  items: Record<string, MarketItem>;
+  items: Record<string,MarketItem>;
 }
 
 // --- Garden Slot ---
 export interface GardenSlot {
-  type: CropType;
-  kind: "crop" | "tree";
-  growth: number;
+  type:    CropType;
+  kind:    "crop" | "tree";
+  growth:  number;
   isDead?: boolean;
 }
 
 // --- Potion ---
 export interface Potion {
-  id: string;
-  name: string;
-  tier: PotionTier;
-  ingredients: Record<CropType, number>;
+  id:          string;
+  name:        string;
+  tier:        PotionTier;
+  ingredients: Record<CropType,number>;
 }
 
 // --- Town Requests ---
 export interface TownRequestCard {
-  id: string;
-  potionNeeds: Record<CropType, number>;
+  id:          string;
+  potionNeeds: Record<CropType,number>;
   craftPoints: number;
-  boardSlot: 1 | 2 | 3 | 4;
-  fulfilled?: boolean;
+  boardSlot:   1|2|3|4;
+  fulfilled?:  boolean;
   description?: string;
   reward?: {
-    gold?: number;
-    renown?: number;
-    craftPoints?: number;
+    gold?:       number;
+    renown?:     number;
+    craftPoints?:number;
     uniqueItem?: string;
   };
   season?: Season;
 }
 
-// --- Ritual Quest System ---
+// --- Ritual Quests ---
 export interface RitualQuestCard {
-  id: string;
-  title: string;
-  description: string;
-  contributions: Record<string, number>;
-  goal: number;
+  id:            string;
+  title:         string;
+  description:   string;
+  contributions: Record<string,number>;
+  goal:          number;
   reward: {
-    gold?: number;
-    renown?: number;
+    gold?:        number;
+    renown?:      number;
     craftPoints?: number;
-    uniqueItem?: string;
+    uniqueItem?:  string;
   };
-  fulfilled: boolean;
+  fulfilled:     boolean;
 }
 
 // --- Familiar Powers ---
 export interface FamiliarPower {
-  id: string;
-  name: string;
+  id:          string;
+  name:        string;
   description: string;
-  effect: { type: string; value: number };
-  tier: number;
+  effect:      { type:string; value:number };
+  tier:        number;
 }
 
 // --- Ascendancy ---
-export type AscendancyPath =
-  | "economicMastery"
-  | "ritualDominance"
-  | "secretQuest"
-  | "rumorWeaver"
+export type AscendancyPath = 
+  | "economicMastery" | "ritualDominance" | "secretQuest" | "rumorWeaver"
   | string;
+
 export interface AscendancyStatus {
-  path: AscendancyPath;
+  path:     AscendancyPath;
   progress: number;
   unlocked: boolean;
 }
 
 // --- Market Memory ---
 export interface MarketMemoryEntry {
-  itemId: string;
+  itemId:    string;
   timestamp: number;
-  price: number;
-  volume: number;
+  price:     number;
+  volume:    number;
 }
 
 // --- Player ---
 export interface Player {
-  id: string;
-  name: string;
-  inventory: Record<CropType, number>;
-  potions: Potion[];
-  gold: number;
-  mana: number;
-  renown: number;
-  craftPoints: number;
-  garden: GardenSlot[];
-  upgrades: {
-    well: number;
-    cart: number;
-    cellar: number;
-    cauldron: number;
-  };
-  wateringUsed: number;
-  journal?: string[];
-  rumorsHeard?: string[];
-  memory?: MarketMemoryEntry[];
-  familiarPowers?: FamiliarPower[];
-  ascendancy?: AscendancyStatus;
-  quests?: RitualQuestCard[];
+  id:             string;
+  name:           string;
+  inventory:      Record<CropType,number>;
+  potions:        Potion[];
+  gold:           number;
+  mana:           number;
+  renown:         number;
+  craftPoints:    number;
+  garden:         GardenSlot[];
+  upgrades:       { well:number; cart:number; cellar:number; cauldron:number };
+  wateringUsed:   number;
+  journal?:       string[];
+  rumorsHeard?:   string[];
+  memory?:        MarketMemoryEntry[];
+  familiarPowers?:FamiliarPower[];
+  ascendancy?:    AscendancyStatus;
+  quests?:        RitualQuestCard[];
 }
 
-// --- Game Status ---
+// --- Game Status & Full State ---
 export interface GameStatus {
-  year: number;
+  year:      number;
   moonPhase: MoonPhase;
-  season: Season;
-  weather: Weather;
+  season:    Season;
+  weather:   Weather;
 }
 
-// --- Full Game State ---
 export interface GameState {
-  players: Player[];
-  market: MarketState;
+  players:      Player[];
+  market:       MarketState;
   townRequests: TownRequestCard[];
-  quests: RitualQuestCard[];
-  rumors: Rumor[];
-  journal: string[];
-  status: GameStatus;
-  actionsUsed: number;
+  quests:       RitualQuestCard[];
+  rumors:       Rumor[];
+  journal:      string[];
+  status:       GameStatus;
+  actionsUsed:  number;
 }

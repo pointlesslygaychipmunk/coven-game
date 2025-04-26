@@ -1,91 +1,85 @@
 // backend/src/createGameState.ts
+// ──────────────────────────────────────────────────────────────────────────────
 
 import { v4 as uuidv4 } from "uuid";
-import {
+import type {
   GameState,
   Player,
   GardenSlot,
-  Potion,
-  MarketItem,
   MarketState,
   TownRequestCard,
   RitualQuestCard,
   Rumor,
   GameStatus,
   CropType,
-  PotionTier,
+  Potion,
   FamiliarPower,
   AscendancyStatus,
   MarketMemoryEntry,
 } from "../../shared/types";
 
-// Create a garden with 8 empty slots
+// 1) Build an empty garden of 8 slots
 function createEmptyGarden(): GardenSlot[] {
-  return Array(8).fill(null).map(() => ({
-    type: "mushroom",    // placeholder until planted
-    kind: "crop",
+  return Array.from({ length: 8 }, () => ({
+    type:   "mushroom",
+    kind:   "crop",
     growth: 0,
-    isDead: false,
   }));
 }
 
-// Bootstrap your initial market here
+// 2) Bootstrap the first Market
 function createInitialMarket(): MarketState {
-  const items: Record<string, MarketItem> = {
-    // example entries; replace with your actual initial items
-    mushroom: { type: "crop", price: 5, stock: 20, basePrice: 5, volatility: 0.1, rumors: [] },
-    flower:   { type: "crop", price: 8, stock: 15, basePrice: 8, volatility: 0.1, rumors: [] },
-    herb:     { type: "ingredient", price: 12, stock: 10, basePrice: 12, volatility: 0.15, rumors: [] },
-    // potions can be added similarly...
+  return {
+    items: {
+      mushroom: { type: "crop",       price: 5,  stock: 20, basePrice:5, volatility:0.1 },
+      flower:   { type: "crop",       price: 8,  stock: 15, basePrice:8, volatility:0.1 },
+      herb:     { type: "ingredient", price: 12, stock: 10, basePrice:12,volatility:0.15 },
+      // add more as needed…
+    },
   };
-  return { items };
 }
 
 export function createGameState(): GameState {
-  // --- initialize player ---
+  // --- player seed ---
   const player: Player = {
-    id: uuidv4(),
-    name: "Player 1",
-    inventory: { mushroom: 0, flower: 0, herb: 0, fruit: 0 },
-    potions: [],
-    gold: 0,
-    mana: 0,
-    renown: 0,
-    craftPoints: 0,
-    garden: createEmptyGarden(),
-    upgrades: { well: 0, cart: 0, cellar: 0, cauldron: 0 },
+    id:           uuidv4(),
+    name:         "Player 1",
+    inventory:    { mushroom:0, flower:0, herb:0, fruit:0 },
+    potions:      [] as Potion[],
+    gold:         0,
+    mana:         0,
+    renown:       0,
+    craftPoints:  0,
+    garden:       createEmptyGarden(),
+    upgrades:     { well:0, cart:0, cellar:0, cauldron:0 },
     wateringUsed: 0,
 
-    // new per-player fields
-    journal: [],                  // personal alert log
-    rumorsHeard: [],              // IDs of rumors seen
-    memory: [],                   // market memory entries
-    familiarPowers: [],           // unlocked familiar powers
-    quests: [],                   // personal ritual quest trackers
-    ascendancy: {                 // default ascendancy status
-      path: "",
-      progress: 0,
-      unlocked: false,
-    },
+    // optional fields initialized empty
+    journal:        [],
+    rumorsHeard:    [],
+    memory:         [] as MarketMemoryEntry[],
+    familiarPowers: [] as FamiliarPower[],
+    ascendancy:     { path:"", progress:0, unlocked:false },
+    quests:         [] as RitualQuestCard[],
   };
 
-  // --- initial global status ---
+  // --- global status ---
   const status: GameStatus = {
-    year: 1,
+    year:      1,
     moonPhase: 0,
-    season: "spring",
-    weather: "sunny",
+    season:    "spring",
+    weather:   "sunny",
   };
 
-  // --- assemble full game state ---
+  // --- assemble full state ---
   return {
-    players: [player],
-    market: createInitialMarket(),
+    players:      [player],
+    market:       createInitialMarket(),
     townRequests: [] as TownRequestCard[],
-    quests: [] as RitualQuestCard[],
-    rumors: [] as Rumor[],
-    journal: [],              // global log
+    quests:       [] as RitualQuestCard[],
+    rumors:       [] as Rumor[],
+    journal:      [],
     status,
-    actionsUsed: 0,
+    actionsUsed:  0,
   };
 }
