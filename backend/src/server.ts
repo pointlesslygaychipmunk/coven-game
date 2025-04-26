@@ -98,5 +98,5 @@ setupPlayController(io);
 // ——————————————————————————————————————————————
 const PORT = parseInt(process.env.PORT || '8080', 10);
 server.listen(PORT, () => {
-  console.log(`🚀 Server listening on port ${PORT}`);
+  console.log(`☾ Server listening on port ${PORT}`);
 });
