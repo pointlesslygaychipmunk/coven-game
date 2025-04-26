@@ -8,6 +8,12 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["backend/**/*.ts", "shared/**/*.ts", "frontend/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "backend/**/*.ts",
+    "shared/**/*.ts",
+    "frontend/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

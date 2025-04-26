@@ -1,0 +1,21 @@
+// coven-game/backend/tsconfig.json
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+      "rootDir": "..",        // allow imports from backend/ and backend/../shared
+      "outDir": "dist",
+      "module": "CommonJS",
+      "target": "ES2020",
+      "esModuleInterop": true,
+      "strict": true,
+      "skipLibCheck": true
+    },
+    "include": [
+      "src/**/*.ts",
+      "../shared/**/*.ts"    // <-- include your shared types
+    ],
+    "exclude": [
+      "node_modules",
+      "dist"
+    ]
+  }  
