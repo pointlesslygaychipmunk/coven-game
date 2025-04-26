@@ -31,7 +31,7 @@ export const Journal: React.FC<JournalProps> = ({ alerts, timestamps }) => {
                  ring-2 ring-purple-400 animate-glow backdrop-blur-md backdrop-saturate-150 scroll-smooth"
     >
       <h2 className="font-bold text-xl text-purple-900 tracking-widest mb-3 border-b border-purple-300 pb-2 drop-shadow">
-        🕯️ Grimoire Log
+        🕯️ Journal
       </h2>
 
       {alerts.length === 0 ? (
