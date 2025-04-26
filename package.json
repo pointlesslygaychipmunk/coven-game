@@ -2,7 +2,10 @@
   "devDependencies": {
     "@types/react": "^19.1.2",
     "@types/uuid": "^10.0.0",
-    "dotenv": "^16.5.0"
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.5.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4"
   },
   "dependencies": {
     "better-sqlite3": "^11.9.1",

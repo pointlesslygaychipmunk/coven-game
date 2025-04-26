@@ -1,4 +1,3 @@
-// coven-game/backend/tsconfig.json
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
@@ -17,5 +16,5 @@
     "exclude": [
       "node_modules",
       "dist"
-    ]
-  }  
+        ]
+      }
