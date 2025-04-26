@@ -1,5 +1,5 @@
 import { Player } from "../../../shared/types";
 
-import { calculateScore } from "../../../shared/scoreLogic";
+import { calculateScore } from "./scoreLogic";
 
 type ScoreBreakdown = Record<string, number>;
