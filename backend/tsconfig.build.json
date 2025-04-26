@@ -10,7 +10,7 @@
   },
   "include": [
     "src/**/*.ts",                    // all your API code
-    "../shared/**/*.ts"               // pull in the shared types too!
+    "../../shared/**/*.ts"               // pull in the shared types too!
   ],
   "exclude": [
     "node_modules",
