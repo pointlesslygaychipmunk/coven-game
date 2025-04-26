@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": false,        // you don’t need .d.ts for runtime
+    "sourceMap": true            // optional, but handy for post-mortem/debug
+  },
+  "include": ["src/**/*.ts"]
+}
