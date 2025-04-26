@@ -1,24 +1,28 @@
+// backend/src/modules/marketMemory.ts
+
 import { Player, MarketState, GameStatus, MarketMemoryEntry } from '../../../shared/types';
 
 /**
- * Record a player's interaction with the market.
- * Appends a memory entry with itemId, timestamp, price, and volume.
+ * Append a memory entry for the given item transaction.
+ * Called from executeActions whenever a buy or sell happens.
  */
 export function recordMemoryEntry(
   player: Player,
   market: MarketState,
   status: GameStatus,
-  volume: number = 1
+  itemId: string,
+  price: number,
+  volume: number
 ): void {
   if (!player.memory) player.memory = [];
-  // Example: pick a random market item to record
-  const itemId = Object.keys(market.items)[0];
-  const item = market.items[itemId];
-  const price = item.currentPrice ?? item.price;
-  player.memory.push({
+
+  const entry: MarketMemoryEntry = {
     itemId,
+    // Use a simple timestamp; you can also combine with status.year if desired
     timestamp: Date.now(),
     price,
     volume,
-  });
+  };
+
+  player.memory.push(entry);
 }

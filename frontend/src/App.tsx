@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-// Ensure you have installed:
-//   npm install socket.io-client
-//   npm install --save-dev @types/socket.io-client
 import type { GameState, Action } from "../../shared/types";
 import { Market } from "./components/Market";
 import { TownRequests } from "./components/TownRequests";
 import { Journal } from "./components/Journal";
+import { MarketMemory } from "./components/MarketMemory";
 
 const socket = io("http://localhost:8080");
 
@@ -47,6 +45,7 @@ const App: React.FC = () => {
       />
 
       <Journal alerts={state.journal} />
+      <MarketMemory entries={state.players[0].memory ?? []} />
 
       <button
         onClick={() => socket.emit("advanceTurn")}

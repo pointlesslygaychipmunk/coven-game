@@ -1,90 +1,99 @@
-import { GameState, Potion, Player, CropType } from "../../shared/types";
+// backend/src/executeActions.ts
 
-interface Action {
-  type: string;
-  payload?: any;
-}
-import { v4 as uuidv4 } from "uuid";
+import { GameState, Action, CropType } from "../shared/types";
+import { recordMemoryEntry } from "./modules/marketMemory";
 
-function getPlayerById(state: GameState, playerId: string): Player {
-  const player = state.players.find((p: Player) => p.id === playerId);
-  if (!player) throw new Error(`Player with ID "${playerId}" not found`);
-  return player;
+/** Type‐guard: is this ID a garden crop? */
+function isCropType(id: string): id is CropType {
+  return ["mushroom", "flower", "herb", "fruit"].includes(id);
 }
 
-export function executeActions(gameState: GameState, actions: Action[], playerId: string): GameState {
-  const player = getPlayerById(gameState, playerId);
+/**
+ * Execute a batch of actions for a single player.
+ */
+export function executeActions(
+  state: GameState,
+  playerId: string,
+  actions: Action[]
+): GameState {
+  const player = state.players.find((p) => p.id === playerId);
+  if (!player) throw new Error(`Player ${playerId} not found`);
+
+  // Default empty ingredients for potions
+  const defaultIngredients: Record<CropType, number> = {
+    mushroom: 0,
+    flower: 0,
+    herb: 0,
+    fruit: 0,
+  };
 
   for (const action of actions) {
-    const payload = action.payload || {};
+    if (action.type === "buy") {
+      const { itemId, quantity } = action;
+      const item = state.market.items[itemId];
+      const price = item.currentPrice ?? item.price;
 
-    switch (action.type) {
-      case "plant": {
-        const crop = payload.crop as CropType;
-        if (crop && player.inventory[crop] > 0) {
-          player.garden.push({
-            kind: crop === "tree" as CropType ? "tree" : "crop",
-            type: crop,
-            growth: 0,
-            isDead: false,
+      // Deduct cost
+      player.gold -= price * quantity;
+
+      // Add to inventory or create potion(s)
+      if (isCropType(itemId)) {
+        player.inventory[itemId] = (player.inventory[itemId] || 0) + quantity;
+      } else if (item.type === "potion") {
+        for (let i = 0; i < quantity; i++) {
+          player.potions.push({
+            id: `${itemId}_${Date.now()}_${i}`,
+            name: item.name,
+            tier: item.tier,
+            ingredients: { ...defaultIngredients },
           });
-          player.inventory[crop]--;
         }
-        break;
       }
+      // Black-market buys go into memory/rumors only
 
-      case "harvest": {
-        const crop = payload.crop as CropType;
-        if (!crop) break;
-        const index = player.garden.findIndex(
-          (slot) => slot && slot.type === crop && slot.growth >= 3 && !slot.isDead
-        );
-        if (index >= 0) {
-          player.inventory[crop]++;
-          player.garden.splice(index, 1);
-        }
-        break;
-      }
+      // Adjust market stock
+      item.stock = (item.stock || 0) - quantity;
 
-      case "water": {
-        player.wateringUsed++;
-        break;
-      }
-
-      case "brew": {
-        const { name, tier, ingredients } = payload;
-        if (name && tier && ingredients) {
-          const newPotion: Potion = {
-            id: uuidv4(),
-            name,
-            tier,
-            ingredients,
-          };
-          player.potions.push(newPotion);
-          player.craftPoints += tier === "common" ? 1 :
-                                tier === "rare"   ? 2 :
-                                tier === "epic"   ? 3 :
-                                tier === "legendary" ? 4 : 0;
-        }
-        break;
-      }
-
-      case "sell": {
-        const { potionName, goldEarned } = payload;
-        if (potionName && typeof goldEarned === "number") {
-          const index = player.potions.findIndex((p) => p.name === potionName);
-          if (index !== -1) {
-            player.potions.splice(index, 1);
-            player.gold += goldEarned;
-          }
-        }
-        break;
-      }
-
-      default:
-        console.warn(`Unknown action type: ${action.type}`);
+      // Record memory
+      recordMemoryEntry(
+        player,
+        state.market,
+        state.status,
+        itemId,
+        price,
+        quantity
+      );
     }
+
+    if (action.type === "sell") {
+      const { itemId, quantity } = action;
+      const item = state.market.items[itemId];
+      const price = item.currentPrice ?? item.price;
+
+      // Add revenue
+      player.gold += price * quantity;
+
+      // Remove from inventory (only crops)
+      if (isCropType(itemId)) {
+        player.inventory[itemId] = (player.inventory[itemId] || 0) - quantity;
+      }
+
+      // Adjust market stock
+      item.stock = (item.stock || 0) + quantity;
+
+      // Record sale with negative volume
+      recordMemoryEntry(
+        player,
+        state.market,
+        state.status,
+        itemId,
+        price,
+        -quantity
+      );
+    }
+
+    // Other action types ignored here
   }
 
-  return gameState;
+  return state;
 }

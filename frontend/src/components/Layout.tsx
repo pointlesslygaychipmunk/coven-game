@@ -6,6 +6,7 @@ import { TownRequests } from "./TownRequests";
 import { Market } from "./Market";
 import { GameOver } from "./GameOver";
 import { Journal } from "./Journal";
+import { MarketMemory } from "./MarketMemory";
 
 import type { GameState, Action } from "../../../shared/types";
 import {
@@ -111,6 +112,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </button>
 
       <Journal alerts={gameState.journal} />
+      <MarketMemory entries={player.memory ?? []} />
     </div>
   );
 };

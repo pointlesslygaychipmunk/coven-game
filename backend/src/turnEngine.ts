@@ -11,6 +11,7 @@ import { generateRumors }       from './modules/rumorEngine';
 import { resolveQuests }        from './modules/questSystem';
 import { processBlackMarket }   from './modules/blackMarket';
 import { updateAscendancy }     from './modules/ascendancy';
+import { applyFamiliarPowers } from './modules/familiarPowers';
 
 const seasonOrder: Season[] = ['spring', 'summer', 'autumn', 'winter'];
 const weatherOptions: Weather[] = ['sunny', 'rainy', 'foggy', 'stormy', 'cloudy'];
@@ -42,16 +43,16 @@ export function advanceTurn(state: GameState): GameState {
     simulateMoonPhaseChange(player, newState.status)
   );
 
+  // 4.5. Apply familiar powers
+  newState.players.forEach(player =>
+    applyFamiliarPowers(player, newState)
+  );
+
   // 5. Update market
   newState.market = updateMarket(
     newState.market,
     newState.status,
     newState.players
-  );
-
-  // 6. Record market memory
-  newState.players.forEach(player =>
-    recordMemoryEntry(player, newState.market, newState.status)
   );
 
   // 7. Generate & log rumors
