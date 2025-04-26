@@ -1,11 +1,16 @@
 {
   "name": "coven-backend",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "main": "dist/server.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
+  },
+  "dependencies": {
+    "express": "^4.x",
+    "cors": "^2.x",
+    "socket.io": "^4.x"
   },
   "devDependencies": {
     "typescript": "^4.x",
