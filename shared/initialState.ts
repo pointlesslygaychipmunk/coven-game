@@ -1,45 +1,54 @@
-import type { Player, GameStatus, TownRequestCard } from "./types";
+// src/initialState.ts
+
+import type {
+  Player,
+  GardenSlot,
+  Potion,
+  MarketState,
+  GameStatus,
+} from "./types";
+
+// 8 empty garden slots (defaulting to a dormant mushroom)
+function makeEmptyGarden(): GardenSlot[] {
+  return Array.from({ length: 8 }, () => ({
+    type:   "mushroom",
+    kind:   "crop",
+    growth: 0,
+  }));
+}
 
 export const initialPlayerState: Player = {
-  id: "player-1",
-  name: "Witch Hazel",
-  gold: 10,
-  renown: 3,
-  craftPoints: 0,
-  mana: 3,
-  garden: {
-    spaces: [null, null, null, null, null, null, null, null],
-  },
-  inventory: {
-    mushroom: 2,
-    flower: 2,
-    herb: 2,
-    fruit: 2,
-  },
-  upgrades: {
-    well: 0,
-    cellar: 0,
-    cart: 0,
-    cauldron: 0,
-  },
-  potions: {
-    mushroom: 0,
-    flower: 0,
-    herb: 0,
-    fruit: 0,
-  },
+  id:             "player-1",
+  name:           "Witch Hazel",
+  inventory:      { mushroom: 2, flower: 2, herb: 2, fruit: 2 },
+  potions:        [] as Potion[],
+  gold:           10,
+  mana:           3,
+  renown:         3,
+  craftPoints:    0,
+  garden:         makeEmptyGarden(),
+  upgrades:       { well: 0, cellar: 0, cart: 0, cauldron: 0 },
+  wateringUsed:   0,
+  journal:        [],
+  rumorsHeard:    [],
+  memory:         [],
+  familiarPowers: [],
+  ascendancy:     { path: "", progress: 0, unlocked: false },
+  quests:         [],
 };
 
-export const initialMarketState: Record<'mushroom' | 'flower' | 'herb' | 'fruit', { price: number; stock: number }> = {
-  mushroom: { price: 3, stock: 5 },
-  flower: { price: 2, stock: 6 },
-  herb: { price: 4, stock: 4 },
-  fruit: { price: 5, stock: 3 },
+export const initialMarketState: MarketState = {
+  items: {
+    mushroom: { type: "crop",       price: 3, stock: 5 },
+    flower:   { type: "crop",       price: 2, stock: 6 },
+    herb:     { type: "ingredient", price: 4, stock: 4 },
+    fruit:    { type: "crop",       price: 5, stock: 3 },
+  },
 };
 
 export const initialGameStatus: GameStatus = {
+  year:      1,
   moonPhase: 1,
-  season: "Spring",
-  weather: "Sunny",
-  year: 1,
+  season:    "spring",
+  weather:   "sunny",
 };
