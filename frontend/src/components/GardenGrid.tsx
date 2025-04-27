@@ -1,29 +1,30 @@
-/* src/components/GardenGrid.tsx */
-import type { Tile } from "@shared/types";
-import { cn } from "@ui/utils";
+// src/components/GardenGrid.tsx
+import { Tile } from "@shared/types";
+import cn from "@ui/utils";
 
-interface Props { tiles: Tile[][] }
+interface Props {
+  tiles: Tile[][];
+}
 
 export default function GardenGrid({ tiles }: Props) {
   return (
-    <section
-      style={{
-        gridTemplateColumns: `repeat(${tiles[0]?.length ?? 0}, minmax(2.5rem,1fr))`,
-      }}
-      className="grid gap-px rounded-lg bg-layer-3 p-px"
-    >
-      {tiles.flatMap((row, y) =>
-        row.map((tile, x) => (
-          <div
-            key={`${x}-${y}`}
-            className={cn(
-              "aspect-square bg-layer-2 transition-colors",
-              tile.crop && "animate-in fade-in zoom-in bg-green-700/70",
-            )}
-            title={tile.crop ?? "Empty"}
-          />
-        )),
-      )}
-    </section>
+    <div className="grid gap-1">
+      {tiles.map((row, y) => (
+        <div key={y} className="flex gap-1">
+          {row.map((tile, x) => (
+            <div
+              key={x}
+              className={cn(
+                "w-8 h-8 border border-stone-700 relative grid place-items-center",
+                /* ▼ only a **string** (or undefined) ever reaches `cn`  */
+                tile.crop ? "animate-in fade-in zoom-in bg-green-700/70" : undefined
+              )}
+            >
+              {/* render crop glyph, growth, etc. */}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }
