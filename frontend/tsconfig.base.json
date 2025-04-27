@@ -1,36 +1,33 @@
 {
-    // ------------------------------------------------------------------
-    //  TypeScript 5.x                                (frontend only)
-    // ------------------------------------------------------------------
+    "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
-      /* modern JS output ---------------------------------------------------------------- */
-      "target":           "ES2022",
-      "module":           "node16",          // <-- MUST match the moduleResolution below
-      "moduleResolution": "node16",
-      "lib":              ["ES2022", "DOM"],
-      "jsx":              "react-jsx",
+      /* language & module targets */
+      "target": "ES2022",
+      "module": "ESNext",
+      "moduleResolution": "NodeNext",
+      "jsx": "react-jsx",
   
-      /* interop / helpers ---------------------------------------------------------------- */
-      "esModuleInterop":      true,
-      "resolveJsonModule":    true,
-      "downlevelIteration":   true,
-      "skipLibCheck":         true,
+      /* strictness & transforms */
+      "strict": true,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowSyntheticDefaultImports": true,
+      "resolveJsonModule": true,
   
-      /* strictness ----------------------------------------------------------------------- */
-      "strict":           true,
-  
-      /* path aliases --------------------------------------------------------------------- */
+      /* paths & baseUrl */
       "baseUrl": ".",
       "paths": {
-        "@/*":           ["src/*"],
+        "@/*": ["src/*"],
         "@components/*": ["src/components/*"],
-        "@lib/*":        ["src/lib/*"],
-        "@shared/*":     ["../shared/src/*"]
-      }
-    }
-    /* what to include in this project ---------------------------------------------------- */
-    "include": ["src/**/*", "env.d.ts"],
+        "@layout/*": ["src/layout/*"],
+        "@lib/*": ["src/lib/*"],
+        "@shared/*": ["../shared/src/*"]
+      },
   
-    /* everything else is excluded implicitly -------------------------------------------- */
-    "exclude": ["dist", "node_modules"]
+      /* out-dir is left to per-project tsconfig */
+      "downlevelIteration": true
+    },
+  
+    "include": ["src/**/*", "env.d.ts"]
   }  
