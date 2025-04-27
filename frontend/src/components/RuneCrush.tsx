@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Rune, BrewMove } from '../../../shared/types';
-import { BOARD_W, BOARD_H, genBoard, applyMove } from '../../utils/puzzleClient';
+import { BOARD_W, BOARD_H, genBoard, applyMove } from '../utils/puzzleClient';
 
 interface Props {
   recipeId: string;
