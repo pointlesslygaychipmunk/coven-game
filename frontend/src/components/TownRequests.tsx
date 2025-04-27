@@ -96,3 +96,5 @@ export const TownRequests: React.FC<TownRequestsProps> = ({
     </div>
   );
 };
+
+export default TownRequests;
