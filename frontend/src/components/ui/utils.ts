@@ -1,7 +1,7 @@
-// src/components/ui/utils.ts
-export function cn(...classes: (string | false | undefined | null)[]) {
-  return classes.filter(Boolean).join(" ");
+/* Tailwind-friendly utility the whole design system hangs on. */
+export function cn(...cls: Array<string | false | null | undefined>): string {
+  return cls.filter(Boolean).join(" ");
 }
 
-/* 👇 <-- add this line */
-export default cn;          // so `import classNames from '@ui/utils'` works
+/* Provide a default so older imports `import classNames from "@ui/utils"` work */
+export default cn;

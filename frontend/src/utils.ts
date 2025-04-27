@@ -1,23 +1,25 @@
-import type { GameState, Action, CropType } from "@shared/types";
+import type { GameState, GameAction, CropType } from "@shared/types";
 
-/** mini example reducer so you can see how to extend it */
-export function reducer(state: GameState, action: Action): GameState {
+export function reducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    case "plant": {
-      const newInv = {
-        ...state.players[0].inventory,
-        /* cast because we’re inside the `"plant"` branch */
-        [action.crop as CropType]:
-          state.players[0].inventory[action.crop as CropType] - 1,
-      };
-
-      const newState: GameState = {
+    case "plant":
+      return {
         ...state,
-        players: [{ ...state.players[0], inventory: newInv }],
+        players: state.players.map(p =>
+          p === state.players[0]
+            ? {
+                ...p,
+                inventory: {
+                  ...p.inventory,
+                  [action.crop]:
+                    (p.inventory[action.crop as CropType] ?? 0) - 1
+                }
+              }
+            : p
+        )
       };
-      return newState;
-    }
 
+    /* —— other actions here —— */
     default:
       return state;
   }

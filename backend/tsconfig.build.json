@@ -1,18 +1,17 @@
 {
-  // keep the base compiler options from tsconfig.json
-  "extends": "./tsconfig.json",
-
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    /* ---------- only the two lines below are new ---------- */
-    "rootDir": "..",          // <─ everything under coven-game/*
-    "outDir":  "dist",        // compiled JS ends up in backend/dist
-    /* ------------------------------------------------------ */
-
-    "composite": false        // (if you had it set to true, leave it)
+    "outDir": "dist",
+    /* key changes ↓↓↓ */
+    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    /* paths so both front & back can `import "@shared/…" …` */
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/src/*"]
+    }
   },
-
-  "include": [
-    "src/**/*",
-    "../shared/src/**/*"
-  ]
+  /* include the backend itself **plus** shared types */
+  "include": ["src", "../shared/src/**/*.ts", "../shared/src/**/*.json"]
 }

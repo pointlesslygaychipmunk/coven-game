@@ -13,13 +13,14 @@ export default function GardenGrid({ tiles }: Props) {
         <div key={y} className="flex gap-1">
           {row.map((tile, x) => (
             <div
-              key={x}
-              className={cn(
-                "w-8 h-8 border border-stone-700 relative grid place-items-center",
-                /* ▼ only a **string** (or undefined) ever reaches `cn`  */
-                tile.crop ? "animate-in fade-in zoom-in bg-green-700/70" : undefined
-              )}
-            >
+            key={i}
+            className={cn(
+              "w-8 h-8 border border-stone-700",
+              tile.crop && "animate-in fade-in zoom-in bg-green-700/70"
+            )}
+          >
+            {/* … */}
+          </div>
               {/* render crop glyph, growth, etc. */}
             </div>
           ))}
