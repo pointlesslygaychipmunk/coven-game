@@ -2,8 +2,9 @@ import { memo } from 'react';
 import cn from 'classnames';
 
 interface Tile { id: string; crop?: string; growth: number; }
-interface Props { tiles: Tile[] }
+interface Props { tiles: Tile[] | Tile[][] }
 
+const grid = Array.isArray(tiles[0]) ? tiles as Tile[][] : [tiles as Tile[]];
 const GardenGrid = memo(({ tiles }: Props) => (
   <div
     className="grid gap-1 p-2"

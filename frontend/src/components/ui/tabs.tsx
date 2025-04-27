@@ -1,33 +1,46 @@
-import { useState } from "react";
-import { cn } from "@lib/utils";
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-export interface TabsProps {
-  labels: string[];
-  defaultIndex?: number;
-  onChange?(idx: number): void;
-  className?: string;
+/* context ----------------------------------------------------------------- */
+const TabsCtx = React.createContext<[string, React.Dispatch<React.SetStateAction<string>>] | null>(null);
+
+/* container ---------------------------------------------------------------- */
+export function Tabs ({ defaultValue, className, ...props }:
+  React.ComponentPropsWithoutRef<"div"> & { defaultValue: string }) {
+  const state = React.useState(defaultValue);
+  return (
+    <TabsCtx.Provider value={state}>
+      <div className={cn("flex flex-col", className)} {...props} />
+    </TabsCtx.Provider>
+  );
 }
 
-/** *very* small replacement – enough to unblock compilation */
-export function Tabs({ labels, defaultIndex = 0, onChange, className }: TabsProps) {
-  const [idx, setIdx] = useState(defaultIndex);
+/* primitive: clickable trigger ------------------------------------------- */
+export function TabsTrigger (
+  { value, className, ...props }:
+  React.ComponentPropsWithoutRef<"button"> & { value: string }
+) {
+  const ctx = React.useContext(TabsCtx)!;
+  const active = ctx[0] === value;
   return (
-    <div className={cn("flex gap-1", className)}>
-      {labels.map((l, i) => (
-        <button
-          key={l}
-          onClick={() => {
-            setIdx(i);
-            onChange?.(i);
-          }}
-          className={cn(
-            "rounded px-2 py-1 text-xs",
-            i === idx ? "bg-primary text-primary-foreground" : "bg-muted"
-          )}
-        >
-          {l}
-        </button>
-      ))}
-    </div>
+    <button
+      onClick={() => ctx[1](value)}
+      className={cn(
+        "px-3 py-1 text-sm",
+        active ? "border-b-2 border-primary" : "opacity-60",
+        className
+      )}
+      {...props}
+    />
   );
+}
+
+/* primitive: tab panel ---------------------------------------------------- */
+export function TabsContent (
+  { value, className, ...props }:
+  React.ComponentPropsWithoutRef<"div"> & { value: string }
+) {
+  const [active] = React.useContext(TabsCtx)!;
+  if (active !== value) return null;
+  return <div className={cn("pt-4", className)} {...props} />;
 }

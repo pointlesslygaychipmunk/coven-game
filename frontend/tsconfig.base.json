@@ -22,7 +22,13 @@
       /* path aliases --------------------------------------------------------------------- */
       "baseUrl": ".",
       "paths": {
-        "@/*": ["src/*"]          // import "@/components/…"
+        "paths": {
+            "@/*":         ["src/*"],
+            "@lib/*":      ["src/lib/*"],
+            "@components/*":["src/components/*"],
+            "@shared/*":   ["../shared/src/*"]
+        }
+
       }
     },
   

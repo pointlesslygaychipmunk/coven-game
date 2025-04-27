@@ -7,6 +7,7 @@ import {
 import { useState } from 'react';
 import RuneCrush from "@/components/RuneCrush";
 import type { BrewMove } from '../../../shared/src/types';
+import { Progress, DialogFooter } from "@/components/ui/progress";
 
 interface Props {
   open: boolean;
