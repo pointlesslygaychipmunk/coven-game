@@ -1,17 +1,22 @@
-import * as ProgressPrimitive from "@radix-ui/react-progress";
-import { cn } from "@lib/cn";
-import { ComponentProps } from "react";
+import * as ProgressPrimitive from '@radix-ui/react-progress'
+import { cn } from '@ui/utils'
 
-export interface ProgressProps extends ComponentProps<typeof ProgressPrimitive.Root> {
-  value?: number;
-  max?: number;
+export interface ProgressProps
+  extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
+  /** 0 – 100 */
+  value: number
 }
 
-export const Progress = ({ className, value = 0, max = 100, ...props }: ProgressProps) => (
-  <ProgressPrimitive.Root value={value} max={max} className={cn("relative h-2 w-full overflow-hidden rounded bg-muted", className)} {...props}>
+export const Progress = ({ value, className, ...props }: ProgressProps) => (
+  <ProgressPrimitive.Root
+    value={value}
+    className={cn('relative h-2 w-full rounded bg-zinc-800', className)}
+    {...props}
+  >
     <ProgressPrimitive.Indicator
-      className="absolute h-full bg-primary transition-[width]"
-      style={{ width: `${(value / max) * 100}%` }}
+      style={{ width: `${value}%` }}
+      className="block h-full rounded bg-emerald-500 transition-[width]"
     />
   </ProgressPrimitive.Root>
-);
+)
+Progress.displayName = 'Progress'
