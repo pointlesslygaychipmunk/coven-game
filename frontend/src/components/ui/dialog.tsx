@@ -1,24 +1,22 @@
-import { cn } from '@lib/cn'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { cn } from "@lib/cn";
+import { ReactNode } from "react";
 
-export const Dialog = DialogPrimitive.Root
-export const DialogTrigger = DialogPrimitive.Trigger
+export const Dialog = DialogPrimitive.Root;
+export const DialogTrigger = DialogPrimitive.Trigger;
+export const DialogPortal = DialogPrimitive.Portal;
 
-interface DialogContentProps extends DialogPrimitive.DialogContentProps {}
-
-export const DialogContent = ({ className, ...props }: DialogContentProps) => (
-  <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="fixed inset-0 bg-black/50 animate-fadeIn" />
+export function DialogContent({ children, className, ...props }: { children: ReactNode; className?: string } & DialogPrimitive.DialogContentProps) {
+  return (
     <DialogPrimitive.Content
-      className={cn(
-        'fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-mauve-2 p-6 shadow-lg focus:outline-none',
-        className
-      )}
       {...props}
-    />
-  </DialogPrimitive.Portal>
-)
+      className={cn("fixed inset-0 m-auto max-h-[90vh] w-[90vw] max-w-lg rounded bg-popover p-6 shadow", className)}
+    >
+      {children}
+    </DialogPrimitive.Content>
+  );
+}
 
-export const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h2 className={cn('mb-4 text-lg font-bold tracking-tight text-mauve-12', className)} {...props} />
-)
+export function DialogHeader({ children, className }: { children: ReactNode; className?: string }) {
+  return <h2 className={cn("mb-4 text-lg font-semibold", className)}>{children}</h2>;
+}
