@@ -1,19 +1,27 @@
-import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@lib/utils";
 
-export const Dialog       = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
-
-export const DialogContent = ({ className, ...props }:
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>) => (
-  <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay className="fixed inset-0 bg-black/40" />
-    <DialogPrimitive.Content
-      className={cn("fixed left-[50%] top-[50%] w-[90vw] max-w-md "
-                  + "translate-x-[-50%] translate-y-[-50%] rounded-md "
-                  + "bg-popover p-6 shadow-lg", className)}
+export function Dialog(props: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
       {...props}
+      className={cn(
+        "fixed inset-0 z-40 grid place-items-center bg-black/40 backdrop-blur-sm",
+        props.className
+      )}
     />
-  </DialogPrimitive.Portal>
+  );
+}
+
+export const DialogContent = (p: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    {...p}
+    className={cn(
+      "rounded-md bg-background p-6 shadow-lg outline-none",
+      p.className
+    )}
+  />
 );
-DialogContent.displayName = "DialogContent";
+
+export const DialogHeader = (p: React.HTMLAttributes<HTMLHeadingElement>) => (
+  <h2 {...p} className={cn("mb-4 text-lg font-semibold", p.className)} />
+);

@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "target": "es2022",
+      "module": "es2022",
+      "jsx": "react-jsx",
+      "moduleResolution": "node16",
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "strict": true,
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"],
+        "@components/*": ["src/components/*"],
+        "@layout/*": ["src/layout/*"],
+        "@shared/*": ["../shared/src/*"],
+        "@lib/*": ["src/lib/*"]
+      }
+    }
+  }  

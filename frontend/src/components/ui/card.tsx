@@ -1,25 +1,14 @@
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@lib/utils";
 
-export const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("rounded-lg border bg-card text-card-foreground shadow",
-                               className)}
-       {...props}/>
-));
-Card.displayName = "Card";
-
-export const CardHeader   = ({ className, ...p }:
-  React.HTMLAttributes<HTMLDivElement>) =>
-  <div className={cn("p-4 border-b", className)} {...p} />;
-export const CardContent  = ({ className, ...p }:
-  React.HTMLAttributes<HTMLDivElement>) =>
-  <div className={cn("p-4", className)} {...p} />;
-export const CardFooter   = ({ className, ...p }:
-  React.HTMLAttributes<HTMLDivElement>) =>
-  <div className={cn("p-4 border-t", className)} {...p} />;
-
-/* re-export as namespace, like shadcn does */
-export default Object.assign(Card, { Header:CardHeader, Content:CardContent, Footer:CardFooter });
+export function Card(props: React.HTMLAttributes<HTMLDivElement>) {
+  return <div {...props} className={cn("rounded-md border bg-card p-4", props.className)} />;
+}
+export function CardHeader(props: React.HTMLAttributes<HTMLDivElement>) {
+  return <div {...props} className={cn("mb-2 flex items-center justify-between", props.className)} />;
+}
+export function CardContent(props: React.HTMLAttributes<HTMLDivElement>) {
+  return <div {...props} className={cn("space-y-2", props.className)} />;
+}
+export const CardTitle = (p: React.HTMLAttributes<HTMLHeadingElement>) => (
+  <h3 {...p} className={cn("font-medium", p.className)} />
+);

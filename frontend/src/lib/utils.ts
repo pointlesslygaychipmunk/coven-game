@@ -1,8 +1,4 @@
-/** Tail-wind / clsx convenience helper ------------------------------------ */
-import { type ClassValue } from "clsx";
-import clsx from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+/** one-liner clone of shadcn’s utility until you swap to the real one */
+export function cn(...classes: (string | false | undefined)[]) {
+    return classes.filter(Boolean).join(" ");
+  }  
