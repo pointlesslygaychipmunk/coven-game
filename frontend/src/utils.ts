@@ -1,37 +1,23 @@
-import type { GameState, GameAction, GardenSlot } from "@shared/types";
+import type { GameState, Action, CropType } from "@shared/types";
 
-export function createEmptyGarden(size = 12): GardenSlot[] {
-  return Array.from({ length: size }, () => ({
-    type: "mushroom",
-    kind: "crop",
-    growth: 0,
-  }));
-}
-
-/** naïve reducer for demo purposes – extend as needed */
-export function reducer(state: GameState, action: GameAction): GameState {
+/** mini example reducer so you can see how to extend it */
+export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case "plant": {
-      const garden = [...state.players[0].garden];
-      garden[action.index] = {
-        type: action.crop,
-        kind: "crop",
-        growth: 0,
+      const newInv = {
+        ...state.players[0].inventory,
+        /* cast because we’re inside the `"plant"` branch */
+        [action.crop as CropType]:
+          state.players[0].inventory[action.crop as CropType] - 1,
       };
-      return {
+
+      const newState: GameState = {
         ...state,
-        players: [
-          {
-            ...state.players[0],
-            garden,
-            inventory: {
-              ...state.players[0].inventory,
-              [action.crop]: state.players[0].inventory[action.crop] - 1,
-            },
-          },
-        ],
+        players: [{ ...state.players[0], inventory: newInv }],
       };
+      return newState;
     }
+
     default:
       return state;
   }

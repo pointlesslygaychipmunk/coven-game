@@ -246,4 +246,5 @@ export interface BrewMatch3Result {
   quality: number;
 }
 
-/* ------------------------------------------------------------------------ */
+/** -------------------------  helper aliases  ------------------------- */
+export type GameAction = Action; 
