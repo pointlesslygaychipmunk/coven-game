@@ -247,4 +247,13 @@ export interface BrewMatch3Result {
 }
 
 /** -------------------------  helper aliases  ------------------------- */
-export type GameAction = Action; 
+export type Action =  //  👈  add this line
+  | { type: "plant"; crop: CropType; index: number }
+  | { type: "harvest"; index: number }
+  | { type: "buy"; itemId: string; quantity: number }
+  | { type: "sell"; itemId: string; quantity: number }
+  | { type: "water"; index: number }
+  | { type: "brew"; potionId: string }
+  | { type: "fulfill"; requestId: string };
+
+export type GameAction = Action;   // alias so legacy code still compiles
