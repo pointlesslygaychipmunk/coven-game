@@ -20,3 +20,6 @@ export function DialogContent({ children, className, ...props }: { children: Rea
 export function DialogHeader({ children, className }: { children: ReactNode; className?: string }) {
   return <h2 className={cn("mb-4 text-lg font-semibold", className)}>{children}</h2>;
 }
+
+export { DialogTitle }
+export { DialogFooter } 
