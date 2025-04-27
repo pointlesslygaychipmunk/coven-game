@@ -1,9 +1,18 @@
 {
-    "extends": "../tsconfig.base.json",
-    "compilerOptions": {
-      "rootDir": "src",
-      "outDir": "dist",
-      "declaration": false
-    },
-    "include": ["src", "../shared/src"]
-  }  
+  // keep the base compiler options from tsconfig.json
+  "extends": "./tsconfig.json",
+
+  "compilerOptions": {
+    /* ---------- only the two lines below are new ---------- */
+    "rootDir": "..",          // <─ everything under coven-game/*
+    "outDir":  "dist",        // compiled JS ends up in backend/dist
+    /* ------------------------------------------------------ */
+
+    "composite": false        // (if you had it set to true, leave it)
+  },
+
+  "include": [
+    "src/**/*",
+    "../shared/src/**/*"
+  ]
+}
