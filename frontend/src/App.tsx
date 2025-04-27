@@ -8,7 +8,7 @@ import GardenGrid from "./components/GardenGrid";
 import InventoryBox from "./components/InventoryBox";
 import PotionPanel from "./components/PotionPanel";
 import Market from "./components/Market";
-import { TownRequests } from "./components/TownRequests";
+import TownRequests from "./components/TownRequests";
 import RumorFeed from "./components/RumorFeed";
 import Journal from "./components/Journal";
 
