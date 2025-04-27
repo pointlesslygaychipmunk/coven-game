@@ -1,6 +1,25 @@
-# ignore modules and builds
-backend/node_modules/
-frontend/node_modules/
-backend/dist/
-frontend/dist/
-node_modules
+# ─────────────────────────────────────────────
+#  Universal ignores for a TypeScript / React
+#  monorepo (backend + frontend, pnpm or npm)
+# ─────────────────────────────────────────────
+
+# Dependency directories (any depth)
+node_modules/
+**/node_modules/
+
+# pnpm content-addressable store (optional; local cache)
+.pnpm-store/
+
+# Build / bundle output (top-level or nested)
+dist/
+**/dist/
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# macOS & editors
+.DS_Store
+.idea/
+.vscode/
