@@ -1,38 +1,34 @@
-import { Dialog, DialogContent, DialogTitle, DialogFooter } from '@ui/dialog'
-import { Progress } from '@ui/progress'
-import RuneGrid from './RuneGrid'
-import { useState } from 'react'
-import type { BrewMove } from '@shared/types'
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@ui/dialog";
+import { Progress } from "@ui/progress";
+import RuneGrid from "./RuneGrid";
+import type { BrewMove } from "@shared/types";
 
 interface Props {
-  open: boolean
-  seed: string
-  recipe: { id: string; targetScore: number; maxMoves: number }
-  onClose(): void
-  onSubmit(moves: BrewMove[]): void
+  open: boolean;
+  seed: string;
+  recipe: { id: string; targetScore: number; maxMoves: number };
+  onClose(): void;
+  onSubmit(moves: BrewMove[]): void;
 }
 
-export default function BrewDialog({
-  open,
-  seed,
-  recipe,
-  onClose,
-  onSubmit,
-}: Props) {
-  const [score, setScore] = useState(0)
-  const [moves, setMoves] = useState<BrewMove[]>([])
+export default function BrewDialog({ open, seed, recipe, onClose, onSubmit }: Props) {
+  const [score, setScore] = useState(0);
+  const [moves, setMoves] = useState<BrewMove[]>([]);
 
   return (
-    <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-md">
-        <DialogTitle>Brew — {recipe.id}</DialogTitle>
+    <Dialog open={open} onOpenChange={(value: boolean) => !value && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Brew – {recipe.id}</DialogTitle>
+        </DialogHeader>
 
         <RuneGrid
           seed={seed}
           onChange={(s, m) => {
-            setScore(s)
-            setMoves(m)
-            if (s >= recipe.targetScore || m.length >= recipe.maxMoves) onSubmit(m)
+            setScore(s);
+            setMoves(m);
+            if (s >= recipe.targetScore || m.length >= recipe.maxMoves) onSubmit(m);
           }}
         />
 
@@ -42,9 +38,14 @@ export default function BrewDialog({
         </p>
 
         <DialogFooter>
-          {/* controls if you need them */}
+          <button
+            onClick={onClose}
+            className="rounded bg-stone-700 px-4 py-1.5 text-sm hover:bg-stone-600"
+          >
+            Close
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
