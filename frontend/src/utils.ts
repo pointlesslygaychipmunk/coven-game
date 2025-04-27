@@ -1,6 +1,6 @@
 // frontend/src/utils.ts
 
-import type { GameState, Action } from "../../shared/types";
+import type { GameState, Action } from "../../shared/src/types";
 
 /** No BASE at all—just talk to the same origin. */
 export async function fetchState(): Promise<GameState> {

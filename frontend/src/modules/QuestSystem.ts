@@ -1,4 +1,4 @@
-import { RitualQuestCard, GameState } from '../../../shared/types';
+import { RitualQuestCard, GameState } from '../../../shared/src/types';
 
 /**
  * Returns active (unfulfilled) quests.

@@ -1,4 +1,4 @@
-import { MarketState, Season, MoonPhase } from "../../shared/types";
+import { MarketState, Season, MoonPhase } from "../../shared/src/types";
 
 export function applyMarketEvents(
   market: MarketState,

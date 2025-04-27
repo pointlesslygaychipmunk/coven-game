@@ -1,6 +1,6 @@
 // shared/actionTypes.ts
 
-import type { CropType, PotionIngredient, PotionTier } from "./types";
+import type { CropType, PotionIngredient, PotionTier } from "./src/types";
 
 // --- Strongly Typed Action Payloads ---
 

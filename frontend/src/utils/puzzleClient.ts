@@ -4,7 +4,7 @@
  *  Uses `seedrandom` so the board is identical on client & server.
  */
 import seedrandom from 'seedrandom';
-import type { Rune, BrewMove, Coord } from '../../../shared/types';
+import type { Rune, BrewMove, Coord } from '../../../shared/src/types';
 
 export const BOARD_W = 8;
 export const BOARD_H = 6;

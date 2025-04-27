@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Player, GameStatus } from '../../../shared/types';
+import type { Player, GameStatus } from '../../../shared/src/types';
 
 export interface StatsBarProps {
   player: Player;

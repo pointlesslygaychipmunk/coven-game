@@ -1,6 +1,6 @@
 // backend/src/modules/questSystem.ts
 
-import { RitualQuestCard, GameState } from '../../../shared/types';
+import { RitualQuestCard, GameState } from '../../../shared/src/types';
 
 /**
  * Resolve ritual quests:

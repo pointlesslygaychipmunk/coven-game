@@ -6,7 +6,7 @@ import type {
   Potion,
   MarketState,
   GameStatus,
-} from "./types";
+} from "./src/types";
 
 // 8 empty garden slots (defaulting to a dormant mushroom)
 function makeEmptyGarden(): GardenSlot[] {

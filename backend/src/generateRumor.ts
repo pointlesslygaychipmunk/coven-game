@@ -1,4 +1,4 @@
-import { MarketItem, MarketRumor } from "../../shared/types";
+import { MarketItem, MarketRumor } from "../../shared/src/types";
 
 export function generateRumor(item: MarketItem): MarketRumor {
   const label = "label" in item && item.label ? item.label : "Unknown Item";

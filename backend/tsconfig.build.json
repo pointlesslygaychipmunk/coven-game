@@ -1,22 +1,9 @@
-// backend/tsconfig.build.json
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    // point *one level up*, so that both `backend/` and `shared/` are under rootDir
-    "rootDir": "..",
-    "outDir": "dist",
-    "module": "commonjs",
-    "target": "ES2020",
-    "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true
-  },
-  "include": [
-    "src/**/*.ts",
-    "../shared/**/*.ts"   // <-- bring in your shared types
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
-}
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+      "rootDir": "src",
+      "outDir": "dist",
+      "declaration": false
+    },
+    "include": ["src", "../shared/src"]
+  }  

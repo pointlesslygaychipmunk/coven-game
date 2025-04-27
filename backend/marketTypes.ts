@@ -1,6 +1,6 @@
 // backend/marketTypes.ts
 
-import type { PotionTier, PotionIngredient } from "../shared/types";
+import type { PotionTier, PotionIngredient } from "../shared/src/types";
 
 export interface MarketMemory {
   bought: number;

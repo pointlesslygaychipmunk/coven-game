@@ -1,4 +1,4 @@
-import { GameState, Rumor } from '../../../shared/types';
+import { GameState, Rumor } from '../../../shared/src/types';
 
 /**
  * Extracts the full rumor feed from the game state.

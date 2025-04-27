@@ -1,7 +1,7 @@
 // frontend/src/components/MarketMemory.tsx
 
 import React from "react";
-import type { MarketMemoryEntry } from "../../../shared/types";
+import type { MarketMemoryEntry } from "../../../shared/src/types";
 
 interface MarketMemoryProps {
   entries: MarketMemoryEntry[];

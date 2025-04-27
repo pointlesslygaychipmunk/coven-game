@@ -1,4 +1,4 @@
-import { Player, MarketMemoryEntry } from '../../../shared/types';
+import { Player, MarketMemoryEntry } from '../../../shared/src/types';
 
 /**
  * Retrieves a player's market memory entries.

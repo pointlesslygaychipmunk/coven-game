@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import { executeActions } from "./executeActions";
 import { advanceTurn } from "./turnEngine";
 import { createGameState } from "./createGameState";
-import type { GameState, Action } from "../../shared/types";
+import type { GameState, Action } from "../../shared/src/types";
 
 export function setupPlayController(io: Server) {
   let state: GameState = createGameState();

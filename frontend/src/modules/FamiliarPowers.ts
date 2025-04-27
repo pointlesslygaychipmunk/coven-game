@@ -1,4 +1,4 @@
-import { Player, FamiliarPower } from '../../../shared/types';
+import { Player, FamiliarPower } from '../../../shared/src/types';
 
 /**
  * Retrieves a player's familiar powers.

@@ -1,7 +1,7 @@
 // frontend/src/components/TownRequests.tsx
 
 import React from "react";
-import type { TownRequestCard } from "../../../shared/types";
+import type { TownRequestCard } from "../../../shared/src/types";
 
 const slotBonuses = {
   1: { gold: 4, renown: 2, color: "from-emerald-200 to-green-100" },

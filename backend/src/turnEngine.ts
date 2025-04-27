@@ -1,6 +1,6 @@
 // backend/src/turnEngine.ts
 
-import { GameState, Season, Weather, MoonPhase } from '../../shared/types';
+import { GameState, Season, Weather, MoonPhase } from '../../shared/src/types';
 // ← was './modules/marketLogic'—should come from logic/
 import { updateMarket } from './logic/marketLogic';
 // moonLogic also lives under logic/

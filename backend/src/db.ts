@@ -1,7 +1,7 @@
 // backend/src/db.ts
 import path from "path";
 import Database from "better-sqlite3";   // assumes you've done `npm i better-sqlite3` and `npm i -D @types/better-sqlite3`
-import type { GameState } from "../../shared/types";
+import type { GameState } from "../../shared/src/types";
 import { createGameState } from "./createGameState";
 
 const db = new Database(path.resolve(__dirname, "../game.db"));

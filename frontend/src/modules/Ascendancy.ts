@@ -1,4 +1,4 @@
-import { Player } from '../../../shared/types';
+import { Player } from '../../../shared/src/types';
 
 /**
  * Retrieves a player's ascendancy status.

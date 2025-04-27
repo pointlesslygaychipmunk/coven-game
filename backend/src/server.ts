@@ -11,13 +11,15 @@ import { setupPlayController } from './playController';
 import { executeActions } from './executeActions';
 import { advanceTurn } from './turnEngine';
 import { createGameState } from './createGameState';
-import type { GameState, Action } from '../../shared/types';
+import type { GameState, Action } from '../../shared/src/types';
 import { brewRouter } from './routes/brewController';
+import { stateRouter } from "./routes/stateController";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/api', brewRouter);
+app.use("/api", stateRouter);
 
 // ——————————————————————————————————————————————
 // Load existing state or bootstrap a new one

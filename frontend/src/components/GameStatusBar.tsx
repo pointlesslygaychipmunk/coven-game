@@ -1,5 +1,5 @@
 import React from "react";
-import type { GameStatus } from "../../../shared/types";
+import type { GameStatus } from "../../../shared/src/types";
 
 export const GameStatusBar = ({ status }: { status: GameStatus }) => {
   // Moon phase emojis using Unicode escape sequences to avoid parser issues

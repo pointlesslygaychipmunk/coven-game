@@ -1,16 +1,12 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "jsx": "react-jsx",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "moduleResolution": "node16",
+    "module": "Node16",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["classnames"]
   },
-  "include": ["src", "../backend/src/turnEngine.ts", "../backend/src/gameState.ts", "../backend/src/logic/gameOverLogic.ts", "../backend/src/logic/moonLogic.ts", "../backend/src/logic/townRequestLogic.ts", "../backend/src/logic/upgradeLogic.ts"]
+  "include": ["src", "../shared/src"]
 }

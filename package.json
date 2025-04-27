@@ -7,11 +7,20 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@types/classnames": "^2.3.4",
+    "@types/node": "^22.15.2",
     "@types/uuid": "^10.0.0",
     "vitest": "^1.5.0"
   },
   "dependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "autoprefixer": "^10.4.21",
+    "classnames": "^2.5.1",
+    "framer-motion": "^12.9.2",
+    "lucide-react": "^0.503.0",
+    "postcss": "^8.5.3",
     "seedrandom": "^3.0.5",
+    "tailwindcss": "^4.1.4",
     "uuid": "^11.1.0"
   }
 }

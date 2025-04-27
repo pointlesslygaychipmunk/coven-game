@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Rumor } from '../../../shared/types';
+import type { Rumor } from '../../../shared/src/types';
 
 interface RumorFeedProps {
   rumors: Rumor[];

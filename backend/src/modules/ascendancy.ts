@@ -1,6 +1,6 @@
 // backend/src/modules/ascendancy.ts
 
-import { Player, GameState, AscendancyStatus, AscendancyPath } from '../../../shared/types';
+import { Player, GameState, AscendancyStatus, AscendancyPath } from '../../../shared/src/types';
 
 /**
  * Checks a player's stats each turn and updates their ascendancy progress.

@@ -16,7 +16,7 @@ import type {
   FamiliarPower,
   AscendancyStatus,
   MarketMemoryEntry,
-} from "../../shared/types";
+} from "../../shared/src/types";
 
 // 1) Build an empty garden of 8 slots
 function createEmptyGarden(): GardenSlot[] {

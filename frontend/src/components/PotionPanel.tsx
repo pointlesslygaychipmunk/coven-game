@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { RuneCrush } from './RuneCrush';
-import type { BrewMove } from '../../../shared/types';
+import type { BrewMove } from '../../../shared/src/types';
 import React from 'react';
-import type { Player } from '../../../shared/types';
+import type { Player } from '../../../shared/src/types';
 
 interface PotionPanelProps {
   player: Player;

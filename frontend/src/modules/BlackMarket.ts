@@ -1,4 +1,4 @@
-import type { GameState, BlackMarketItem } from "../../../shared/types";
+import type { GameState, BlackMarketItem } from "../../../shared/src/types";
 
 /**
  * Returns all black market items currently available.
