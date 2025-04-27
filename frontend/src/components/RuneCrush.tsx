@@ -1,41 +1,49 @@
-import { Dialog, DialogContent, DialogHeader } from '@shadcn/ui';
-import { Progress } from '@shadcn/ui';
-import { useState } from 'react';
-import RuneGrid from './RuneGrid';          // your existing puzzle grid
-import type { BrewMove } from '../../../shared/src/types';
+import { useState } from "react";
 
-interface Props {
-  open: boolean;
+import RuneGrid from "./RuneGrid";
+import { Progress } from "@/components/ui/progress";
+
+import type { BrewMove } from "@shared/types";
+
+interface RuneCrushProps {
   seed: string;
-  recipe: { id: string; targetScore: number; maxMoves: number };
-  onClose(): void;
-  onSubmit(moves: BrewMove[]): void;
+  recipe: {
+    id: string;
+    targetScore: number;
+    maxMoves: number;
+  };
+  /** fires when either the target score is reached or the move limit is hit */
+  onComplete(score: number, moves: BrewMove[]): void;
 }
 
-export default function BrewDialog({ open, seed, recipe, onClose, onSubmit }: Props) {
+/** Match-3 mini-game used inside Brew-Dialog (or standalone for testing) */
+export default function RuneCrush({
+  seed,
+  recipe,
+  onComplete,
+}: RuneCrushProps) {
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState<BrewMove[]>([]);
 
+  const percent = Math.min((score / recipe.targetScore) * 100, 100);
+
   return (
-    <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[90vw] sm:max-w-md">
-        <DialogHeader>Brew – {recipe.id}</DialogHeader>
+    <div className="space-y-4">
+      <RuneGrid
+        seed={seed}
+        onChange={(s, m) => {
+          setScore(s);
+          setMoves(m);
+          if (s >= recipe.targetScore || m.length >= recipe.maxMoves) {
+            onComplete(s, m);
+          }
+        }}
+      />
 
-        <RuneGrid
-          seed={seed}
-          onChange={(s, m) => {
-            setScore(s);
-            setMoves(m);
-            if (s >= recipe.targetScore || m.length >= recipe.maxMoves)
-              onSubmit(m);
-          }}
-        />
-
-        <Progress value={(score / recipe.targetScore) * 100} className="mt-4" />
-        <p className="text-xs text-center mt-1">
-          {score}/{recipe.targetScore} • {moves.length}/{recipe.maxMoves} moves
-        </p>
-      </DialogContent>
-    </Dialog>
+      <Progress value={percent} />
+      <p className="text-center text-xs text-muted-foreground">
+        {score}/{recipe.targetScore} • {moves.length}/{recipe.maxMoves} moves
+      </p>
+    </div>
   );
 }
