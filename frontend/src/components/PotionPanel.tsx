@@ -1,13 +1,21 @@
 import { useState } from 'react';
 import { RuneCrush } from './RuneCrush';
 import type { BrewMove } from '../../../shared/types';
+import React from 'react';
+import type { Player } from '../../../shared/types';
+
+interface PotionPanelProps {
+  player: Player;
+  onBrew: (recipeId: string) => void;
+}
+
+const PotionPanel: React.FC<PotionPanelProps> = ({ player, onBrew }) => {
 
 const recipes = [{ id: 'moonwell_elixir', name: 'Moonwell Elixir' }];
 
-export function PotionPanel() {
-  const [open, setOpen]   = useState(false);
-  const [seed, setSeed]   = useState('');
-  const [recipe]          = useState(recipes[0]);
+const [open, setOpen]   = useState(false);
+const [seed, setSeed]   = useState('');
+const [recipe]          = useState(recipes[0]);
 
   function startPuzzle() {
     setSeed(crypto.randomUUID());
@@ -42,3 +50,5 @@ export function PotionPanel() {
     </div>
   );
 }
+
+export default PotionPanel;

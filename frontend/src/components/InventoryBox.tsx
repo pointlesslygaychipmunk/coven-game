@@ -105,3 +105,5 @@ export const InventoryBox: React.FC<InventoryBoxProps> = ({ player }) => {
     </div>
   );
 };
+
+export default InventoryBox;

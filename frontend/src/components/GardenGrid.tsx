@@ -115,3 +115,5 @@ export const GardenGrid: React.FC<GardenGridProps> = ({
     </div>
   );
 };
+
+export default GardenGrid;

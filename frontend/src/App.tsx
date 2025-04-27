@@ -4,13 +4,13 @@ import io from "socket.io-client";
 import type { GameState, Action, CropType } from "../../shared/types";
 
 import StatsBar from "./components/StatsBar";
-import { GardenGrid } from "./components/GardenGrid";
-import { InventoryBox } from "./components/InventoryBox";
+import GardenGrid from "./components/GardenGrid";
+import InventoryBox from "./components/InventoryBox";
 import PotionPanel from "./components/PotionPanel";
-import { Market } from "./components/Market";
+import Market from "./components/Market";
 import { TownRequests } from "./components/TownRequests";
 import RumorFeed from "./components/RumorFeed";
-import { Journal } from "./components/Journal";
+import Journal from "./components/Journal";
 
 const socket = io("https://playcoven.com");
 

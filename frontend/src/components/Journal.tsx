@@ -59,3 +59,5 @@ export const Journal: React.FC<JournalProps> = ({ alerts, timestamps, open, onTo
     </div>
   );
 };
+
+export default Journal;
