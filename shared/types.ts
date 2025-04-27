@@ -185,3 +185,28 @@ export interface GameState {
   status:       GameStatus;
   actionsUsed:  number;
 }
+
+/* ----------------------------------------------------------------
+   Rune-Crush brewing puzzle
+----------------------------------------------------------------- */
+
+export type Rune = 'EARTH' | 'WATER' | 'FIRE' | 'AIR' | 'AETHER' | 'CATALYST';
+
+export interface Coord {
+  x: number;     // 0-based column
+  y: number;     // 0-based row
+}
+
+export interface BrewMove {
+  /** swap source → target (must be orthogonally adjacent) */
+  from: Coord;
+  to:   Coord;
+}
+
+export interface BrewMatch3Result {
+  recipeId: string;
+  seed: string;
+  moves: BrewMove[];      // ≤ maxMoves defined by recipe
+  /** quality 0–1 after server verification */
+  quality: number;
+}

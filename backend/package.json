@@ -10,6 +10,7 @@
   "dependencies": {
     "cors": "^2.x",
     "express": "^4.x",
+    "seedrandom": "^3.0.5",
     "socket.io": "^4.x"
   },
   "devDependencies": {

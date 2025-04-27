@@ -1,37 +1,44 @@
-import React from 'react';
-import type { Player } from '../../../shared/types';
+import { useState } from 'react';
+import { RuneCrush } from './RuneCrush';
+import type { BrewMove } from '../../../shared/types';
 
-interface PotionPanelProps {
-  player: Player;
-  onBrew: (potionId: string) => void;
-}
+const recipes = [{ id: 'moonwell_elixir', name: 'Moonwell Elixir' }];
 
-const PotionPanel: React.FC<PotionPanelProps> = ({ player, onBrew }) => {
-  const { potions } = player;
-  if (potions.length === 0) {
-    return (
-      <div className="bg-blue-50 rounded-lg p-4 ring-1 ring-blue-200 italic text-blue-700 text-center">
-        No potions available to brew… 🧪✨
-      </div>
-    );
+export function PotionPanel() {
+  const [open, setOpen]   = useState(false);
+  const [seed, setSeed]   = useState('');
+  const [recipe]          = useState(recipes[0]);
+
+  function startPuzzle() {
+    setSeed(crypto.randomUUID());
+    setOpen(true);
   }
+  async function submit(moves: BrewMove[]) {
+    await fetch('/api/brew', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-player-id': 'dev' },
+      body:   JSON.stringify({ recipeId: recipe.id, seed, moves })
+    });
+    setOpen(false);
+  }
+
   return (
-    <div className="bg-blue-50 rounded-lg p-4 ring-1 ring-blue-200 space-y-2">
-      <h2 className="text-xl font-semibold mb-2">🔮 Craft Potions</h2>
-      <ul className="space-y-1">
-        {potions.map((p) => (
-          <li key={p.id}>
-            <button
-              className="w-full text-left px-3 py-1 bg-blue-200 hover:bg-blue-300 rounded transition"
-              onClick={() => onBrew(p.id)}
-            >
-              Brew {p.name} ({p.tier})
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="p-4 bg-stone-800/60 rounded">
+      <h3 className="text-lg mb-2">{recipe.name}</h3>
+      <button onClick={startPuzzle}
+              className="px-3 py-1 bg-emerald-500 rounded">Brew</button>
+
+      {open && (
+        <div className="fixed inset-0 bg-black/60 grid place-items-center">
+          <RuneCrush
+            recipeId={recipe.id}
+            seed={seed}
+            targetScore={500}
+            maxMoves={25}
+            onSubmit={submit}
+          />
+        </div>
+      )}
     </div>
   );
-};
-
-export default PotionPanel;
+}
