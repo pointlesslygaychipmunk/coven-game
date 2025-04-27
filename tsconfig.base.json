@@ -1,34 +1,17 @@
 {
-  // ------------------------------------------------------------------
-  //  TypeScript 5.x                                (frontend only)
-  // ------------------------------------------------------------------
   "compilerOptions": {
-    /* modern JS output ---------------------------------------------------------------- */
-    "target":           "ES2022",
-    "module":           "node16",          // <-- MUST match the moduleResolution below
-    "moduleResolution": "node16",
-    "lib":              ["ES2022", "DOM"],
-    "jsx":              "react-jsx",
-
-    /* interop / helpers ---------------------------------------------------------------- */
-    "esModuleInterop":      true,
-    "resolveJsonModule":    true,
-    "downlevelIteration":   true,
-    "skipLibCheck":         true,
-
-    /* strictness ----------------------------------------------------------------------- */
-    "strict":           true,
-
-    /* path aliases --------------------------------------------------------------------- */
+    "target": "ES2020",
+    "module": "CommonJS",
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]          // import "@/components/…"
+      "@/*": ["*"],
     }
-  },
-
-  /* what to include in this project ---------------------------------------------------- */
-  "include": ["src/**/*", "env.d.ts"],
-
-  /* everything else is excluded implicitly -------------------------------------------- */
-  "exclude": ["dist", "node_modules"]
+  }
 }
