@@ -1,12 +1,14 @@
-import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { cn } from "@lib/cn";
-import { ReactNode } from "react";
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { cn } from '@ui/utils'
 
-export const Dialog = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
-export const DialogPortal = DialogPrimitive.Portal;
+/** Title text inside a dialog */
+export const DialogTitle = DialogPrimitive.Title
 
-export function DialogContent({ children, className, ...props }: { children: ReactNode; className?: string } & DialogPrimitive.DialogContentProps) {
+/** Right-aligned action row at the bottom of a dialog */
+export function DialogFooter(
+  props: React.HTMLAttributes<HTMLDivElement>,
+) {
+  const { className, ...rest } = props
   return (
     <DialogPrimitive.Content
       {...props}
