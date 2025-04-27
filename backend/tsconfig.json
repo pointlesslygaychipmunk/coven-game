@@ -1,12 +1,16 @@
 {
-  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "./dist",
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
     "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/src/*"]
+    }
   },
-  "include": [
-    "src/**/*.ts",
-    "../shared/src/**/*.ts"
-  ]
+
+  "include": ["src", "../shared/src/**/*.ts"]
 }

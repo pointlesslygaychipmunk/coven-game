@@ -70,6 +70,7 @@ export interface PotionMarketItem {
   price: number;
   stock: number;
   rumors?: Pick<Rumor, 'id' | 'message'>[];
+  currentPrice?: number; 
 }
 
 export interface BlackMarketItem {
@@ -77,8 +78,9 @@ export interface BlackMarketItem {
   name: string;
   price: number;
   stock: number;
-  riskLevel: number;          // 0–100 risk of negative event
+  riskLevel: number;
   rumors?: Pick<Rumor, 'id' | 'message'>[];
+  currentPrice?: number; 
 }
 
 export type MarketItem = BasicMarketItem | PotionMarketItem | BlackMarketItem;
@@ -247,7 +249,7 @@ export interface BrewMatch3Result {
 }
 
 /** -------------------------  helper aliases  ------------------------- */
-export type Action =  //  👈  add this line
+export type Action =
   | { type: "plant"; crop: CropType; index: number }
   | { type: "harvest"; index: number }
   | { type: "buy"; itemId: string; quantity: number }
@@ -256,4 +258,4 @@ export type Action =  //  👈  add this line
   | { type: "brew"; potionId: string }
   | { type: "fulfill"; requestId: string };
 
-export type GameAction = Action;   // alias so legacy code still compiles
+export type GameAction = Action;
