@@ -1,17 +1,4 @@
-export { Card, CardHeader, CardTitle, CardContent } from "./card";
-export {
-  Dialog,
-  DialogHeader,
-  DialogContent,
-  DialogFooter,
-} from "./dialog";
-export { Progress } from "./progress";
-export {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "./tabs";
-
-/* share the cn() helper */
-export { cn } from "./utils";
+export * from './card'
+export * from './dialog'
+export * from './progress'
+export * from './tabs'

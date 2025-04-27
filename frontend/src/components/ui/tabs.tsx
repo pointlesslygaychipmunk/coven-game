@@ -1,24 +1,19 @@
-/* src/components/ui/tabs.tsx */
-import * as React from "react";
-import * as RDXTabs from "@radix-ui/react-tabs";
-import { cn } from "@ui/utils";
+import { cn } from '@lib/cn'
+import * as TabsPrimitive from '@radix-ui/react-tabs'
 
-export const Tabs          = RDXTabs.Root;
-export const TabsList      = RDXTabs.List;
-export const TabsTrigger   = RDXTabs.Trigger;
-export const TabsContent   = RDXTabs.Content;
-
-// convenience wrapper for standard look
-export function DefaultTabsList(
-  { className, ...props }: React.ComponentPropsWithoutRef<typeof RDXTabs.List>,
-) {
-  return (
-    <RDXTabs.List
-      className={cn(
-        "inline-flex gap-2 rounded border border-layer-3 bg-layer-2 p-1",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
+export const Tabs = TabsPrimitive.Root
+export const TabsList = ({ className, ...props }: TabsPrimitive.TabsListProps) => (
+  <TabsPrimitive.List className={cn('inline-flex items-center gap-2', className)} {...props} />
+)
+export const TabsTrigger = ({ className, ...props }: TabsPrimitive.TabsTriggerProps) => (
+  <TabsPrimitive.Trigger
+    className={cn(
+      'rounded-md px-3 py-1 text-sm font-medium data-[state=active]:bg-mauve-4 data-[state=active]:text-mauve-12',
+      className
+    )}
+    {...props}
+  />
+)
+export const TabsContent = ({ className, ...props }: TabsPrimitive.TabsContentProps) => (
+  <TabsPrimitive.Content className={cn('mt-4', className)} {...props} />
+)

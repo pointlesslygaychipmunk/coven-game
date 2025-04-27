@@ -1,5 +1,3 @@
-export { default as GardenGrid }   from './GardenGrid';
-export { default as Market }       from './Market';
-export { default as InventoryBox } from './InventoryBox';
-export { default as Journal }      from './Journal';
-export { default as BrewDialog }   from './BrewDialog';
+export { GardenGrid } from './GardenGrid'
+export { InventoryBox } from './InventoryBox'
+export { Journal } from './Journal'

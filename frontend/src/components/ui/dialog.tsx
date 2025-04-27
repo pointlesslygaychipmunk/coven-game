@@ -1,36 +1,24 @@
-/* src/components/ui/dialog.tsx */
-import * as React from "react";
-import * as RDXDialog from "@radix-ui/react-dialog";
-import { cn } from "@ui/utils";
+import { cn } from '@lib/cn'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
 
-export const Dialog      = RDXDialog.Root;
-export const DialogTrigger = RDXDialog.Trigger;
+export const Dialog = DialogPrimitive.Root
+export const DialogTrigger = DialogPrimitive.Trigger
 
-export function DialogContent(
-  { className, ...props }: React.ComponentPropsWithoutRef<typeof RDXDialog.Content>,
-) {
-  return (
-    <RDXDialog.Portal>
-      <RDXDialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
-      <RDXDialog.Content
-        className={cn(
-          "fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-layer-1 p-6 shadow-lg",
-          className,
-        )}
-        {...props}
-      />
-    </RDXDialog.Portal>
-  );
-}
+interface DialogContentProps extends DialogPrimitive.DialogContentProps {}
 
-export function DialogHeader(
-  props: React.HTMLAttributes<HTMLDivElement>,
-) {
-  return <header className="mb-4 text-lg font-medium" {...props} />;
-}
+export const DialogContent = ({ className, ...props }: DialogContentProps) => (
+  <DialogPrimitive.Portal>
+    <DialogPrimitive.Overlay className="fixed inset-0 bg-black/50 animate-fadeIn" />
+    <DialogPrimitive.Content
+      className={cn(
+        'fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] translate-x-[-50%] translate-y-[-50%] rounded-lg bg-mauve-2 p-6 shadow-lg focus:outline-none',
+        className
+      )}
+      {...props}
+    />
+  </DialogPrimitive.Portal>
+)
 
-export function DialogFooter(
-  props: React.HTMLAttributes<HTMLDivElement>,
-) {
-  return <footer className="mt-4 flex justify-end gap-2" {...props} />;
-}
+export const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+  <h2 className={cn('mb-4 text-lg font-bold tracking-tight text-mauve-12', className)} {...props} />
+)

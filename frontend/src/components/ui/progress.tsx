@@ -1,24 +1,18 @@
-/* src/components/ui/progress.tsx */
-import * as React from "react";
-import { cn } from "@ui/utils";
+import { cn } from '@lib/cn'
+import * as ProgressPrimitive from '@radix-ui/react-progress'
 
-interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: number; // 0-100
-}
-export function Progress({ value, className, ...props }: ProgressProps) {
-  return (
-    <div
-      role="progressbar"
-      aria-valuenow={value}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      className={cn("h-2 w-full overflow-hidden rounded bg-layer-3", className)}
-      {...props}
-    >
-      <div
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-        className="h-full rounded bg-accent transition-[width] duration-300"
-      />
-    </div>
-  );
-}
+export interface ProgressProps extends ProgressPrimitive.ProgressProps {}
+
+export const Progress = ({ className, value, max = 100, ...props }: ProgressProps) => (
+  <ProgressPrimitive.Root
+    max={max}
+    value={value}
+    className={cn('relative h-2 w-full overflow-hidden rounded-full bg-mauve-5', className)}
+    {...props}
+  >
+    <ProgressPrimitive.Indicator
+      className="h-full w-full flex-1 bg-green-9 transition-all"
+      style={{ transform: `translateX(${100 - (value ?? 0)}%)` }}
+    />
+  </ProgressPrimitive.Root>
+)
