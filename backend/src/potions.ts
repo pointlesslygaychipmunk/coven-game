@@ -50,7 +50,7 @@ export const potionLibrary: Potion[] = [
   {
     id: 'p5',
     name: 'Elixir of Echoes',
-    tier: 'epic',
+    tier: 'legendary',
     ingredients: {
       herb: 2,
       flower: 1,
