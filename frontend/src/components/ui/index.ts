@@ -1,26 +1,17 @@
-// src/components/ui/index.ts
-// re-export only the primitives we actually use.
-// every other component can be added here later in one line.
-
+export { Card, CardHeader, CardTitle, CardContent } from "./card";
 export {
-  // layout
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-
-  // dialog / modal
   Dialog,
   DialogHeader,
   DialogContent,
   DialogFooter,
-
-  // progress bar
-  Progress,
-
-  // tabs
+} from "./dialog";
+export { Progress } from "./progress";
+export {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "@shadcn/ui";
+} from "./tabs";
+
+/* share the cn() helper */
+export { cn } from "./utils";

@@ -1,5 +1,5 @@
 /* src/components/BrewDialog.tsx */
-import { Dialog, DialogContent, DialogHeader } from "@ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogFooter } from "@ui/dialog";
 import { Progress } from "@ui/progress";
 import { useState } from "react";
 import RuneGrid from "./RuneGrid";
@@ -10,7 +10,7 @@ interface Props {
   recipe: { id: string; targetScore: number; maxMoves: number };
   seed: string;
   onClose(): void;
-  onSubmit(moves: BrewMove[]): void;
+  onChange={(s: number, m: BrewMove[]) => {
 }
 
 export default function BrewDialog({ open, seed, recipe, onClose, onSubmit }: Props) {

@@ -232,3 +232,17 @@ export interface Tile {
   kind: TileKind;         // lifecycle state
   crop: CropType | null;  // null when empty / dead
   age:  number;           // 0–100 growth %
+
+  // 🔄 ADD – at the bottom of the file ––––––––––––––––––––––––––––––––––
+/** A single logical square rendered by <GardenGrid/> */
+export interface Tile {
+  /** what’s planted here (or null for empty) */
+  type: CropType | null;
+  /** 0 – 1 fraction to full maturity */
+  growth: number;
+  /** set by the server when the plant has died */
+  isDead?: boolean;
+}
+
+/* a lot of existing code used GardenSlot – keep that working */
+export type GardenSlot = Tile;           // ❇ soft alias

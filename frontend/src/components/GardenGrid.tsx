@@ -2,9 +2,7 @@
 import type { Tile } from "@shared/types";
 import { cn } from "@ui/utils";
 
-interface Props {
-  tiles: Tile[][];
-}
+interface Props { tiles: Tile[][] }
 
 export default function GardenGrid({ tiles }: Props) {
   return (
