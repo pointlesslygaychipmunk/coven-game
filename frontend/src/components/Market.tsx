@@ -103,3 +103,5 @@ export const Market: React.FC<MarketProps> = ({
     </div>
   );
 };
+
+export default Market
