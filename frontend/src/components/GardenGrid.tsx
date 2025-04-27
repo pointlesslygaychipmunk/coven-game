@@ -1,22 +1,30 @@
-import { memo } from 'react';
+// frontend/src/components/GardenGrid.tsx
+import React, { memo } from 'react';
 import cn from 'classnames';
+import type { Tile } from '@shared/types';
 
-interface Tile { id: string; crop?: string; growth: number; }
-interface Props { tiles: Tile[] | Tile[][] }
+interface Props {
+  /** 2-D array coming straight from window.game.tiles */
+  tiles: Tile[][];
+}
 
-const grid = Array.isArray(tiles[0]) ? tiles as Tile[][] : [tiles as Tile[]];
-const GardenGrid = memo(({ tiles }: Props) => (
+const GardenGrid: React.FC<Props> = ({ tiles }) => (
   <div
     className="grid gap-1 p-2"
-    style={{ gridTemplateColumns: 'repeat(10,minmax(0,1fr))' }}
+    style={{
+      /** use the width of the first row to set the column repeat */
+      gridTemplateColumns: `repeat(${tiles[0]?.length ?? 0}, minmax(0,1fr))`,
+    }}
   >
-    {tiles.map(t => (
+    {tiles.flat().map((t) => (
       <div
         key={t.id}
         className={cn(
           'aspect-square rounded-md transition-transform duration-150',
           'flex items-center justify-center text-xs font-semibold',
-          t.crop ? 'bg-emerald-500/20 border border-emerald-600/30' : 'bg-mauve-200/30',
+          t.crop
+            ? 'bg-emerald-500/20 border border-emerald-600/30'
+            : 'bg-mauve-200/30',
           'hover:-translate-y-1 hover:shadow-lg'
         )}
       >
@@ -24,6 +32,6 @@ const GardenGrid = memo(({ tiles }: Props) => (
       </div>
     ))}
   </div>
-));
+);
 
-export default GardenGrid;
+export default memo(GardenGrid);

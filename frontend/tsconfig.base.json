@@ -22,16 +22,12 @@
       /* path aliases --------------------------------------------------------------------- */
       "baseUrl": ".",
       "paths": {
-        "paths": {
-            "@/*":         ["src/*"],
-            "@lib/*":      ["src/lib/*"],
-            "@components/*":["src/components/*"],
-            "@shared/*":   ["../shared/src/*"]
-        }
-
+        "@/*":           ["src/*"],
+        "@components/*": ["src/components/*"],
+        "@lib/*":        ["src/lib/*"],
+        "@shared/*":     ["../shared/src/*"]
       }
-    },
-  
+    }
     /* what to include in this project ---------------------------------------------------- */
     "include": ["src/**/*", "env.d.ts"],
   
