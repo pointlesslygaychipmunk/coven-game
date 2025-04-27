@@ -11,7 +11,7 @@ export type CropType         = "mushroom" | "flower" | "herb" | "fruit";
 export type PotionIngredient = CropType;
 
 // --- Potion Tier ---
-export type PotionTier = "common" | "rare" | "epic";
+export type PotionTier = 'common' | 'uncommon' | 'rare' | 'legendary';
 
 // --- Action Types ---
 export type Action =
@@ -191,6 +191,14 @@ export interface GameState {
 ----------------------------------------------------------------- */
 
 export type Rune = 'EARTH' | 'WATER' | 'FIRE' | 'AIR' | 'AETHER' | 'CATALYST';
+
+/** string-indexed map of recipe metadata loaded from recipes.json */
+export interface RecipeMeta {
+    targetScore:   number;
+    maxMoves:      number;
+    optimalMoves:  number;
+  }
+  export type Recipes = Record<string, RecipeMeta>;
 
 export interface Coord {
   x: number;     // 0-based column

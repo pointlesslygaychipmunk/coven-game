@@ -3,7 +3,7 @@
  * – Used both by /brew route and unit tests
  */
 import seedrandom from 'seedrandom';
-import type { Rune, BrewMove } from '../../shared/types';
+import type { Rune, BrewMove, Coord } from '../../shared/types';
 
 export const BOARD_W = 8;            // cols
 export const BOARD_H = 6;            // rows
