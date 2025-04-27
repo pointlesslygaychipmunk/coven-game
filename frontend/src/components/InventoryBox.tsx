@@ -1,28 +1,19 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent
-} from "@/components/ui";
 
-export interface InventoryItem {
-  id: string;
-  name: string;
-}
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-export default function InventoryBox({ items }: { items: InventoryItem[] }) {
+export default function InventoryBox({ items }: { items: Record<string, number>; }) {
   return (
-    <Card className="h-full">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-sm">Inventory</CardTitle>
+        <CardTitle className="text-sm tracking-wide uppercase">Inventory</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-wrap gap-1">
-        {items.map(it => (
+        {Object.entries(items).map(([id, qty]) => (
           <span
-            key={it.id}
-            className="rounded bg-secondary px-1.5 py-0.5 text-xs leading-none"
+            key={id}
+            className="px-1.5 py-0.5 rounded bg-mauve-300/50 text-xs flex items-center gap-1"
           >
-            {it.name}
+            {id} <strong>{qty}</strong>
           </span>
         ))}
       </CardContent>

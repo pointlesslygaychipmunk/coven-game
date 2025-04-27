@@ -1,8 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
 
-import { GardenGrid, InventoryBox, Journal } from "@/components";
+import { useEffect, useState } from "react";
+import { GardenGrid, InventoryBox, Journal } from "./components";
+import type { Tile, CropType } from "../../shared/types";
 import { AppShell } from "@/layout/AppShell";
-import type { Tile, CropType } from "@shared/types";
 
 type CovenState = {
   tiles: Tile[][];
@@ -14,35 +14,21 @@ export default function App() {
 
   useEffect(() => {
     fetch("/api/state")
-      .then(r => r.json() as Promise<CovenState>)
+      .then(r => r.json())
       .then(setState)
       .catch(err => console.error("state fetch failed:", err));
   }, []);
 
-  const inventoryItems = useMemo(
-    () =>
-      Object.entries(state?.inventory ?? {}).map(([k, v]) => ({
-        id: k,
-        name: `${k} ×${v}`
-      })),
-    [state?.inventory]
-  );
-
-  if (!state)
-    return (
-      <div className="grid h-screen place-content-center text-sm text-muted-foreground">
-        Loading coven state…
-      </div>
-    );
+  if (!state) return <div className="h-screen grid place-content-center">Loading coven state…</div>;
 
   return (
     <AppShell>
       <Journal />
-      <main className="flex-1 overflow-y-auto p-4">
+      <main className="p-4 flex-1 overflow-y-auto">
         <GardenGrid tiles={state.tiles} />
       </main>
-      <aside className="w-72 shrink-0 space-y-4 p-4">
-        <InventoryBox items={inventoryItems} />
+      <aside className="p-4 w-72 shrink-0 space-y-4">
+        <InventoryBox items={state.inventory} />
       </aside>
     </AppShell>
   );

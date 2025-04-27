@@ -1,46 +1,24 @@
+
 import * as React from "react";
+import * as RadixTabs from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
 
-/* context ----------------------------------------------------------------- */
-const TabsCtx = React.createContext<[string, React.Dispatch<React.SetStateAction<string>>] | null>(null);
+export const Tabs = RadixTabs.Root;
+export const TabsList = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof RadixTabs.List>) => (
+  <RadixTabs.List className={cn("inline-flex space-x-1 rounded bg-muted p-1", className)} {...props} />
+);
 
-/* container ---------------------------------------------------------------- */
-export function Tabs ({ defaultValue, className, ...props }:
-  React.ComponentPropsWithoutRef<"div"> & { defaultValue: string }) {
-  const state = React.useState(defaultValue);
-  return (
-    <TabsCtx.Provider value={state}>
-      <div className={cn("flex flex-col", className)} {...props} />
-    </TabsCtx.Provider>
-  );
-}
-
-/* primitive: clickable trigger ------------------------------------------- */
-export function TabsTrigger (
-  { value, className, ...props }:
-  React.ComponentPropsWithoutRef<"button"> & { value: string }
-) {
-  const ctx = React.useContext(TabsCtx)!;
-  const active = ctx[0] === value;
-  return (
-    <button
-      onClick={() => ctx[1](value)}
+export const TabsTrigger = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<typeof RadixTabs.Trigger>>(
+  ({ className, ...props }, ref) => (
+    <RadixTabs.Trigger
+      ref={ref}
       className={cn(
-        "px-3 py-1 text-sm",
-        active ? "border-b-2 border-primary" : "opacity-60",
+        "px-3 py-1.5 rounded text-sm font-medium data-[state=active]:bg-accent data-[state=active]:text-accent-foreground",
         className
       )}
       {...props}
     />
-  );
-}
+  )
+);
 
-/* primitive: tab panel ---------------------------------------------------- */
-export function TabsContent (
-  { value, className, ...props }:
-  React.ComponentPropsWithoutRef<"div"> & { value: string }
-) {
-  const [active] = React.useContext(TabsCtx)!;
-  if (active !== value) return null;
-  return <div className={cn("pt-4", className)} {...props} />;
-}
+export const TabsContent = RadixTabs.Content;
