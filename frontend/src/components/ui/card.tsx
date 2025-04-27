@@ -1,19 +1,19 @@
+/* src/components/ui/card.tsx */
+import { cn } from "@ui/utils";
+import * as React from "react";
 
-import { forwardRef } from "react";
-import { cn } from "@/lib/utils";
+export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("rounded-lg bg-layer-1 shadow-sm", className)} {...props} />;
+}
 
-export const Card = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("rounded-lg border bg-card text-card-foreground shadow", className)} {...props} />
-);
+export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <header className={cn("border-b border-layer-3 px-4 py-3", className)} {...props} />;
+}
 
-export const CardHeader = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("flex flex-col space-y-1.5 p-4", className)} {...props} />
-);
+export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+  return <h3 className={cn("text-base/6 font-semibold", className)} {...props} />;
+}
 
-export const CardTitle = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => <h3 ref={ref} className={cn("font-semibold leading-none tracking-tight", className)} {...props} />
-);
-
-export const CardContent = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => <div ref={ref} className={cn("p-4 pt-2", className)} {...props} />
-);
+export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("px-4 py-3", className)} {...props} />;
+}

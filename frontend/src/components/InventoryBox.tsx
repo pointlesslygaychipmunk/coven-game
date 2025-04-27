@@ -1,21 +1,33 @@
+/* src/components/InventoryBox.tsx */
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import type { CropType } from "@shared/types";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+interface Props {
+  items: Record<CropType, number>;
+}
 
-export default function InventoryBox({ items }: { items: Record<string, number>; }) {
+export default function InventoryBox({ items }: Props) {
+  const entries = Object.entries(items).filter(([, qty]) => qty > 0);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm tracking-wide uppercase">Inventory</CardTitle>
+        <CardTitle>Inventory</CardTitle>
       </CardHeader>
+
       <CardContent className="flex flex-wrap gap-1">
-        {Object.entries(items).map(([id, qty]) => (
-          <span
-            key={id}
-            className="px-1.5 py-0.5 rounded bg-mauve-300/50 text-xs flex items-center gap-1"
-          >
-            {id} <strong>{qty}</strong>
-          </span>
-        ))}
+        {entries.length ? (
+          entries.map(([crop, qty]) => (
+            <span
+              key={crop}
+              className="rounded bg-layer-2/70 px-2 py-0.5 text-xs font-medium"
+            >
+              {crop} × {qty}
+            </span>
+          ))
+        ) : (
+          <p className="text-xs italic text-layer-11">Empty.</p>
+        )}
       </CardContent>
     </Card>
   );

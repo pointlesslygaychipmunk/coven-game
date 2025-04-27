@@ -1,26 +1,31 @@
-import { memo } from "react";
+/* src/components/GardenGrid.tsx */
 import type { Tile } from "@shared/types";
+import { cn } from "@ui/utils";
 
 interface Props {
   tiles: Tile[][];
 }
 
-function Grid({ tiles }: Props) {
+export default function GardenGrid({ tiles }: Props) {
   return (
-    <div
-      className="grid gap-1 p-2"
-      style={{ gridTemplateColumns: `repeat(${tiles[0].length}, 1fr)` }}
+    <section
+      style={{
+        gridTemplateColumns: `repeat(${tiles[0]?.length ?? 0}, minmax(2.5rem,1fr))`,
+      }}
+      className="grid gap-px rounded-lg bg-layer-3 p-px"
     >
-      {tiles.flat().map(t => (
-        <div
-          key={t.id}
-          className="aspect-square rounded bg-emerald-100/40 ring-1 ring-emerald-400/40"
-        >
-          {/* TODO: render crop sprite, growth state, etc. */}
-        </div>
-      ))}
-    </div>
+      {tiles.flatMap((row, y) =>
+        row.map((tile, x) => (
+          <div
+            key={`${x}-${y}`}
+            className={cn(
+              "aspect-square bg-layer-2 transition-colors",
+              tile.crop && "animate-in fade-in zoom-in bg-green-700/70",
+            )}
+            title={tile.crop ?? "Empty"}
+          />
+        )),
+      )}
+    </section>
   );
 }
-
-export const GardenGrid = memo(Grid);

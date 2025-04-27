@@ -1,7 +1,8 @@
-
 import { useEffect, useState } from "react";
-import { GardenGrid, InventoryBox, Journal } from "./components";
-import type { Tile, CropType } from "../../shared/types";
+import type { Tile, CropType } from "@shared/types";
+import GardenGrid from "@/components/GardenGrid";
+import InventoryBox from "@/components/InventoryBox";
+import Journal from "@/components/Journal";
 import { AppShell } from "@/layout/AppShell";
 
 type CovenState = {
@@ -19,15 +20,17 @@ export default function App() {
       .catch(err => console.error("state fetch failed:", err));
   }, []);
 
-  if (!state) return <div className="h-screen grid place-content-center">Loading coven state…</div>;
+  if (!state) return <div className="grid h-screen place-content-center">Loading coven state…</div>;
 
   return (
     <AppShell>
       <Journal />
-      <main className="p-4 flex-1 overflow-y-auto">
+
+      <main className="flex-1 overflow-y-auto p-4">
         <GardenGrid tiles={state.tiles} />
       </main>
-      <aside className="p-4 w-72 shrink-0 space-y-4">
+
+      <aside className="w-72 shrink-0 p-4">
         <InventoryBox items={state.inventory} />
       </aside>
     </AppShell>

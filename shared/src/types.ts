@@ -218,3 +218,17 @@ export interface BrewMatch3Result {
   /** quality 0–1 after server verification */
   quality: number;
 }
+
+export enum TileKind {
+  Empty   = "empty",
+  Crop    = "crop",
+  Sprout  = "sprout",
+  Dead    = "dead"
+}
+
+/**  one cell in the garden matrix */
+export interface Tile {
+  id:   string;           // deterministic UUID per slot
+  kind: TileKind;         // lifecycle state
+  crop: CropType | null;  // null when empty / dead
+  age:  number;           // 0–100 growth %

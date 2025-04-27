@@ -1,5 +1,6 @@
 {
   "name": "coven-frontend",
+  "type": "module",
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.11",
     "@radix-ui/react-switch": "^1.2.2",

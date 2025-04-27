@@ -1,50 +1,43 @@
-import {
-   Dialog,
-   DialogContent,
-   DialogHeader,
-   DialogFooter,
- } from "@/components/ui/dialog";
-import { useState } from 'react';
-import RuneCrush from "@/components/RuneCrush";
-import type { BrewMove } from '../../../shared/src/types';
-import { Progress, DialogFooter } from "@/components/ui/progress";
+/* src/components/BrewDialog.tsx */
+import { Dialog, DialogContent, DialogHeader } from "@ui/dialog";
+import { Progress } from "@ui/progress";
+import { useState } from "react";
+import RuneGrid from "./RuneGrid";
+import type { BrewMove } from "@shared/types";
 
 interface Props {
   open: boolean;
-  seed: string;
   recipe: { id: string; targetScore: number; maxMoves: number };
+  seed: string;
   onClose(): void;
   onSubmit(moves: BrewMove[]): void;
 }
 
-export default function BrewDialog({
-  open,
-  seed,
-  recipe,
-  onClose,
-  onSubmit
-}: Props) {
+export default function BrewDialog({ open, seed, recipe, onClose, onSubmit }: Props) {
   const [score, setScore] = useState(0);
   const [moves, setMoves] = useState<BrewMove[]>([]);
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-[90vw] sm:max-w-md">
-        <DialogHeader>Brew – {recipe.id}</DialogHeader>
+      <DialogContent>
+        <DialogHeader className="mb-2 text-center text-lg font-semibold">
+          Brew&nbsp;–&nbsp;{recipe.id}
+        </DialogHeader>
 
         <RuneGrid
           seed={seed}
           onChange={(s, m) => {
             setScore(s);
             setMoves(m);
-
-            if (s >= recipe.targetScore || m.length >= recipe.maxMoves)
-              onSubmit(m);
+            if (s >= recipe.targetScore || m.length >= recipe.maxMoves) onSubmit(m);
           }}
         />
 
-        <div className="mt-3 text-center text-sm">
-          {score}/{recipe.targetScore} • {moves.length}/{recipe.maxMoves} moves
+        <div className="mt-4 space-y-1">
+          <Progress value={(score / recipe.targetScore) * 100} />
+          <p className="text-center text-xs text-layer-11">
+            {score}/{recipe.targetScore} • {moves.length}/{recipe.maxMoves} moves
+          </p>
         </div>
       </DialogContent>
     </Dialog>
