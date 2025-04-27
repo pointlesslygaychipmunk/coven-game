@@ -47,3 +47,5 @@ export default function RuneCrush({
     </div>
   );
 }
+
+export { type BrewMove as Move } from "../../../shared/src/types";

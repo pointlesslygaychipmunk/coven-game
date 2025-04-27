@@ -5,7 +5,7 @@ import {
    DialogFooter,
  } from "@/components/ui/dialog";
 import { useState } from 'react';
-import RuneGrid from './RuneGrid';
+import RuneCrush from "@/components/RuneCrush";
 import type { BrewMove } from '../../../shared/src/types';
 
 interface Props {

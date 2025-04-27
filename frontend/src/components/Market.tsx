@@ -1,52 +1,34 @@
 import {
-    Table,
-    TableHeader,
-    TableRow,
-    TableHead,
-    TableBody,
-    TableCell
-  } from '@/components/ui/table';
-import { useEffect, useState } from 'react';
-
-interface Price { id: string; item: string; value: number; delta: number }
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 
 export default function Market() {
-  const [rows, setRows] = useState<Price[]>([]);
-
-  useEffect(() => {
-    // socket-io listener
-    window.socket.on('price', (p: Price) =>
-      setRows(r => {
-        const next = r.filter(x => x.id !== p.id);
-        return [...next, p].sort((a, b) => a.item.localeCompare(b.item));
-      }));
-  }, []);
+  const rows = [
+    { id: 1, item: "Mushroom", price: 5 },
+    { id: 2, item: "Flower",   price: 3 },
+  ];
 
   return (
-    <Table className="w-full text-xs">
+    <Table>
       <TableHeader>
         <TableRow>
-          <TableCell>Item</TableCell>
-          <TableCell align="right">Price</TableCell>
+          <TableHead>#</TableHead>
+          <TableHead>Item</TableHead>
+          <TableHead className="text-right">Price</TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
         {rows.map(r => (
           <TableRow key={r.id}>
+            <TableCell>{r.id}</TableCell>
             <TableCell>{r.item}</TableCell>
-            <TableCell align="right">
-              <span
-                className={
-                  r.delta === 0
-                    ? ''
-                    : r.delta > 0
-                    ? 'text-green-500 animate-pulse'
-                    : 'text-red-500 animate-pulse'
-                }
-              >
-                {r.value.toFixed(2)}
-              </span>
-            </TableCell>
+            <TableCell className="text-right">{r.price}</TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RuneCrush } from './RuneCrush';
+import RuneCrush from "@/components/RuneCrush";
 import type { BrewMove } from '../../../shared/src/types';
 import React from 'react';
 import type { Player } from '../../../shared/src/types';
