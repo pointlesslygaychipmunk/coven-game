@@ -1,22 +1,26 @@
 // src/components/ui/index.ts
+// re-export only the primitives we actually use.
+// every other component can be added here later in one line.
+
 export {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogFooter,
-    Progress,
-    Tabs,
-    TabsList,
-    TabsTrigger,
-    TabsContent,
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell
-  } from "@shadcn/ui-next";  
+  // layout
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+
+  // dialog / modal
+  Dialog,
+  DialogHeader,
+  DialogContent,
+  DialogFooter,
+
+  // progress bar
+  Progress,
+
+  // tabs
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@shadcn/ui";
