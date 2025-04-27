@@ -1,8 +1,8 @@
 import { useEffect, useReducer } from 'react';
-import { GardenGrid }   from './components';
-import InventoryBox     from './components/InventoryBox';
-import Journal          from './components/Journal';
-import { AppShell }     from '@/layout/AppShell';
+import GardenGrid         from './components/GardenGrid';
+import InventoryBox       from './components/InventoryBox';
+import Journal            from './components/Journal';
+import { AppShell }       from '@/layout/AppShell';
 import type {
   GameState,
   Action,
@@ -10,15 +10,24 @@ import type {
   Tile,
 } from '@shared/types';
 
-/* ------------------------------------------------------------------ */
-/*  Trivial demo reducer – replace with your real game logic later.   */
-/* ------------------------------------------------------------------ */
-function reducer(state: GameState, action: Action): GameState {
+/* ------------------------------------------------------------------
+   Reducer – real INIT action replaces the former “noop” hack
+------------------------------------------------------------------- */
+
+type InitAction = { type: 'INIT'; payload: GameState };
+type ReducerAction = Action | InitAction;
+
+function reducer(state: GameState | null, action: ReducerAction): GameState {
+  if (action.type === 'INIT') return action.payload;
+
+  /* --- demo garden logic (plant / harvest) ---------------------- */
+  if (!state) return state as never;          // should never run before INIT
+
   switch (action.type) {
     case 'plant': {
       const { index, crop } = action;
       const slot = state.players[0].garden[index];
-      if (slot.type !== null) return state;            // soil occupied
+      if (slot.type !== null) return state;
       if (state.players[0].inventory[crop] === 0) return state;
 
       return {
@@ -73,13 +82,13 @@ function reducer(state: GameState, action: Action): GameState {
 /* ------------------------------------------------------------------ */
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, null as unknown as GameState);
+  const [state, dispatch] = useReducer(reducer, null);
 
-  /* fetch initial game state once */
+  /* fetch the initial game state exactly once */
   useEffect(() => {
     fetch('/api/state')
       .then(r => r.json())
-      .then((s: GameState) => dispatch({ type: 'noop' } as Action & any) || s) // noop initialisation
+      .then((s: GameState) => dispatch({ type: 'INIT', payload: s }))
       .catch(err => console.error('state fetch failed:', err));
   }, []);
 
@@ -97,7 +106,7 @@ export default function App() {
         <GardenGrid
           tiles={chunk(state.players[0].garden, 8) as Tile[][]}
           inventory={state.players[0].inventory}
-          onAction={dispatch}
+          onAction={dispatch as (a: Action) => void}
         />
       </main>
       <aside className="p-4 w-72 shrink-0 space-y-4">
