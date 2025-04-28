@@ -1,5 +1,5 @@
 import { verifyBrew, genBoard } from '../brewVerifier';
-import type { BrewMove } from '../../../shared/types';
+import type { BrewMove } from '../shared/types';
 
 const opts = { targetScore: 300, maxMoves: 10, optimalMoves: 5 };
 

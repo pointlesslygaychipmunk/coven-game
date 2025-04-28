@@ -1,4 +1,4 @@
-import { MarketRumor, MarketItem } from "../../shared/src/types";
+import { MarketRumor, MarketItem } from "./shared/types";
 
 const templates = [
   (id:string) => `Whispers say ${id} will double in price by dawn…`,

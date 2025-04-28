@@ -1,7 +1,7 @@
 // backend/src/blackMarket.ts
 
 import { v4 as uuidv4 } from "uuid";
-import { BlackMarketItem } from "../../shared/src/types";
+import { BlackMarketItem } from "../.././shared/types";
 
 const itemId = uuidv4();
 

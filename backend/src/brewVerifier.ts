@@ -1,6 +1,6 @@
 /// <reference lib="es2020" />
 import seedrandom from 'seedrandom';
-import type { Rune, BrewMove, Coord } from '../../shared/src/types';
+import type { Rune, BrewMove, Coord } from './shared/types';
 
 export const BOARD_W = 8;            // cols
 export const BOARD_H = 6;            // rows

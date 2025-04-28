@@ -1,6 +1,6 @@
 // backend/src/modules/marketMemory.ts
 
-import { Player, MarketState, GameStatus, MarketMemoryEntry } from '../../../shared/src/types';
+import { Player, MarketState, GameStatus, MarketMemoryEntry } from '../../.././shared/types';
 
 /**
  * Append a memory entry for the given item transaction.

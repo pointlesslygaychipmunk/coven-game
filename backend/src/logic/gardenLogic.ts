@@ -1,4 +1,4 @@
-import { GardenSlot, CropType } from '../../../shared/src/types';
+import { GardenSlot, CropType } from '../../.././shared/types';
 
 export function growGarden(garden: GardenSlot[]): GardenSlot[] {
   return garden.map((slot) => {

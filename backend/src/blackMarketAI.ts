@@ -1,4 +1,4 @@
-import { MarketItem } from "../../shared/src/types";
+import { MarketItem } from "../.././shared/types";
 
 export function adjustBlackMarketPrices(marketItems: MarketItem[]): void {
   for (const item of marketItems) {

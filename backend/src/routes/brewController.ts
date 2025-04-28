@@ -1,7 +1,7 @@
 import { Router, type RequestHandler } from "express";
 import Database                         from "better-sqlite3";
 import { verifyBrew }                   from "../brewVerifier";
-import recipesJson                      from "../../recipes.json";
+import recipesJson                      from "../recipes.json";
 import { gameState }                    from "../db";
 
 import type {

@@ -1,4 +1,4 @@
-import type { RitualQuestCard, GameState } from "../../../shared/src/types";
+import type { RitualQuestCard, GameState } from "../shared/types";
 
 /**
  * Resolve quests and distribute rewards.

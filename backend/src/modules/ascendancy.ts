@@ -1,4 +1,4 @@
-import type { GameState, AscendancyPath } from "../../../shared/src/types";
+import type { GameState, AscendancyPath } from "../shared/types";
 
 /**
  * Re-compute the player’s ascendancy progress after a turn.

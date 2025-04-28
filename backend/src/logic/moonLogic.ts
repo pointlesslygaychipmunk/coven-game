@@ -1,6 +1,6 @@
 // backend/src/logic/moonLogic.ts
 
-import { Player, GameStatus, GardenSlot } from "../../../shared/src/types";
+import { Player, GameStatus, GardenSlot } from "../../.././shared/types";
 
 /**
  * Grow or decay garden slots when the moon phase advances.

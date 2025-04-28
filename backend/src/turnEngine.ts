@@ -1,4 +1,4 @@
-import type { GameState, Action } from "../../shared/src/types";
+import type { GameState, Action } from "./shared/types";
 import { applyMarketEvents }      from "./marketEvents";
 import updateAscendancy           from "./modules/ascendancy";
 import { resolveQuests }          from "./modules/questSystem";

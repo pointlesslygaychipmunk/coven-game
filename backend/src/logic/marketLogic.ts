@@ -5,7 +5,7 @@ import {
   GameStatus,
   Player,
   MarketItem
-} from "../../../shared/src/types";
+} from "../../.././shared/types";
 
 /**
  * Update market prices and stock based on current season,

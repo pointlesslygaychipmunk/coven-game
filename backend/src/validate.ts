@@ -8,7 +8,7 @@ import {
   RitualQuestCard,
   GameState,
   MarketItem,
-} from '../../shared/src/types';
+} from '../.././shared/types';
 import { getPotionByName } from './potions';
 
 /**

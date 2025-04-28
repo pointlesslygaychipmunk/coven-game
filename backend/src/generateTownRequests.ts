@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { TownRequestCard, PotionIngredient, Season } from "../../shared/src/types";
+import type { TownRequestCard, PotionIngredient, Season } from "../.././shared/types";
 
 export function generateTownRequests(): TownRequestCard[] {
   const ingredients: PotionIngredient[] = ["herb", "flower", "mushroom", "fruit"];

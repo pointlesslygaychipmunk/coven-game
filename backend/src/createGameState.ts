@@ -1,4 +1,4 @@
-import type { GameState, GardenSlot } from "../../shared/src/types";
+import type { GameState, GardenSlot } from "./shared/types";
 
 /** helper to make a fresh 8-slot starter garden */
 export function makeStarterGarden(): GardenSlot[] {

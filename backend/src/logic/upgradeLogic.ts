@@ -1,4 +1,4 @@
-import { Player } from '../../../shared/src/types';
+import { Player } from '../../.././shared/types';
 
 type UpgradeType = 'well' | 'cellar' | 'cart' | 'cauldron';
 

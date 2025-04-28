@@ -5,7 +5,7 @@ import {
   TownRequestCard,
   PotionIngredient,
   GameStatus
-} from "../../../shared/src/types";
+} from "../../.././shared/types";
 
 /**
  * Maintain up to 3 active town requests.

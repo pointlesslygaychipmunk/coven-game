@@ -1,4 +1,4 @@
-import { GameState, MarketItem, CropType } from "../../shared/src/types";
+import { GameState, MarketItem, CropType } from "../.././shared/types";
 
 export function applyBuy(
   state: GameState,

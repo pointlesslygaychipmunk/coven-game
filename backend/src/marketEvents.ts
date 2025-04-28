@@ -2,7 +2,7 @@
  * Random market price drift + rumor generation for a new turn.
  * Only a toy implementation to keep the demo running.
  */
-import { MarketRumor, GameState, MarketItem } from "../../shared/src/types";
+import { MarketRumor, GameState, MarketItem } from "./shared/types";
 import { generateRumor }                     from "./generateRumor";
 
 /* ─ helper – apply ±10 % drift ───────────────────────────────── */

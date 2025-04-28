@@ -1,6 +1,6 @@
 // backend/src/modules/rumorEngine.ts
 
-import { GameState, Rumor } from '../../../shared/src/types';
+import { GameState, Rumor } from '../../.././shared/types';
 
 /** A small helper to pick a random element */
 function pick<T>(arr: T[]): T {
