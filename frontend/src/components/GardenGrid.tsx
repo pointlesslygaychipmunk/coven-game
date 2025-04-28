@@ -10,11 +10,11 @@ interface Props {
 export default function GardenGrid({ tiles, inventory, onAction }: Props) {
   return (
     <div
-      className="grid gap-0.5"
-      style={{ gridTemplateColumns: "repeat(8,32px)", gridAutoRows: "32px" }}
+      className="grid gap-1 fade-in-spell"
+      style={{ gridTemplateColumns: "repeat(8,40px)", gridAutoRows: "40px" }}
     >
       {tiles.map((tile, i) => {
-        const crop = tile.crop as CropType | null; // satisfy TS about index type
+        const crop = tile.crop as CropType | null;
         return (
           <button
             key={i}
@@ -24,9 +24,9 @@ export default function GardenGrid({ tiles, inventory, onAction }: Props) {
                 : onAction({ type: "plant", crop: "mushroom", index: i })
             }
             className={clsx(
-              "w-8 h-8 border border-stone-700/50 rounded-sm",
-              crop && "animate-in fade-in zoom-in bg-green-700/70",
-              tile.dead && "bg-stone-500/70"
+              "w-10 h-10 rounded-md border ethereal-border text-xs font-bold text-white transition-all",
+              crop && "bg-emerald-700/80 hover:bg-emerald-600",
+              tile.dead && "bg-stone-600/80 hover:bg-stone-500"
             )}
           >
             {crop?.[0]?.toUpperCase()}

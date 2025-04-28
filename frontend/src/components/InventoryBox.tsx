@@ -1,4 +1,3 @@
-/* src/components/InventoryBox.tsx */
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 import type { CropType } from "@shared/types";
 
@@ -10,23 +9,23 @@ export default function InventoryBox({ items }: Props) {
   const entries = Object.entries(items).filter(([, qty]) => qty > 0);
 
   return (
-    <Card>
+    <Card className="bg-gradient-to-br from-stone-900 via-black to-stone-800 text-stone-200 ethereal-border fade-in-spell">
       <CardHeader>
-        <CardTitle>Inventory</CardTitle>
+        <CardTitle className="shimmer-text">Inventory</CardTitle>
       </CardHeader>
 
-      <CardContent className="flex flex-wrap gap-1">
+      <CardContent className="flex flex-wrap gap-2">
         {entries.length ? (
           entries.map(([crop, qty]) => (
             <span
               key={crop}
-              className="rounded bg-layer-2/70 px-2 py-0.5 text-xs font-medium"
+              className="rounded-full bg-stone-700/70 px-3 py-1 text-xs font-semibold tracking-wide"
             >
               {crop} × {qty}
             </span>
           ))
         ) : (
-          <p className="text-xs italic text-layer-11">Empty.</p>
+          <p className="text-xs italic text-stone-400">Empty satchel…</p>
         )}
       </CardContent>
     </Card>

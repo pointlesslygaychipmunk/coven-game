@@ -47,3 +47,17 @@ if (credentials) {
     console.log(`🌕 HTTPS server listening at https://localhost:${HTTPS_PORT}`);
   });
 }
+
+app.get('/api/state', (req, res) => {
+  const dummyState = {
+    players: [
+      {
+        id: "player1",
+        garden: Array(64).fill({ crop: null, dead: false }),
+        inventory: { mushroom: 2, flower: 1, herb: 0, fruit: 0 },
+      }
+    ],
+  };
+  
+  res.json(dummyState);
+});
