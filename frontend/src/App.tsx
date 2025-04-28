@@ -17,7 +17,11 @@ export default function App() {
       })
       .then((gameState: GameState) => {
         console.log("[App.tsx] Received gameState:", gameState);
-        dispatch({ type: "loadState", state: gameState });
+        if (gameState && gameState.players && gameState.players.length) {
+          dispatch({ type: "loadState", state: gameState });
+        } else {
+          console.error("[App.tsx] No players found in gameState!");
+        }
         setLoading(false);
       })
       .catch((error) => {
