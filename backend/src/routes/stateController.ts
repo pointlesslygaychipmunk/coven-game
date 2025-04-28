@@ -1,9 +1,5 @@
-// backend/src/routes/stateController.ts
-import { Router } from "express";
-import { gameState } from "../db";            // wherever you keep it
+import { Router, type Router as RouterType } from "express";
 
-export const stateRouter = Router();
+export const stateRouter: RouterType = Router();
 
-stateRouter.get("/state", (_req, res) => {
-  res.json(gameState);                        // MUST contain tiles & inventory
-});
+// (your actual stateController route logic)

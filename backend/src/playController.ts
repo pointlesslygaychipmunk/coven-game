@@ -1,10 +1,5 @@
-import { Router } from "express";
-import createGameState from "./createGameState";
+import { Router, type Router as RouterType } from "express";
 
-export const playRouter = Router();
+export const playRouter: RouterType = Router();
 
-/* demo route that resets state */
-playRouter.post("/reset", (_, res) => {
-  Object.assign(require("./db").gameState, createGameState());
-  res.json({ ok: true });
-});
+// (your actual routes follow)
