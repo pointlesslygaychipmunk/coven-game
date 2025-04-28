@@ -3,7 +3,7 @@ import type { GameState, Action } from "@shared/types";
 export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case "loadState":
-      return action.state;
+      return action.state;  // FULL STATE REPLACEMENT
     case "noop":
       return state;
     case "plant":
