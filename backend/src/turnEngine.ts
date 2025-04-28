@@ -7,6 +7,8 @@ import { applyFamiliarPowers } from './modules/familiarPowers';
 import { resolveQuests } from './modules/questSystem';
 import { generateRumors } from "./modules/rumorEngine";
 import { generateTownRequests } from './generateTownRequests';
+import { generateRumors } from "./modules/rumorEngine";
+import type { GameState } from "@shared/types";
 
 /** Helper to get next season in order */
 function nextSeason(current: Season): Season {

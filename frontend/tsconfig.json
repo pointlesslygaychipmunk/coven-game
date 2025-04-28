@@ -1,35 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "lib": [
-      "ES2020",
-      "DOM"
-    ],
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@ui/*": [
-        "src/components/ui/*"
-      ],
-      "@shared/*": [
-        "../shared/src/*"
-      ],
-      "@lib/*": [
-        "src/lib/*"
-      ]
+      "@shared/*": ["../../shared/src/*"]
     }
   },
   "include": [
     "src",
-    "../shared/src"
+    "../../shared/src/**/*.ts"
   ]
 }

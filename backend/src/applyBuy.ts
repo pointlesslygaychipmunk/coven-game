@@ -1,4 +1,4 @@
-import type { GameState, MarketItem, Player } from "@shared/types";
+import type { GameState, MarketItem, CropType } from "@shared/types";
 
 export function applyBuy(state: GameState, playerId: string, itemId: string, quantity: number): GameState {
   const player = state.players.find(p => p.id === playerId);
@@ -11,7 +11,8 @@ export function applyBuy(state: GameState, playerId: string, itemId: string, qua
   player.gold -= price * quantity;
 
   if (item.type === "crop" || item.type === "ingredient") {
-    player.inventory[itemId as keyof typeof player.inventory] = (player.inventory[itemId as keyof typeof player.inventory] ?? 0) + quantity;
+    const cropKey = itemId as CropType;
+    player.inventory[cropKey] = (player.inventory[cropKey] ?? 0) + quantity;
   } else if (item.type === "potion") {
     for (let i = 0; i < quantity; i++) {
       player.potions.push({

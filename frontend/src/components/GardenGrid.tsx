@@ -5,15 +5,14 @@ interface GardenGridProps {
   garden: GardenSlot[];
 }
 
-/** A simple grid to display the player's garden slots. */
 const GardenGrid: React.FC<GardenGridProps> = ({ garden }) => {
   return (
-    <div className="garden-grid grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-4 gap-2">
       {garden.map((slot, index) => (
-        <div 
-          key={index} 
-          className={`garden-slot p-2 border rounded ${slot.dead ? "bg-gray-300" : "bg-green-100"}`}
-          title={slot.crop ? `${slot.crop}${slot.dead ? " (dead)" : ""}` : "Empty slot"}
+        <div
+          key={index}
+          className={`border rounded p-2 ${slot.dead ? "bg-gray-300" : "bg-green-100"}`}
+          title={slot.crop ? `${slot.crop}${slot.dead ? " (dead)" : ""}` : "Empty"}
         >
           {slot.crop ? (
             <span>
