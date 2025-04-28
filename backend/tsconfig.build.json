@@ -2,13 +2,13 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": ".",              // backend sources live here
     "skipLibCheck": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "rootDir": "."                /* remove mismatch with shared path */
   },
   "include": [
     "src/**/*",
-    "../shared/src/**/*.ts"      // shared types are outside rootDir
+    "../shared/src/**/*.ts"       /* keep shared types visible */
   ],
   "exclude": ["node_modules"]
 }
