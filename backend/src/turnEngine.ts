@@ -5,7 +5,7 @@ import { processBlackMarket } from './modules/blackMarket';
 import updateAscendancy from './modules/ascendancy';
 import { applyFamiliarPowers } from './modules/familiarPowers';
 import { resolveQuests } from './modules/questSystem';
-import { generateRumors } from './modules/rumorEngine';
+import { generateRumors } from "./modules/rumorEngine";
 import { generateTownRequests } from './generateTownRequests';
 
 /** Helper to get next season in order */
@@ -71,8 +71,8 @@ export function nextTurn(state: GameState): GameState {
   state.townRequests = generateTownRequests(state.townRequests, state.status);
   state.players.forEach(p => applyFamiliarPowers(p, state));
   state.players.forEach(p => updateAscendancy(state));
-  const newRumors = generateRumors(state);
-  newRumors.forEach(r => state.rumors.push(r));
+  const rumors = generateRumors(Object.values(state.market.items));
+  rumors.forEach(r => state.rumors.push(r));  
 
   // Seasonal log
   if (state.status.moonPhase === 0) {

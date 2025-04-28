@@ -16,7 +16,7 @@ interface GameViewProps {
 }
 
 const GameView: React.FC<GameViewProps> = ({ state, dispatch }) => {
-  const player = state.players[state.currentPlayer];
+  const currentPlayer = state.players[state.currentPlayer ?? 0] ?? state.players[0];
 
   // Helper to send an action to the backend and update state
   const sendAction = async (action: Action) => {

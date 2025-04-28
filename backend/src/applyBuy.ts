@@ -1,21 +1,28 @@
-import { GameState, MarketItem, CropType } from "./shared/types";
+import type { GameState, MarketItem, Player } from "@shared/types";
 
-export function applyBuy(
-  state: GameState,
-  playerId: string,
-  item: MarketItem
-): GameState {
-  const player = state.players.find((p) => p.id === playerId);
-  if (!player) throw new Error(`Player with ID ${playerId} not found`);
+export function applyBuy(state: GameState, playerId: string, itemId: string, quantity: number): GameState {
+  const player = state.players.find(p => p.id === playerId);
+  if (!player) throw new Error(`Player ${playerId} not found`);
 
-  const inventoryKey = item.type === "potion" ? item.name : item.type;
+  const item = state.market.items[itemId];
+  if (!item) throw new Error(`Item ${itemId} not found`);
 
-  if (item.type === "ingredient" || item.type === "crop") {
-    const key = inventoryKey as CropType;
-    player.inventory[key] = (player.inventory[key] ?? 0) + 1;
+  const price = item.currentPrice ?? item.price;
+  player.gold -= price * quantity;
+
+  if (item.type === "crop" || item.type === "ingredient") {
+    player.inventory[itemId as keyof typeof player.inventory] = (player.inventory[itemId as keyof typeof player.inventory] ?? 0) + quantity;
+  } else if (item.type === "potion") {
+    for (let i = 0; i < quantity; i++) {
+      player.potions.push({
+        id: `${itemId}-${Date.now()}-${i}`,
+        name: item.name,
+        tier: item.tier,
+        ingredients: { mushroom: 0, flower: 0, herb: 0, fruit: 0 }
+      });
+    }
   }
 
-  player.gold -= item.currentPrice ?? item.price;
-
+  item.stock -= quantity;
   return state;
 }

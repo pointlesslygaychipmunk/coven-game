@@ -1,12 +1,12 @@
-import type { Player, GameState, RitualQuestCard } from '../../shared/src/types';
+import type { Player, GameState, RitualQuestCard } from "@shared/types";
 
 export default function updateAscendancy(state: GameState): void {
   state.players.forEach((player: Player) => {
     const scores = {
       '': 0,
       economicMastery: player.gold,
-      ritualDominance: (state.quests ?? []).filter((q: RitualQuestCard) => q.fulfilled && (q.contributions[player.id] ?? 0) > 0).length,
-      secretQuest: (state.quests ?? []).filter((q: RitualQuestCard) => q.reward?.uniqueItem && q.fulfilled && (q.contributions[player.id] ?? 0) > 0).length,
+      ritualDominance: state.quests.filter((q: RitualQuestCard) => q.fulfilled && (q.contributions[player.id] ?? 0) > 0).length,
+      secretQuest: state.quests.filter((q: RitualQuestCard) => q.reward?.uniqueItem && q.fulfilled && (q.contributions[player.id] ?? 0) > 0).length,
       rumorWeaver: state.rumors.length,
     };
 

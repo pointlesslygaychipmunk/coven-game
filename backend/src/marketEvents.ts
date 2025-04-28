@@ -1,28 +1,32 @@
-/**
- * Random market price drift + rumor generation for a new turn.
- * Only a toy implementation to keep the demo running.
- */
-import { MarketRumor, GameState, MarketItem } from "../../shared/src/types";
-import { generateRumor }                     from "./generateRumor";
+import { MarketRumor, GameState, MarketItem } from "@shared/types";
+import { generateRumor } from "./generateRumor";
 
-/* ─ helper – apply ±10 % drift ───────────────────────────────── */
-function driftPrice(item: MarketItem): void {
-  const factor = 1 + (Math.random() * 0.2 - 0.1);          // –10 % … +10 %
-  item.price   = Math.max(1, Math.round(item.price * factor));
+/**
+ * Apply random market fluctuations and generate a rumor at the start of a new turn.
+ * Modifies the GameState's market prices in place and returns a new rumor.
+ */
+export function applyMarketEvents(state: GameState): MarketRumor {
+  // 1. Random price drift for all market items (±10%)
+  for (const item of Object.values(state.market.items)) {
+    driftPrice(item);
+  }
+  // 2. Generate a new market rumor based on a random item
+  const items = Object.values(state.market.items);
+  if (items.length === 0) {
+    // If no items in market, return a generic rumor
+    return {
+      id: crypto.randomUUID(),
+      message: "The market is eerily empty today.",
+      source: "market",
+      timestamp: Date.now()
+    };
+  }
+  const randomItem = items[Math.floor(Math.random() * items.length)];
+  return generateRumor(randomItem);
 }
 
-/* ─ main entry ──────────────────────────────────────────────── */
-export function applyMarketEvents(state: GameState): void {
-  const now = Date.now();
-
-  Object.entries(state.market.items).forEach(([itemId, item]) => {
-    driftPrice(item);
-
-    /* replace with three fresh rumors */
-    const rumors: MarketRumor[] = Array.from({ length: 3 }, () =>
-      generateRumor(item)                                      // id / message
-    ).map(r => ({ ...r, timestamp: now, source: "market" }));  // add meta
-
-    item.rumors = rumors;
-  });
+/** Helper: apply a ±10% random price drift to a market item */
+function driftPrice(item: MarketItem): void {
+  const factor = 1 + (Math.random() * 0.2 - 0.1);
+  item.price = Math.max(1, Math.round(item.price * factor));
 }
