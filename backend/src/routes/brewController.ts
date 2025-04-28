@@ -1,14 +1,8 @@
-/**
- * POST /api/brew
- * ------------------------------------------------------------------
- * Client submits Rune-Crush moves → server verifies deterministically,
- * assigns a quality 0-1, grants the potion, persists a row.
- * ------------------------------------------------------------------ */
 import { Router, type RequestHandler } from "express";
-import Database                        from "better-sqlite3";
-import { verifyBrew }                  from "../brewVerifier";
-import recipesJson                      from "../../recipes.json" assert { type: "json" };
-import { gameState }                   from "../db";
+import Database                         from "better-sqlite3";
+import { verifyBrew }                   from "../brewVerifier";
+import recipesJson                      from "../../recipes.json";
+import { gameState }                    from "../db";
 
 import type {
   BrewMatch3Result,
@@ -16,21 +10,21 @@ import type {
   PotionTier
 } from "@shared/types";
 
-/* ─ helpers ───────────────────────────────────────────────────── */
+/* helpers ------------------------------------------------------ */
 const toTier = (q: number): PotionTier =>
   q >= 0.9  ? "legendary" :
   q >= 0.75 ? "rare"      :
   q >= 0.5  ? "uncommon"  : "common";
 
-const blankIngredients: Record<CropType, number> = {
+const blank: Record<CropType, number> = {
   mushroom: 0, flower: 0, herb: 0, fruit: 0,
 };
 
-/* ─ runtime singletons ────────────────────────────────────────── */
+/* router ------------------------------------------------------- */
 export const brewRouter = Router();
 export const db         = new Database("coven.db");
 
-/* ─ handler ───────────────────────────────────────────────────── */
+/* handler ------------------------------------------------------ */
 const handleBrew: RequestHandler = (req, res) => {
   const { recipeId, seed, moves } = req.body as BrewMatch3Result;
   const meta = (recipesJson as any)[recipeId];
@@ -47,7 +41,7 @@ const handleBrew: RequestHandler = (req, res) => {
     id:          crypto.randomUUID(),
     name:        recipeId,
     tier:        toTier(quality),
-    ingredients: blankIngredients,
+    ingredients: blank,
   });
 
   db.prepare(
