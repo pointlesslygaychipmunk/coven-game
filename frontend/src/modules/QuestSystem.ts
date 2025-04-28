@@ -1,8 +1,9 @@
-import { RitualQuestCard, GameState } from '../../../shared/src/types';
+import type { GameState, RitualQuestCard } from "@shared/types";
 
 /**
- * Returns active (unfulfilled) quests.
+ * Return all active quests not yet fulfilled.
+ * Frontend treats `state.quests` as optional, so guard with fallback.
  */
-export function getActiveQuests(state: GameState): RitualQuestCard[] {
-  return state.quests.filter(q => !q.fulfilled);
+export function openQuests(state: GameState): RitualQuestCard[] {
+  return (state.quests ?? []).filter(q => !q.fulfilled);
 }
