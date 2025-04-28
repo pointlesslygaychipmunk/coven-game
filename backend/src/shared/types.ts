@@ -147,4 +147,5 @@ export type Action =
   | { type:'sell'  ; itemId:string; quantity:number }
   | { type:'brew'  ; recipeId:string; result:BrewMatch3Result }
   | { type:'fulfill'; requestId:string };
+  | { type: 'loadState', state: GameState };
 export type GameAction = Action;  // alias for older files

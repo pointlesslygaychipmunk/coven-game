@@ -20,7 +20,10 @@ export default function BrewDialog({ open, seed, recipe, onClose, onSubmit }: Pr
     <Dialog open={open} onOpenChange={(value: boolean) => !value && onClose()}>
       <DialogContent className="sm:max-w-md bg-gradient-to-br from-black via-stone-800 to-black text-stone-200 border-2 ethereal-border">
         <DialogHeader>
-          <DialogTitle className="shimmer-text">Brewing: {recipe.id}</DialogTitle>
+        <DialogHeader>
+          <h2 className="text-xl shimmer-text">{`Brewing: ${recipe.id}`}</h2>
+        </DialogHeader>
+
         </DialogHeader>
 
         <RuneGrid
