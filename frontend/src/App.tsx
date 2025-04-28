@@ -48,5 +48,10 @@ export default function App() {
     );
   }
 
-  return <GameView state={state} />;
+  return (
+    <>
+      <div className="mist-overlay"></div>
+      <GameView state={state} />
+    </>
+  );
 }
