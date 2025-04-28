@@ -1,7 +1,6 @@
 /* ────────────────────────────────────────────────────────────────
-   backend/src/server.ts
-   - Express app with dual HTTP + HTTPS listeners
-   - Reads cert / key from ./certs or from environment variables
+   backend/src/server.ts  🌙
+   Express app with HTTP + optional HTTPS (auto-falls back)
 ───────────────────────────────────────────────────────────────── */
 
 import "dotenv/config";
@@ -12,69 +11,56 @@ import https       from "https";
 import express     from "express";
 import cors        from "cors";
 
-import brewRouter  from "./routes/brewController";
+import brewRouter   from "./routes/brewController";
 import { gameState } from "./db";
 
-/* ——————————————————————————————————————————————————————— */
-/*  Express app setup                                          */
-/* ——————————————————————————————————————————————————————— */
+/* ——————————————————————————————————————————— */
+/*  Express setup                                */
+/* ——————————————————————————————————————————— */
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-/* REST endpoints */
-app.get("/api/state", (_req, res) => res.json(gameState));
+app.get("/api/state", (_req, res): void => {
+  res.json(gameState);         // ← return type is void ✔
+});
+
 app.use("/api", brewRouter);
 
-/* ——————————————————————————————————————————————————————— */
-/*  Helper: create HTTPS server if certs are available         */
-/* ——————————————————————————————————————————————————————— */
+/* ——————————————————————————————————————————— */
+/*  Try to spin up HTTPS if certs exist          */
+/* ——————————————————————————————————————————— */
 
-/** Returns an { server, protocol, port } triple */
-function createHttpsServer(app: express.Express) {
-  const certDir   = process.env.CERT_DIR ?? path.resolve(__dirname, "../certs");
-  const certFile  = process.env.CERT_FILE ?? "fullchain.pem";
-  const keyFile   = process.env.KEY_FILE  ?? "privkey.pem";
-  const portHttps = Number(process.env.PORT_HTTPS ?? 443);
-
-  const certPath = path.join(certDir, certFile);
-  const keyPath  = path.join(certDir, keyFile);
+function mountHttps(app: express.Express) {
+  const dir  = process.env.CERT_DIR  ?? path.resolve(__dirname, "../certs");
+  const cert = process.env.CERT_FILE ?? "fullchain.pem";
+  const key  = process.env.KEY_FILE  ?? "privkey.pem";
+  const p    = Number(process.env.PORT_HTTPS ?? 443);
 
   try {
     const creds = {
-      cert: fs.readFileSync(certPath, "utf8"),
-      key : fs.readFileSync(keyPath,  "utf8"),
+      cert: fs.readFileSync(path.join(dir, cert), "utf8"),
+      key:  fs.readFileSync(path.join(dir, key),  "utf8"),
     };
-    const srv = https.createServer(creds, app);
-    return { server: srv, protocol: "https", port: portHttps };
+    https.createServer(creds, app).listen(p, () =>
+      console.log(`🌙  HTTPS server listening on ${p}`)
+    );
   } catch {
-    /* no certs ⇒ return null and let caller ignore */
-    return null;
+    console.warn("⚠︎  HTTPS disabled (cert/key not found)");
   }
 }
 
-/* ——————————————————————————————————————————————————————— */
-/*  Start servers                                              */
-/* ——————————————————————————————————————————————————————— */
+/* ——————————————————————————————————————————— */
+/*  Start servers                                */
+/* ——————————————————————————————————————————— */
 
-const portHttp  = Number(process.env.PORT_HTTP ?? 8080);
-const httpSrv   = http.createServer(app).listen(portHttp, () =>
-  console.log(`✓ HTTP  server listening on port ${portHttp}`)
+const pHttp = Number(process.env.PORT_HTTP ?? 8080);
+http.createServer(app).listen(pHttp, () =>
+  console.log(`🌙  HTTP  server listening on ${pHttp}`)
 );
 
-const httpsInfo = createHttpsServer(app);
-if (httpsInfo) {
-  httpsInfo.server.listen(httpsInfo.port, () =>
-    console.log(`✓ HTTPS server listening on port ${httpsInfo.port}`)
-  );
-} else {
-  console.warn(
-    "⚠︎  HTTPS disabled – certificate or key not found. " +
-    "Set CERT_DIR / CERT_FILE / KEY_FILE env vars (or ./certs/*.pem) to enable."
-  );
-}
+mountHttps(app);   // spins up HTTPS when possible
 
-/* Export for tests / tooling */
 export default app;
