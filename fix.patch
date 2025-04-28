@@ -1,0 +1,34 @@
+diff --git a/frontend/src/App.tsx b/frontend/src/App.tsx
+index 1111111..2222222 100644
+--- a/frontend/src/App.tsx
++++ b/frontend/src/App.tsx
+@@
+-  .then((s: GameState) => dispatch({ type: 'noop' } as Action & any) || s)
++  .then((s: GameState) => {           /* initialise, then pass state on */
++    dispatch({ type: 'noop' } as Action);
++    return s;
++  })
+
+diff --git a/frontend/src/components/GardenGrid.tsx b/frontend/src/components/GardenGrid.tsx
+index 3333333..4444444 100644
+--- a/frontend/src/components/GardenGrid.tsx
++++ b/frontend/src/components/GardenGrid.tsx
+@@
+-  const crop = tile.crop;
++  const crop = tile.crop as CropType | null;   // satisfy TS when empty
+
+diff --git a/frontend/src/modules/RumorEngine.ts b/frontend/src/modules/RumorEngine.ts
+index 5555555..6666666 100644
+--- a/frontend/src/modules/RumorEngine.ts
++++ b/frontend/src/modules/RumorEngine.ts
+@@
+-import { GameState, Rumor } from "../../../shared/src/types";
++import { GameState, Rumor } from "@shared/types";
+
+diff --git a/frontend/src/utils.ts b/frontend/src/utils.ts
+index 7777777..8888888 100644
+--- a/frontend/src/utils.ts
++++ b/frontend/src/utils.ts
+@@
+-import type { GameState, Action, CropType } from "@shared/types";
++import type { GameState, GameAction as Action, CropType } from "@shared/types";

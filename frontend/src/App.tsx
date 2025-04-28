@@ -1,82 +1,18 @@
-import { useEffect, useReducer } from 'react';
-import GardenGrid         from './components/GardenGrid';
-import InventoryBox       from './components/InventoryBox';
-import Journal            from './components/Journal';
-import { AppShell }       from '@/layout/AppShell';
-import type {
-  GameState,
-  Action,
-  CropType,
-  Tile,
-} from '@shared/types';
+import { useEffect, useReducer } from "react";
+import { GardenGrid } from "@/components";
+import type { GameState, GameAction as Action } from "@shared/types";
+import "@/index.css";                       // Tailwind + global styles
 
-/* ------------------------------------------------------------------
-   Reducer – real INIT action replaces the former “noop” hack
-------------------------------------------------------------------- */
+/* ------------------------------------------------------------------ */
+/*  Simple Immer-powered reducer – extend/replace later if you wish   */
+/* ------------------------------------------------------------------ */
+import produce from "immer";
 
-type InitAction = { type: 'INIT'; payload: GameState };
-type ReducerAction = Action | InitAction;
-
-function reducer(state: GameState | null, action: ReducerAction): GameState {
-  if (action.type === 'INIT') return action.payload;
-
-  /* --- demo garden logic (plant / harvest) ---------------------- */
-  if (!state) return state as never;          // should never run before INIT
-
-  switch (action.type) {
-    case 'plant': {
-      const { index, crop } = action;
-      const slot = state.players[0].garden[index];
-      if (slot.type !== null) return state;
-      if (state.players[0].inventory[crop] === 0) return state;
-
-      return {
-        ...state,
-        players: state.players.map((p, i) =>
-          i === 0
-            ? {
-                ...p,
-                inventory: {
-                  ...p.inventory,
-                  [crop]: p.inventory[crop] - 1,
-                },
-                garden: p.garden.map((s, j) =>
-                  j === index ? { ...s, type: crop, growth: 0 } : s,
-                ),
-              }
-            : p,
-        ),
-      };
-    }
-
-    case 'harvest': {
-      const { index } = action;
-      const slot = state.players[0].garden[index];
-      if (slot.type === null) return state;
-
-      const crop = slot.type;
-      return {
-        ...state,
-        players: state.players.map((p, i) =>
-          i === 0
-            ? {
-                ...p,
-                inventory: {
-                  ...p.inventory,
-                  [crop]: p.inventory[crop] + 1,
-                },
-                garden: p.garden.map((s, j) =>
-                  j === index ? { ...s, type: null, growth: 0 } : s,
-                ),
-              }
-            : p,
-        ),
-      };
-    }
-
-    default:
-      return state;
-  }
+function reducer(state: GameState | null, action: Action): GameState | null {
+  return produce(state, draft => {
+    /*  currently only “noop” from the bootstrap below – add more later */
+    if (action.type === "noop") return;
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -84,42 +20,37 @@ function reducer(state: GameState | null, action: ReducerAction): GameState {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, null);
 
-  /* fetch the initial game state exactly once */
+  /* initial state fetch ------------------------------------------------ */
   useEffect(() => {
-    fetch('/api/state')
+    fetch("/api/state")
       .then(r => r.json())
-      .then((s: GameState) => dispatch({ type: 'INIT', payload: s }))
-      .catch(err => console.error('state fetch failed:', err));
+      /* dispatch a noop so the reducer is initialised _and_ return s ---- */
+      .then((s: GameState) => {
+        dispatch({ type: "noop" } as Action);
+        return s;
+      })
+      .then(dispatch)
+      .catch(err => console.error("state fetch failed:", err));
   }, []);
 
-  if (!state)
+  if (!state) {
     return (
       <div className="h-screen grid place-content-center">
         Loading coven state…
       </div>
     );
+  }
 
   return (
-    <AppShell>
-      <Journal />
-      <main className="p-4 flex-1 overflow-y-auto">
+    <div className="h-screen flex flex-col">
+      {/* status / nav bar could go here */}
+      <main className="flex-1 overflow-auto p-4">
         <GardenGrid
-          tiles={chunk(state.players[0].garden, 8) as Tile[][]}
+          tiles={state.players[0].garden}   /* << existing game data */
           inventory={state.players[0].inventory}
-          onAction={dispatch as (a: Action) => void}
+          onAction={dispatch}
         />
       </main>
-      <aside className="p-4 w-72 shrink-0 space-y-4">
-        <InventoryBox items={state.players[0].inventory} />
-      </aside>
-    </AppShell>
+    </div>
   );
-}
-
-/* simple helper so we don’t pull in lodash */
-function chunk<T>(arr: T[], size: number): T[][] {
-  const out: T[][] = [];
-  for (let i = 0; i < arr.length; i += size)
-    out.push(arr.slice(i, i + size));
-  return out;
 }

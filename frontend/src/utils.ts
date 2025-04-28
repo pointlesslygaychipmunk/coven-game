@@ -1,26 +1,39 @@
-import type { GameState, GameAction, CropType } from "@shared/types";
+import type {
+  GameState,
+  GameAction as Action,
+  CropType,
+} from "@shared/types";
+import produce from "immer";
 
-export function reducer(state: GameState, action: GameAction): GameState {
-  switch (action.type) {
-    case "plant":
-      return {
-        ...state,
-        players: state.players.map(p =>
-          p === state.players[0]
-            ? {
-                ...p,
-                inventory: {
-                  ...p.inventory,
-                  [action.crop]:
-                    (p.inventory[action.crop as CropType] ?? 0) - 1
-                }
-              }
-            : p
-        )
-      };
+/* helper: adjust player inventory ------------------------------------ */
+export function applyAction(state: GameState, action: Action): GameState {
+  return produce(state, draft => {
+    const me = draft.players[0];
 
-    /* —— other actions here —— */
-    default:
-      return state;
-  }
+    switch (action.type) {
+      case "plant": {
+        const slot = me.garden[action.index];
+        if (!slot || slot.crop) break;                // already occupied
+        slot.crop = action.crop;
+        slot.growth = 0;
+        me.inventory[action.crop]--;
+        break;
+      }
+
+      case "harvest": {
+        const slot = me.garden[action.index];
+        if (slot && slot.crop && slot.growth >= 1) {
+          me.inventory[slot.crop]++;
+          slot.crop = null;
+          slot.growth = 0;
+        }
+        break;
+      }
+
+      /* add other actions later -------------------------------------- */
+
+      default:
+        break;
+    }
+  });
 }

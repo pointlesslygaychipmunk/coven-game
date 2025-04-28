@@ -1,57 +1,49 @@
-import classNames from '@ui/utils';
-import type { Tile, CropType, Action } from '@shared/types';
+import clsx from "@ui/utils/clsx";
+import type {
+  Tile,                 /* alias for GardenSlot in @shared/types        */
+  CropType,
+  GameAction as Action,
+} from "@shared/types";
 
-export interface GardenGridProps {
-  tiles:       Tile[][];
-  inventory:   Record<CropType, number>;
-  onAction:    (a: Action) => void;
+interface Props {
+  tiles:      Tile[];                         // 1-D array from server
+  inventory:  Record<CropType, number>;
+  onAction:   (a: Action) => void;
 }
 
-export default function GardenGrid({
-  tiles,
-  inventory,
-  onAction,
-}: GardenGridProps) {
+export function GardenGrid({ tiles, inventory, onAction }: Props) {
   return (
-    <div className="grid grid-cols-8 gap-0.5 select-none">
-      {tiles.map((row, y) =>
-        row.map((tile, x) => {
-          const idx        = y * row.length + x;
-          const hasCrop    = tile.type !== null;
-          const cropClass  =
-            hasCrop && `animate-in fade-in zoom-in bg-green-700/70`;
-          const deadClass  = tile.dead && 'opacity-40 grayscale';
+    <div
+      /* 9×4 grid – adjust as you like */
+      className="grid grid-cols-9 gap-1 select-none"
+      style={{ maxWidth: "min-content" }}
+    >
+      {tiles.map((tile, i) => {
+        const crop = tile.crop as CropType | null;         // TS satisfied
+        const growth = tile.growth;
 
-          return (
-            <button
-              key={idx}
-              aria-label={hasCrop ? tile.type! : 'empty tile'}
-              className={classNames(
-                'relative size-12 rounded-sm border border-stone-700/60',
-                cropClass,
-                deadClass,
-              )}
-              onClick={() => {
-                if (hasCrop) {
-                  onAction({ type: 'harvest', index: idx });
-                } else {
-                  // Plant the first available crop in inventory (demo behaviour)
-                  const crop = (Object.keys(inventory) as CropType[])
-                    .find(c => inventory[c] > 0);
-                  if (crop)
-                    onAction({ type: 'plant', crop, index: idx });
-                }
-              }}
-            >
-              {hasCrop && (
-                <span className="absolute inset-0 grid place-content-center text-xs">
-                  {tile.type}
-                </span>
-              )}
-            </button>
-          );
-        }),
-      )}
+        return (
+          <button
+            key={i}
+            onClick={() =>
+              crop
+                ? onAction({ type: "harvest", index: i })
+                : onAction({ type: "plant", crop: "mushroom", index: i })
+            }
+            className={clsx(
+              "w-12 h-12 rounded-sm border border-stone-700/60 text-xs",
+              crop && "bg-green-700/70 animate-in fade-in zoom-in"
+            )}
+            title={
+              crop
+                ? `${crop} – ${Math.round(growth * 100)} %`
+                : "Empty soil"
+            }
+          >
+            {crop ? Math.round(growth * 100) + "%" : ""}
+          </button>
+        );
+      })}
     </div>
   );
 }
