@@ -1,18 +1,14 @@
 import express from 'express';
+import fs from 'fs';
 import http from 'http';
 import https from 'https';
-import fs from 'fs';
 import path from 'path';
-import { setupWebSocket } from './websocket';
-
-// Configuration
-const HTTP_PORT = Number(process.env.HTTP_PORT) || 8080;
-const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
-const CERTS_DIR = process.env.CERTS_DIR || path.join(__dirname, 'certs');
 
 const app = express();
+const HTTP_PORT = 80;
+const HTTPS_PORT = 443;
+const CERTS_DIR = path.join(__dirname, 'certs');
 
-// Load SSL certificates if available
 let credentials: { key: Buffer; cert: Buffer } | null = null;
 try {
   credentials = {
@@ -21,13 +17,13 @@ try {
   };
   console.log('🌕🔮 SSL certificates loaded successfully.');
 } catch (err) {
-  console.warn('🌑⚠️ SSL certificates not found. Proceeding without HTTPS.');
+  console.warn('🌑⚠️ SSL certificates not found. HTTPS will not be available.');
 }
 
-// Serve static frontend files
+// Serve frontend
 app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
 
-// Redirect HTTP to HTTPS if HTTPS is running
+// Redirect HTTP ➔ HTTPS if SSL is available
 if (credentials) {
   app.use((req, res, next) => {
     if (req.protocol === 'http') {
@@ -37,27 +33,15 @@ if (credentials) {
   });
 }
 
-// Create servers
+// Create HTTP server
 const httpServer = http.createServer(app);
-let httpsServer: https.Server | null = null;
-
-if (credentials) {
-  httpsServer = https.createServer(credentials, app);
-}
-
-// Attach WebSocket to the appropriate server
-if (httpsServer) {
-  setupWebSocket(httpsServer);
-} else {
-  setupWebSocket(httpServer);
-}
-
-// Start servers
 httpServer.listen(HTTP_PORT, () => {
   console.log(`☾ HTTP server listening at http://localhost:${HTTP_PORT}`);
 });
 
-if (httpsServer) {
+// Create HTTPS server
+if (credentials) {
+  const httpsServer = https.createServer(credentials, app);
   httpsServer.listen(HTTPS_PORT, () => {
     console.log(`🌙 HTTPS server listening at https://localhost:${HTTPS_PORT}`);
   });
