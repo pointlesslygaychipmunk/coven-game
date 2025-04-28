@@ -1,6 +1,6 @@
 // backend/src/logic/scoreLogic.ts
 
-import type { GameState } from "../../.././shared/types";  // :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
+import type { GameState } from ".././shared/types";  // :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
 
 /**
  * Breakdown of all the components that go into the final score.

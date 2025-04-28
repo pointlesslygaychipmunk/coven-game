@@ -1,6 +1,6 @@
 // backend/src/modules/blackMarket.ts
 
-import { GameState, Rumor, MarketMemoryEntry } from '../../.././shared/types';
+import { GameState, Rumor, MarketMemoryEntry } from '.././shared/types';
 
 /**
  * Process black market mechanics:

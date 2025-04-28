@@ -11,7 +11,7 @@ import {
   FamiliarPower,
   AscendancyStatus,
   MarketMemoryEntry,
-} from '../.././shared/types';
+} from './shared/types';
 
 // eight empty garden slots
 const defaultGarden: GardenSlot[] = Array(8).fill({

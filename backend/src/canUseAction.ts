@@ -1,6 +1,6 @@
 // backend/src/canUseAction.ts
 
-import type { GameState } from "../.././shared/types";
+import type { GameState } from "./shared/types";
 
 export function canUseAction(gameState: GameState): boolean {
   return (gameState.actionsUsed ?? 0) < 2;

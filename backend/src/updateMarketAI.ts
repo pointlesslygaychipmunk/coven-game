@@ -1,5 +1,5 @@
 // backend/src/updateMarketAI.ts
-import { MarketItem, MarketState } from "../.././shared/types";
+import { MarketItem, MarketState } from "./shared/types";
 
 export interface MarketMemory {
   purchases: Record<string, number>;

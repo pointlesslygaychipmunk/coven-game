@@ -1,6 +1,6 @@
 // backend/src/executeActions.ts
 
-import { GameState, Action, CropType, Player } from '../.././shared/types';
+import { GameState, Action, CropType, Player } from './shared/types';
 import { recordMemoryEntry } from './modules/marketMemory';
 
 /** Type‐guard: is this ID a garden crop? */

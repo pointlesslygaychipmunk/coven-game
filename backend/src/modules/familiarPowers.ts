@@ -1,6 +1,6 @@
 // backend/src/modules/familiarPowers.ts
 
-import { Player, FamiliarPower, GameState } from '../../.././shared/types'
+import { Player, FamiliarPower, GameState } from '.././shared/types'
 
 /**
  * A catalog of all possible familiar powers.

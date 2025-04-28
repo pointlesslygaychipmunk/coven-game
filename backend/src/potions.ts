@@ -1,6 +1,6 @@
 // backend/src/potions.ts
 
-import type { Potion } from '../.././shared/types';
+import type { Potion } from './shared/types';
 
 export const potionLibrary: Potion[] = [
   {
