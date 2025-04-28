@@ -3,11 +3,6 @@ import type { GameState, Action } from "@shared/types";
 import { reducer, load } from "@/utils";
 import GameView from "@/components/GameView";
 
-<>
-  <div className="mist-overlay"></div>
-  <GameView state={state} />
-</>
-
 export default function App() {
   const [state, dispatch] = useReducer(reducer, null as unknown as GameState);
   const [loading, setLoading] = useState(true);
