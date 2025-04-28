@@ -128,3 +128,55 @@ export type Action =
   | { type:'water'  ; index:number }
   | { type:'brew'   ; recipeId:string; result:BrewMatch3Result };
 export type GameAction = Action;
+
+/* ----------------------------------------------------------------
+   Auxiliary records used by ancillary UI screens
+----------------------------------------------------------------- */
+
+export interface MarketMemoryEntry {
+  itemId: string;
+  timestamp: number;
+  price: number;
+  volume: number;
+}
+
+export interface FamiliarPower {
+  id          : string;
+  name        : string;
+  description : string;
+  effect      : { type:string; value:number };
+  tier        : number;
+}
+
+export interface AscendancyStatus {
+  path     : string;
+  progress : number;
+  unlocked : boolean;
+}
+
+export interface RitualQuestCard {
+  id          : string;
+  title       : string;
+  description : string;
+  goal        : number;
+  contributions: Record<string,number>;
+  reward      : { gold?:number; renown?:number; craftPoints?:number };
+  fulfilled   : boolean;
+}
+
+/* --- extend Player & GameState -------------------------------- */
+
+declare module './types' {
+  interface Player {
+    renown?        : number;
+    craftPoints?   : number;
+    ascendancy?    : AscendancyStatus;
+    familiarPowers?: FamiliarPower[];
+    memory?        : MarketMemoryEntry[];
+  }
+
+  interface GameState {
+    townRequests?: RitualQuestCard[];
+    quests?      : RitualQuestCard[];
+  }
+}

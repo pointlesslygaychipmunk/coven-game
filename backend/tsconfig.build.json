@@ -3,12 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "skipLibCheck": true,
-    "downlevelIteration": true,
-    "rootDir": "."                /* remove mismatch with shared path */
+    "downlevelIteration": true
+    /* rootDir removed – keeps tsc happy about ../shared */
   },
   "include": [
     "src/**/*",
-    "../shared/src/**/*.ts"       /* keep shared types visible */
+    "../shared/src/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
