@@ -1,50 +1,38 @@
-import clsx from '@ui/utils/clsx';
-import type { Tile, CropType, Action } from '@shared/types';
+import clsx from "@ui/utils/clsx";
+import type { Tile, CropType, Action } from "@shared/types";
 
-export interface Props {
-  tiles    : Tile[][];
+interface Props {
+  tiles: Tile[];
   inventory: Record<CropType, number>;
-  onAction : (a: Action) => void;
+  onAction(action: Action): void;
 }
 
 export default function GardenGrid({ tiles, inventory, onAction }: Props) {
   return (
-    <div className="grid gap-1"
-         style={{ gridTemplateColumns:`repeat(${tiles[0].length},3rem)` }}>
-      {tiles.flatMap((row,y)=>
-        row.map((tile,x)=>{
-          const crop = tile.crop as CropType | null;   // satisfy TS
-          const key  = `${x}-${y}`;
-
-          return (
-            <button key={key}
-                    className={clsx(
-                      'w-12 h-12 rounded border border-stone-700/60',
-                      crop && 'animate-in fade-in zoom-in ' + cropColour(crop),
-                      tile.watered && 'ring-2 ring-sky-500/60',
-                      tile.dead && 'grayscale opacity-50'
-                    )}
-                    onClick={()=> harvestable(tile) &&
-                      onAction({ type:'harvest', index: y*row.length+x })}>
-              {cropEmoji(crop)}
-            </button>
-          );
-      })) }
+    <div
+      className="grid gap-0.5"
+      style={{ gridTemplateColumns: "repeat(8,32px)", gridAutoRows: "32px" }}
+    >
+      {tiles.map((tile, i) => {
+        const crop = tile.crop as CropType | null; // satisfy TS about index type
+        return (
+          <button
+            key={i}
+            onClick={() =>
+              crop
+                ? onAction({ type: "harvest", index: i })
+                : onAction({ type: "plant", crop: "mushroom", index: i })
+            }
+            className={clsx(
+              "w-8 h-8 border border-stone-700/50 rounded-sm",
+              crop && "animate-in fade-in zoom-in bg-green-700/70",
+              tile.dead && "bg-stone-500/70"
+            )}
+          >
+            {crop?.[0]?.toUpperCase()}
+          </button>
+        );
+      })}
     </div>
   );
 }
-
-/* ───────── helpers ───────── */
-
-const cropColour = (c:CropType)=>({
-  mushroom:'bg-rose-700/60',
-  flower  :'bg-pink-600/50',
-  herb    :'bg-green-700/70',
-  fruit   :'bg-orange-600/60',
-}[c!]);
-
-const cropEmoji = (c:CropType|null)=>({
-  mushroom:'🍄', flower:'🌼', herb:'🌿', fruit:'🍊',
-}[c as CropType] ?? ' ');
-
-const harvestable = (t:Tile)=> !!t.crop && t.growth>=1 && !t.dead;
