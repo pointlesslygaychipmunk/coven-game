@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function GameView({ state }: Props) {
-  const player = state?.players?.[0];
+  const player = state.players[0];
 
   if (!player) {
     return (
@@ -31,7 +31,7 @@ export default function GameView({ state }: Props) {
         <GardenGrid
           tiles={player.garden}
           inventory={player.inventory}
-          onAction={() => {}} // TODO: Hook up real dispatch
+          onAction={() => {}}
         />
         <InventoryBox items={player.inventory} />
         <PotionPanel player={player} onBrew={() => {}} />

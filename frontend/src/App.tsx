@@ -41,7 +41,7 @@ export default function App() {
     );
   }
 
-  if (!state) {
+  if (!state || !state.players || !state.players.length) {
     return (
       <div className="h-screen grid place-content-center bg-gradient-to-br from-black via-stone-900 to-black text-red-500 font-serif fade-in-spell">
         <div className="text-center">

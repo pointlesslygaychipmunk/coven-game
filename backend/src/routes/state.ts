@@ -10,15 +10,22 @@ router.get("/state", (req, res) => {
     dead: false,
   }));
 
-  res.json({
+  const gameState = {
     players: [
       {
         id: "player1",
         garden,
-        inventory: { mushroom: 3, flower: 2, herb: 1, fruit: 0 },
-      }
+        inventory: {
+          mushroom: 3,
+          flower: 2,
+          herb: 1,
+          fruit: 0,
+        },
+      },
     ],
-  });
+  };
+
+  res.json(gameState);
 });
 
 export default router;
