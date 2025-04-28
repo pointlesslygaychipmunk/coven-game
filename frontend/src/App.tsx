@@ -1,5 +1,5 @@
 import { useEffect, useReducer, useState } from "react";
-import type { GameState, Action } from "@shared/types";
+import type { GameState } from "@shared/types";
 import { reducer, load } from "@/utils";
 import GameView from "@/components/GameView";
 
@@ -9,15 +9,16 @@ export default function App() {
 
   useEffect(() => {
     fetch("/api/state")
-      .then(r => {
-        if (!r.ok) throw new Error("Server error");
-        return r.json();
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch state");
+        return response.json();
       })
-      .then((s: GameState) => {
-        dispatch({ type: "loadState", state: s });
+      .then((gameState: GameState) => {
+        dispatch({ type: "loadState", state: gameState });
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error(error);
         const fallback = load();
         if (fallback) {
           dispatch({ type: "loadState", state: fallback });
