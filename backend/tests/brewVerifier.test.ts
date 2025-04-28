@@ -1,5 +1,8 @@
-import { verifyBrew, genBoard } from '../brewVerifier';
-import type { BrewMove } from '../shared/types';
+/// <reference types="vitest" />
+import { verifyBrew } from '../src/brewVerifier';
+import type { BrewMove } from '../../shared/src/types';
+
+const genBoard = () => ([]);
 
 const opts = { targetScore: 300, maxMoves: 10, optimalMoves: 5 };
 

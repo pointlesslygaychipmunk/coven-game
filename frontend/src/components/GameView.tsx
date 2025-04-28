@@ -1,50 +1,77 @@
-import GardenGrid from "@/components/GardenGrid";
-import InventoryBox from "@/components/InventoryBox";
-import Journal from "@/components/Journal";
-import Market from "@/components/Market";
-import PotionPanel from "@/components/PotionPanel";
-import RumorFeed from "@/components/RumorFeed";
-import TownRequests from "@/components/TownRequests";
-import type { GameState } from "@shared/types";
+// frontend/src/components/GameView.tsx – Main game view combining all components
+import React from 'react';
+import type { GameState, Action } from '@shared/types';
+import StatsBar from '@/components/StatsBar';
+import GardenGrid from '@/components/GardenGrid';
+import InventoryBox from '@/components/InventoryBox';
+import PotionPanel from '@/components/PotionPanel';
+import Market from '@/components/Market';
+import TownRequests from '@/components/TownRequests';
+import RumorFeed from '@/components/RumorFeed';
+import Journal from '@/components/Journal';
 
-interface Props {
+interface GameViewProps {
   state: GameState;
+  dispatch: React.Dispatch<Action>;
 }
 
-export default function GameView({ state }: Props) {
-  const player = state.players[0];
+const GameView: React.FC<GameViewProps> = ({ state, dispatch }) => {
+  const player = state.players[state.currentPlayer];
 
-  if (!player) {
-    return (
-      <div className="h-screen flex justify-center items-center text-stone-200">
-        ❌ No player data found. Cannot enter the Coven.
-      </div>
-    );
-  }
+  // Helper to send an action to the backend and update state
+  const sendAction = async (action: Action) => {
+    const res = await fetch('/api/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-player-id': player.id },
+      body: JSON.stringify(action),
+    });
+    if (res.ok) {
+      const newState: GameState = await res.json();
+      dispatch({ type: 'loadState', state: newState });
+    }
+  };
+
+  // Handlers for different actions
+  const handleAction = (action: Action) => sendAction(action);
+  const handleBuy = (itemId: string) => sendAction({ type: 'buy', itemId, quantity: 1 });
+  const handleSell = (itemId: string) => sendAction({ type: 'sell', itemId, quantity: 1 });
+  const handleFulfill = (requestId: string) => sendAction({ type: 'fulfill', requestId });
+  const handleAdvanceTurn = async () => {
+    const res = await fetch('/api/advance', { method: 'POST', headers: { 'x-player-id': player.id } });
+    if (res.ok) {
+      const newState: GameState = await res.json();
+      dispatch({ type: 'loadState', state: newState });
+    }
+  };
+  const handleBrewComplete = (newState: GameState) => {
+    dispatch({ type: 'loadState', state: newState });
+  };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-black via-stone-900 to-black text-stone-200 font-serif starfield-bg fade-in-spell">
-      
-      {/* 🌿 Cottage */}
-      <div className="flex flex-col w-2/3 p-6 gap-6 border-r border-stone-700/50">
-        <h2 className="text-3xl shimmer-text mb-4">🌿 Cottage</h2>
-        <GardenGrid
-          tiles={player.garden}
-          inventory={player.inventory}
-          onAction={() => {}}
-        />
-        <InventoryBox items={player.inventory} />
-        <PotionPanel player={player} onBrew={() => {}} />
-        <Journal />
-      </div>
+    <div className="flex flex-col min-h-screen bg-black text-stone-200">
+      {/* Status bar */}
+      <StatsBar player={player} status={state.status} onAdvanceTurn={handleAdvanceTurn} />
 
-      {/* 🏛️ Town */}
-      <div className="flex flex-col w-1/3 p-6 gap-6">
-        <h2 className="text-3xl shimmer-text mb-4">🏛️ Town</h2>
-        <Market />
-        <TownRequests cards={[]} onFulfill={() => {}} />
-        <RumorFeed rumors={[]} />
+      {/* Main content columns */}
+      <div className="flex flex-1">
+        {/* Cottage Column */}
+        <div className="flex flex-col w-2/3 p-4 gap-4 border-r border-stone-700/50">
+          <h2 className="text-2xl shimmer-text mb-2">🌿 Cottage</h2>
+          <GardenGrid tiles={player.garden} inventory={player.inventory} onAction={handleAction} />
+          <InventoryBox items={player.inventory} />
+          <PotionPanel player={player} onBrewComplete={handleBrewComplete} />
+          <Journal log={state.journal} quests={state.quests} />
+        </div>
+        {/* Town Column */}
+        <div className="flex flex-col w-1/3 p-4 gap-4">
+          <h2 className="text-2xl shimmer-text mb-2">🏛️ Town</h2>
+          <Market market={state.market} player={player} onBuy={handleBuy} onSell={handleSell} />
+          <TownRequests cards={state.townRequests} player={player} onFulfill={handleFulfill} />
+          <RumorFeed rumors={state.rumors} />
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default GameView;

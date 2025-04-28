@@ -1,26 +1,18 @@
-import type { GameState, AscendancyPath } from "../shared/types";
+import type { Player, GameState, RitualQuestCard } from '../../shared/src/types';
 
-/**
- * Re-compute the player’s ascendancy progress after a turn.
- * Chooses the path with the highest score; keeps blank when nothing earned.
- */
 export default function updateAscendancy(state: GameState): void {
-  const player = state.players[0];
+  state.players.forEach((player: Player) => {
+    const scores = {
+      '': 0,
+      economicMastery: player.gold,
+      ritualDominance: (state.quests ?? []).filter((q: RitualQuestCard) => q.fulfilled && (q.contributions[player.id] ?? 0) > 0).length,
+      secretQuest: (state.quests ?? []).filter((q: RitualQuestCard) => q.reward?.uniqueItem && q.fulfilled && (q.contributions[player.id] ?? 0) > 0).length,
+      rumorWeaver: state.rumors.length,
+    };
 
-  const scores: Record<AscendancyPath, number> = {
-    "":                0,
-    economicMastery:   player.gold,
-    ritualDominance:   (state.quests ?? []).filter(q => q.fulfilled).length,
-    secretQuest:       (state.quests ?? []).filter(q => q.reward?.uniqueItem).length,
-    rumorWeaver:       state.rumors.length,
-  };
-
-  const [bestPath, bestScore] = Object.entries(scores)
-    .sort((a, b) => b[1] - a[1])[0] as [AscendancyPath, number];
-
-  player.ascendancy = {
-    path: bestPath,
-    progress: bestScore,
-    unlocked: bestScore > 0,
-  };
+    const [bestPath, bestScore] = Object.entries(scores).sort((a, b) => b[1] - a[1])[0] as [string, number];
+    player.ascendancy.path = bestPath as any;
+    player.ascendancy.progress = bestScore;
+    player.ascendancy.unlocked = bestScore > 0;
+  });
 }

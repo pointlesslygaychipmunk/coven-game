@@ -1,33 +1,31 @@
-import { v4 as uuidv4 } from "uuid";
-import type { TownRequestCard, PotionIngredient, Season } from "./shared/types";
+// backend/src/generateTownRequests.ts – Ensure up to 3 town requests are active
+import { v4 as uuidv4 } from 'uuid';
+import type { TownRequestCard, PotionIngredient, GameStatus } from '../../shared/src/types';
 
-export function generateTownRequests(): TownRequestCard[] {
-  const ingredients: PotionIngredient[] = ["herb", "flower", "mushroom", "fruit"];
-  const seasons: Season[] = ["spring", "summer", "autumn", "winter"];
+/**
+ * Maintain up to 3 active town requests.
+ * Remove fulfilled ones, then generate new requests tied to the current season.
+ */
+export function generateTownRequests(existing: TownRequestCard[], status: GameStatus): TownRequestCard[] {
+  // Keep only unfulfilled requests
+  const active = existing.filter(r => !r.fulfilled);
 
-  return Array.from({ length: 3 }, (_, i) => {
-    const randomIngredient = ingredients[Math.floor(Math.random() * ingredients.length)];
-    const randomSeason = seasons[Math.floor(Math.random() * seasons.length)];
-
-    const potionNeeds: Record<PotionIngredient, number> = {
-      herb: 0,
-      flower: 0,
-      mushroom: 0,
-      fruit: 0,
-    };
-    potionNeeds[randomIngredient] = 1;
-
-    const card: TownRequestCard = {
+  // Fill up to 3 active request cards
+  while (active.length < 3) {
+    const ingredients: PotionIngredient[] = ['herb', 'flower', 'mushroom', 'fruit'];
+    const choice = ingredients[Math.floor(Math.random() * ingredients.length)];
+    const newCard: TownRequestCard = {
       id: uuidv4(),
-      description: `Deliver 1 ${randomIngredient} potion`,
-      reward: { gold: 10 },
-      boardSlot: (i % 3) + 1 as 1 | 2 | 3,
-      potionNeeds,
+      potionNeeds: { herb: 0, flower: 0, mushroom: 0, fruit: 0, [choice]: 1 },
       craftPoints: 1,
+      boardSlot: ((active.length % 4) + 1) as 1 | 2 | 3 | 4,
       fulfilled: false,
-      season: randomSeason,
+      description: `Deliver 1 ${choice} potion`,
+      reward: { gold: 10, renown: 1, craftPoints: 0 },
+      season: status.season,
     };
+    active.push(newCard);
+  }
 
-    return card;
-  });
+  return active;
 }

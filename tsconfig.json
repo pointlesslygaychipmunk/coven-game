@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "commonjs",
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["ES2020", "DOM"],
     "strict": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
     "resolveJsonModule": true,
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ]
+    "types": ["node", "vitest"]
   },
   "include": [
-    "backend/**/*.ts",
-    "shared/**/*.ts",
-    "frontend/**/*.ts",
-    "types/**/*.d.ts"
+    "backend/src",
+    "frontend/src",
+    "shared/src",
+    "backend/tests"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

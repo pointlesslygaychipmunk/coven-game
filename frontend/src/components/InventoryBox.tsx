@@ -1,33 +1,29 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
-import type { CropType } from "@shared/types";
+// frontend/src/components/InventoryBox.tsx – Display player's inventory contents
+import React from 'react';
+import type { CropType } from '@shared/types';
 
-interface Props {
+interface InventoryBoxProps {
   items: Record<CropType, number>;
 }
 
-export default function InventoryBox({ items }: Props) {
+const InventoryBox: React.FC<InventoryBoxProps> = ({ items }) => {
   const entries = Object.entries(items).filter(([, qty]) => qty > 0);
-
   return (
-    <Card className="bg-gradient-to-br from-stone-900 via-black to-stone-800 text-stone-200 ethereal-border fade-in-spell">
-      <CardHeader>
-        <CardTitle className="shimmer-text">Inventory</CardTitle>
-      </CardHeader>
-
-      <CardContent className="flex flex-wrap gap-2">
-        {entries.length ? (
-          entries.map(([crop, qty]) => (
-            <span
-              key={crop}
-              className="rounded-full bg-stone-700/70 px-3 py-1 text-xs font-semibold tracking-wide"
-            >
+    <div className="bg-stone-900/80 text-stone-200 rounded-xl p-3">
+      <h3 className="text-lg shimmer-text mb-2">Inventory</h3>
+      {entries.length ? (
+        <div className="flex flex-wrap gap-2">
+          {entries.map(([crop, qty]) => (
+            <span key={crop} className="rounded-full bg-stone-700/70 px-3 py-1 text-xs font-semibold">
               {crop} × {qty}
             </span>
-          ))
-        ) : (
-          <p className="text-xs italic text-stone-400">Empty satchel…</p>
-        )}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs italic text-stone-400">Empty satchel…</p>
+      )}
+    </div>
   );
-}
+};
+
+export default InventoryBox;
