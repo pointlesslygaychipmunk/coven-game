@@ -6,7 +6,7 @@ import path from 'path';
 import { setupWebSocket } from './websocket';
 
 // Configuration
-const HTTP_PORT = Number(process.env.HTTP_PORT) || 3000;
+const HTTP_PORT = Number(process.env.HTTP_PORT) || 8080;
 const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
 const CERTS_DIR = process.env.CERTS_DIR || path.join(__dirname, 'certs');
 
