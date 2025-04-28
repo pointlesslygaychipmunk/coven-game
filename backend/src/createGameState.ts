@@ -1,85 +1,47 @@
-// backend/src/createGameState.ts
-// ──────────────────────────────────────────────────────────────────────────────
+import type { GameState, GardenSlot } from "../../shared/src/types";
 
-import { v4 as uuidv4 } from "uuid";
-import type {
-  GameState,
-  Player,
-  GardenSlot,
-  MarketState,
-  TownRequestCard,
-  RitualQuestCard,
-  Rumor,
-  GameStatus,
-  CropType,
-  Potion,
-  FamiliarPower,
-  AscendancyStatus,
-  MarketMemoryEntry,
-} from "../../shared/src/types";
-
-// 1) Build an empty garden of 8 slots
-function createEmptyGarden(): GardenSlot[] {
-  return Array.from({ length: 8 }, () => ({
-    type:   "mushroom",
-    kind:   "crop",
-    growth: 0,
+/* helper: make a fresh 8-slot garden row */
+function newGarden(): GardenSlot[] {
+  return Array.from({ length: 8 }, (): GardenSlot => ({
+    crop   : "mushroom",    // initial tutorial seed
+    kind   : "crop",
+    growth : 0,
+    dead   : false,
+    watered: false,
   }));
 }
 
-// 2) Bootstrap the first Market
-function createInitialMarket(): MarketState {
+export default function createGameState(): GameState {
   return {
-    items: {
-      mushroom: { type: "crop",       price: 5,  stock: 20, basePrice:5, volatility:0.1 },
-      flower:   { type: "crop",       price: 8,  stock: 15, basePrice:8, volatility:0.1 },
-      herb:     { type: "ingredient", price: 12, stock: 10, basePrice:12,volatility:0.15 },
-      // add more as needed…
-    },
-  };
-}
+    players: [{
+      id:  "player1",
+      name:"Demo Witch",
 
-export function createGameState(): GameState {
-  // --- player seed ---
-  const player: Player = {
-    id:           uuidv4(),
-    name:         "Player 1",
-    inventory:    { mushroom:0, flower:0, herb:0, fruit:0 },
-    potions:      [] as Potion[],
-    gold:         0,
-    mana:         0,
-    renown:       0,
-    craftPoints:  0,
-    garden:       createEmptyGarden(),
-    upgrades:     { well:0, cart:0, cellar:0, cauldron:0 },
-    wateringUsed: 0,
+      inventory: { mushroom: 3, flower: 0, herb: 0, fruit: 0 },
+      potions  : [],
+      garden   : newGarden(),
 
-    // optional fields initialized empty
-    journal:        [],
-    rumorsHeard:    [],
-    memory:         [] as MarketMemoryEntry[],
-    familiarPowers: [] as FamiliarPower[],
-    ascendancy:     { path:"", progress:0, unlocked:false },
-    quests:         [] as RitualQuestCard[],
-  };
+      gold: 100,
+      mana: 10,
+      renown: 0,
+      craftPoints: 0,
+      upgrades:    { well:0, cart:0, cellar:0, cauldron:0 },
+      wateringUsed:0,
 
-  // --- global status ---
-  const status: GameStatus = {
-    year:      1,
-    moonPhase: 0,
-    season:    "spring",
-    weather:   "sunny",
-  };
+      journal: [],
+      rumorsHeard: [],
+      memory: [],
+      familiarPowers: [],
+      ascendancy: { path:"", progress:0, unlocked:false },
+      quests: [],
+    }],
 
-  // --- assemble full state ---
-  return {
-    players:      [player],
-    market:       createInitialMarket(),
-    townRequests: [] as TownRequestCard[],
-    quests:       [] as RitualQuestCard[],
-    rumors:       [] as Rumor[],
-    journal:      [],
-    status,
-    actionsUsed:  0,
+    market: { items: {} },
+    townRequests: [],
+    quests: [],
+    rumors: [],
+    journal: [],
+    status: { year:1, moonPhase:0, season:"spring", weather:"sunny" },
+    actionsUsed: 0,
   };
 }

@@ -1,52 +1,25 @@
-// backend/src/modules/questSystem.ts
+import type { GameState } from "../../../shared/src/types";
 
-import { RitualQuestCard, GameState } from '../../../shared/src/types';
+export function resolveQuests(state: GameState) {
+  const player = state.players[0];
 
-/**
- * Resolve ritual quests:
- *  1. When total contributions ≥ goal, mark fulfilled.
- *  2. Distribute numeric rewards (gold, renown, craftPoints) in proportion to each player's contribution.
- *  3. Grant any uniqueItem to every contributor.
- *  4. Log a global journal entry.
- */
-export function resolveQuests(
-  quests: RitualQuestCard[],
-  state: GameState
-): RitualQuestCard[] {
-  return quests.map(q => {
-    if (!q.fulfilled) {
-      const total = Object.values(q.contributions).reduce((sum, v) => sum + v, 0);
-      if (total >= q.goal) {
-        q.fulfilled = true;
+  (state.quests ?? []).forEach(q => {
+    if (!q.fulfilled && q.contributions[player.id] >= q.goal) {
+      q.fulfilled = true;
+      const share = q.contributions[player.id] / q.goal;
 
-        // Distribute rewards
-        Object.entries(q.contributions).forEach(([pid, contrib]) => {
-          const player = state.players.find(p => p.id === pid);
-          if (!player) return;
-          const share = contrib / total;
+      if (q.reward?.gold)        player.gold        += Math.floor(q.reward.gold        * share);
+      if (q.reward?.renown)      player.renown      += Math.floor(q.reward.renown      * share);
+      if (q.reward?.craftPoints) player.craftPoints += Math.floor(q.reward.craftPoints * share);
 
-          if (q.reward.gold) {
-            player.gold += Math.floor(q.reward.gold * share);
-          }
-          if (q.reward.renown) {
-            player.renown += Math.floor(q.reward.renown * share);
-          }
-          if (q.reward.craftPoints) {
-            player.craftPoints += Math.floor(q.reward.craftPoints * share);
-          }
-
-          if (q.reward.uniqueItem) {
-            player.journal = player.journal || [];
-            player.journal.push(
-              `You received the unique item “${q.reward.uniqueItem}” for completing “${q.title}.”`
-            );
-          }
+      if (q.reward?.uniqueItem) {
+        state.rumors.push({
+          id: crypto.randomUUID(),
+          message: `You received the unique item “${q.reward.uniqueItem}” for completing “${q.title}.”`,
+          source: "quest",
+          timestamp: Date.now(),
         });
-
-        // Global log
-        state.journal.push(`Ritual quest "${q.title}" has been completed!`);
       }
     }
-    return q;
   });
 }
