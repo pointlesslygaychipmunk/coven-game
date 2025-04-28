@@ -1,7 +1,4 @@
-/**
- * Pure deterministic Match-3 verification utils
- * – Used both by /brew route and unit tests
- */
+/// <reference lib="es2020" />
 import seedrandom from 'seedrandom';
 import type { Rune, BrewMove, Coord } from '../../shared/src/types';
 

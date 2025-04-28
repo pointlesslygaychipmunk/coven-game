@@ -1,49 +1,50 @@
-import clsx from "@ui/utils/clsx";
-import type {
-  Tile,                 /* alias for GardenSlot in @shared/types        */
-  CropType,
-  GameAction as Action,
-} from "@shared/types";
+import clsx from '@ui/utils/clsx';
+import type { Tile, CropType, Action } from '@shared/types';
 
-interface Props {
-  tiles:      Tile[];                         // 1-D array from server
-  inventory:  Record<CropType, number>;
-  onAction:   (a: Action) => void;
+export interface Props {
+  tiles    : Tile[][];
+  inventory: Record<CropType, number>;
+  onAction : (a: Action) => void;
 }
 
-export function GardenGrid({ tiles, inventory, onAction }: Props) {
+export default function GardenGrid({ tiles, inventory, onAction }: Props) {
   return (
-    <div
-      /* 9×4 grid – adjust as you like */
-      className="grid grid-cols-9 gap-1 select-none"
-      style={{ maxWidth: "min-content" }}
-    >
-      {tiles.map((tile, i) => {
-        const crop = tile.crop as CropType | null;         // TS satisfied
-        const growth = tile.growth;
+    <div className="grid gap-1"
+         style={{ gridTemplateColumns:`repeat(${tiles[0].length},3rem)` }}>
+      {tiles.flatMap((row,y)=>
+        row.map((tile,x)=>{
+          const crop = tile.crop as CropType | null;   // satisfy TS
+          const key  = `${x}-${y}`;
 
-        return (
-          <button
-            key={i}
-            onClick={() =>
-              crop
-                ? onAction({ type: "harvest", index: i })
-                : onAction({ type: "plant", crop: "mushroom", index: i })
-            }
-            className={clsx(
-              "w-12 h-12 rounded-sm border border-stone-700/60 text-xs",
-              crop && "bg-green-700/70 animate-in fade-in zoom-in"
-            )}
-            title={
-              crop
-                ? `${crop} – ${Math.round(growth * 100)} %`
-                : "Empty soil"
-            }
-          >
-            {crop ? Math.round(growth * 100) + "%" : ""}
-          </button>
-        );
-      })}
+          return (
+            <button key={key}
+                    className={clsx(
+                      'w-12 h-12 rounded border border-stone-700/60',
+                      crop && 'animate-in fade-in zoom-in ' + cropColour(crop),
+                      tile.watered && 'ring-2 ring-sky-500/60',
+                      tile.dead && 'grayscale opacity-50'
+                    )}
+                    onClick={()=> harvestable(tile) &&
+                      onAction({ type:'harvest', index: y*row.length+x })}>
+              {cropEmoji(crop)}
+            </button>
+          );
+      })) }
     </div>
   );
 }
+
+/* ───────── helpers ───────── */
+
+const cropColour = (c:CropType)=>({
+  mushroom:'bg-rose-700/60',
+  flower  :'bg-pink-600/50',
+  herb    :'bg-green-700/70',
+  fruit   :'bg-orange-600/60',
+}[c!]);
+
+const cropEmoji = (c:CropType|null)=>({
+  mushroom:'🍄', flower:'🌼', herb:'🌿', fruit:'🍊',
+}[c as CropType] ?? ' ');
+
+const harvestable = (t:Tile)=> !!t.crop && t.growth>=1 && !t.dead;

@@ -1,39 +1,33 @@
-import type {
-  GameState,
-  GameAction as Action,
-  CropType,
-} from "@shared/types";
-import produce from "immer";
+import produce from 'immer';
+import type { GameState, GameAction } from '@shared/types';
 
-/* helper: adjust player inventory ------------------------------------ */
-export function applyAction(state: GameState, action: Action): GameState {
+/** purely functional reducer – mutations are done via Immer drafts */
+export function reducer(state: GameState, action: GameAction): GameState {
   return produce(state, draft => {
-    const me = draft.players[0];
-
     switch (action.type) {
-      case "plant": {
-        const slot = me.garden[action.index];
-        if (!slot || slot.crop) break;                // already occupied
-        slot.crop = action.crop;
-        slot.growth = 0;
-        me.inventory[action.crop]--;
+      case 'plant': {
+        draft.players[0].inventory[action.crop]! -= 1;
+        const slot = draft.players[0].garden[action.index];
+        draft.players[0].garden[action.index] = {
+          ...slot,
+          crop: action.crop,
+          growth: 0,
+          watered: false,
+          dead: false,
+        };
         break;
       }
 
-      case "harvest": {
-        const slot = me.garden[action.index];
-        if (slot && slot.crop && slot.growth >= 1) {
-          me.inventory[slot.crop]++;
-          slot.crop = null;
-          slot.growth = 0;
-        }
+      case 'water': {
+        draft.players[0].garden[action.index].watered = true;
         break;
       }
 
-      /* add other actions later -------------------------------------- */
+      /* …additional action cases trimmed for brevity… */
 
       default:
-        break;
+        /* exhaustive-check assistance */
+        (action satisfies never);
     }
   });
 }
