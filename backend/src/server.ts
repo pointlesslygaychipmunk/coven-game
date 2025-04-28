@@ -1,68 +1,64 @@
-/* ──────────────────────────────────────────────────────────────
-   backend/src/server.ts  •  unified HTTP + HTTPS express server
-   🌑🌒🌓🌔🌕  (moon-powered, as requested)
-   ────────────────────────────────────────────────────────────── */
+import express from 'express';
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import { setupWebSocket } from './websocket';
 
-   import fs            from "node:fs";
-   import path          from "node:path";
-   import http          from "node:http";
-   import https         from "node:https";
-   import express, {
-     type Request,
-     type Response,
-   }                    from "express";
-   import compression   from "compression";
-   import cors          from "cors";
-   import morgan        from "morgan";
-   
-   import { gameState } from "./db";
-   import "dotenv/config";
-   
-   /* ── constants ─────────────────────────────────────────────── */
-   const FRONTEND_DIR = path.resolve(__dirname, "../../frontend/dist");
-   const HTTP_PORT    = Number(process.env.PORT)      || 8080;
-   const HTTPS_PORT   = Number(process.env.HTTPSPORT) || 8443;
-   
-   const CERT_DIR     = process.env.CERT_DIR
-                      ?? path.resolve(__dirname, "../cert");
-   const KEY_PATH     = path.join(CERT_DIR, "privkey.pem");
-   const CERT_PATH    = path.join(CERT_DIR, "fullchain.pem");
-   
-   /* ── express app ───────────────────────────────────────────── */
-   const app = express();
-   
-   app.use(cors());
-   app.use(compression());
-   app.use(express.json());
-   app.use(morgan("tiny"));
-   
-   /* API – current game state */
-   app.get("/api/state", (_req: Request, res: Response) => {
-     res.json(gameState);
-   });
-   
-   /* static SPA bundle */
-   app.use(express.static(FRONTEND_DIR));
-   app.get("*", (_req, res) => {
-     res.sendFile(path.join(FRONTEND_DIR, "index.html"));
-   });
-   
-   /* ── HTTP server (always) ──────────────────────────────────── */
-   http.createServer(app).listen(HTTP_PORT, () => {
-     console.log(`🌙  HTTP server listening on http://localhost:${HTTP_PORT}`);
-   });
-   
-   /* ── HTTPS server (only if certs exist) ─────────────────────── */
-   if (fs.existsSync(KEY_PATH) && fs.existsSync(CERT_PATH)) {
-     const creds = {
-       key : fs.readFileSync(KEY_PATH,  "utf8"),
-       cert: fs.readFileSync(CERT_PATH, "utf8"),
-     };
-   
-     https.createServer(creds, app).listen(HTTPS_PORT, () => {
-       console.log(`☾  HTTPS server listening on https://localhost:${HTTPS_PORT}`);
-     });
-   } else {
-     console.warn("🌚  HTTPS disabled – certificate files not found");
-   }
-   
+// Configuration
+const HTTP_PORT = Number(process.env.HTTP_PORT) || 3000;
+const HTTPS_PORT = Number(process.env.HTTPS_PORT) || 443;
+const CERTS_DIR = process.env.CERTS_DIR || path.join(__dirname, 'certs');
+
+const app = express();
+
+// Load SSL certificates if available
+let credentials: { key: Buffer; cert: Buffer } | null = null;
+try {
+  credentials = {
+    key: fs.readFileSync(path.join(CERTS_DIR, 'privkey.pem')),
+    cert: fs.readFileSync(path.join(CERTS_DIR, 'fullchain.pem')),
+  };
+  console.log('✅ SSL certificates loaded successfully.');
+} catch (err) {
+  console.warn('⚠️ SSL certificates not found. Proceeding without HTTPS.');
+}
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
+
+// Redirect HTTP to HTTPS if HTTPS is running
+if (credentials) {
+  app.use((req, res, next) => {
+    if (req.protocol === 'http') {
+      return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+    next();
+  });
+}
+
+// Create servers
+const httpServer = http.createServer(app);
+let httpsServer: https.Server | null = null;
+
+if (credentials) {
+  httpsServer = https.createServer(credentials, app);
+}
+
+// Attach WebSocket to the right server
+if (httpsServer) {
+  setupWebSocket(httpsServer);
+} else {
+  setupWebSocket(httpServer);
+}
+
+// Start servers
+httpServer.listen(HTTP_PORT, () => {
+  console.log(`🌙 HTTP server listening at http://localhost:${HTTP_PORT}`);
+});
+
+if (httpsServer) {
+  httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`☾ HTTPS server listening at https://localhost:${HTTPS_PORT}`);
+});
+}
