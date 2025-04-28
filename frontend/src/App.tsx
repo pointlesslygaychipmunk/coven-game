@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useState } from "react";
 import type { GameState } from "@shared/types";
-import { reducer, load } from "@/utils";
+import { reducer } from "@/utils/reducer";
+import { load } from "@/utils";
 import GameView from "@/components/GameView";
 
 export default function App() {
@@ -12,13 +13,11 @@ export default function App() {
     fetch("/api/state")
       .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch state");
-        console.log("[App.tsx] Response OK");
         return response.json();
       })
       .then((gameState: GameState) => {
         console.log("[App.tsx] Received gameState:", gameState);
         dispatch({ type: "loadState", state: gameState });
-        console.log("[App.tsx] Dispatched loadState");
         setLoading(false);
       })
       .catch((error) => {

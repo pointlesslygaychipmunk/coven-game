@@ -3,23 +3,23 @@ import type { GameState, Action } from "@shared/types";
 export function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case "loadState":
-      return action.state;  // FULL REPLACE with new GameState
+      return action.state;
     case "noop":
       return state;
     case "plant":
-      return state; // TODO: Implement real plant action
+      return state;
     case "harvest":
-      return state; // TODO: Implement real harvest action
+      return state;
     case "water":
-      return state; // TODO: Implement real watering
+      return state;
     case "buy":
-      return state; // TODO: Implement real buy logic
+      return state;
     case "sell":
-      return state; // TODO: Implement real sell logic
+      return state;
     case "brew":
-      return state; // TODO: Implement real brew logic
+      return state;
     case "fulfill":
-      return state; // TODO: Implement real fulfill logic
+      return state;
     default:
       return state;
   }

@@ -21,7 +21,7 @@ export default function GameView({ state }: Props) {
         <GardenGrid
           tiles={state.players[0].garden}
           inventory={state.players[0].inventory}
-          onAction={() => {}} // TODO: Hook up real dispatch later
+          onAction={() => {}} // TODO: real action dispatch
         />
         <InventoryBox items={state.players[0].inventory} />
         <PotionPanel player={state.players[0]} onBrew={() => {}} />
