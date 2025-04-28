@@ -1,20 +1,21 @@
-import { MarketItem, MarketRumor } from "../../shared/src/types";
+import { MarketRumor, MarketItem } from "../../shared/src/types";
+
+const templates = [
+  (id:string) => `Whispers say ${id} will double in price by dawn…`,
+  (id:string) => `Local druid spotted buying huge crates of ${id}.`,
+  (id:string) => `Some merchants refuse to stock ${id} any longer.`,
+];
+
+function pickRandomRumorText(itemId: string): string {
+  const fn = templates[Math.floor(Math.random() * templates.length)];
+  return fn(itemId);
+}
 
 export function generateRumor(item: MarketItem): MarketRumor {
-  const label = "label" in item && item.label ? item.label : "Unknown Item";
-  const direction = Math.random() > 0.5 ? "rising" : "falling";
-  const message = `${label} prices may be ${direction} soon...`;
-  const now = Date.now();
-  const newRumors: MarketRumor[] = Array.from({ length: 3 }, () => ({
-  id: crypto.randomUUID(),
-  message: pickRandomRumorText(itemId),
-  source: "market",
-  timestamp: now,
-}));
-item.rumors = newRumors;
-
   return {
-    id: crypto.randomUUID(),
-    message
+    id:        crypto.randomUUID(),
+    message:   pickRandomRumorText(item.type),
+    source:    "market",
+    timestamp: Date.now(),
   };
 }

@@ -1,25 +1,16 @@
-import type { GameState } from "../../../shared/src/types";
+import type { RitualQuestCard, GameState } from "../../../shared/src/types";
 
-export function resolveQuests(state: GameState) {
+export function resolveQuests(quests: RitualQuestCard[], state: GameState): RitualQuestCard[] {
   const player = state.players[0];
+  const shareQuest = (value:number)=> Math.floor(value * (player.id in q.contributions ? q.contributions[player.id]/q.goal : 0));
 
-  (state.quests ?? []).forEach(q => {
+  return quests.map(q => {
     if (!q.fulfilled && q.contributions[player.id] >= q.goal) {
       q.fulfilled = true;
-      const share = q.contributions[player.id] / q.goal;
-
-      if (q.reward?.gold)        player.gold        += Math.floor(q.reward.gold        * share);
-      if (q.reward?.renown)      player.renown      += Math.floor(q.reward.renown      * share);
-      if (q.reward?.craftPoints) player.craftPoints += Math.floor(q.reward.craftPoints * share);
-
-      if (q.reward?.uniqueItem) {
-        state.rumors.push({
-          id: crypto.randomUUID(),
-          message: `You received the unique item “${q.reward.uniqueItem}” for completing “${q.title}.”`,
-          source: "quest",
-          timestamp: Date.now(),
-        });
-      }
+      if (q.reward?.gold)        player.gold        += shareQuest(q.reward.gold);
+      if (q.reward?.renown)      player.renown      += shareQuest(q.reward.renown);
+      if (q.reward?.craftPoints) player.craftPoints += shareQuest(q.reward.craftPoints);
     }
+    return q;
   });
 }

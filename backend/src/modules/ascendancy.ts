@@ -1,18 +1,18 @@
 import type { GameState, AscendancyPath } from "../../../shared/src/types";
 
-export function computeAscendancy(state: GameState) {
+export function updateAscendancy(state: GameState): void {
   const player = state.players[0];
 
-  const paths: Partial<Record<AscendancyPath, number>> = {
+  const scores: Record<AscendancyPath, number> = {
     economicMastery: player.gold,
     ritualDominance: (state.quests ?? []).filter(q => q.fulfilled).length,
     secretQuest:     (state.quests ?? []).filter(q => q.reward?.uniqueItem).length,
     rumorWeaver:     state.rumors.length,
+    "": 0, // blank key for fresh save-files
   };
 
-  player.ascendancy = {
-    path: Object.keys(paths)[0] as AscendancyPath, // pick highest later
-    progress: 0,
-    unlocked: false,
-  };
+  const best = Object.entries(scores).sort((a,b)=>b[1]-a[1])[0]!;
+  player.ascendancy = { path: best[0], progress: best[1], unlocked: best[1] > 0 };
 }
+
+export default updateAscendancy;

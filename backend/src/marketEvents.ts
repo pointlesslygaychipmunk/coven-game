@@ -1,128 +1,28 @@
-import { MarketState, Season, MoonPhase } from "../../shared/src/types";
+/**
+ * Random market price drift + rumor generation for a new turn.
+ * Only a toy implementation to keep the demo running.
+ */
+import { MarketRumor, GameState, MarketItem } from "../../shared/src/types";
+import { generateRumor }                     from "./generateRumor";
 
-export function applyMarketEvents(
-  market: MarketState,
-  season: Season,
-  moonPhase: MoonPhase
-): void {
-  for (const key in market.items) {
-    const item = market.items[key];
+/* ─ helper – apply ±10 % drift ───────────────────────────────── */
+function driftPrice(item: MarketItem): void {
+  const factor = 1 + (Math.random() * 0.2 - 0.1);          // –10 % … +10 %
+  item.price   = Math.max(1, Math.round(item.price * factor));
+}
 
-    if (item.type !== "ingredient" && item.type !== "crop") continue;
+/* ─ main entry ──────────────────────────────────────────────── */
+export function applyMarketEvents(state: GameState): void {
+  const now = Date.now();
 
-    const lowerKey = key.toLowerCase();
-    const newRumors: { id: string; message: string }[] = [];
+  Object.entries(state.market.items).forEach(([itemId, item]) => {
+    driftPrice(item);
 
-    // --- Seasonal Price Effects ---
-    if (season === "spring") {
-      if (lowerKey.includes("flower")) {
-        item.price = Math.max(1, Math.round(item.price * 0.75));
-        newRumors.push({
-          id: `${key}-spring-flower`,
-          message: "Spring festival boosts flower demand! 🌸"
-        });
-      }
-      if (lowerKey.includes("herb")) {
-        item.price = Math.max(1, Math.round(item.price * 0.85));
-        newRumors.push({
-          id: `${key}-spring-herb`,
-          message: "Fresh herbs are popular for spring feasts. 🌿"
-        });
-      }
-    }
+    /* replace with three fresh rumors */
+    const rumors: MarketRumor[] = Array.from({ length: 3 }, () =>
+      generateRumor(item)                                      // id / message
+    ).map(r => ({ ...r, timestamp: now, source: "market" }));  // add meta
 
-    if (season === "summer") {
-      if (lowerKey.includes("fruit")) {
-        item.price = Math.max(1, Math.round(item.price * 0.7));
-        newRumors.push({
-          id: `${key}-summer-fruit`,
-          message: "Juicy fruits flood summer markets! 🍉"
-        });
-      }
-      if (lowerKey.includes("herb")) {
-        item.price = Math.max(1, Math.round(item.price * 1.15));
-        newRumors.push({
-          id: `${key}-summer-herb`,
-          message: "Dried herbs gain popularity under the hot sun. ☀️"
-        });
-      }
-    }
-
-    if (season === "autumn") {
-      if (lowerKey.includes("mushroom")) {
-        item.price = Math.round(item.price * 1.25);
-        newRumors.push({
-          id: `${key}-autumn-mushroom`,
-          message: "Rare mushrooms are highly prized in autumn! 🍄"
-        });
-      }
-      if (lowerKey.includes("fruit")) {
-        item.price = Math.round(item.price * 1.1);
-        newRumors.push({
-          id: `${key}-autumn-fruit`,
-          message: "Harvest fruits stored for winter feasts. 🍎"
-        });
-      }
-    }
-
-    if (season === "winter") {
-      if (lowerKey.includes("herb")) {
-        item.price = Math.round(item.price * 1.3);
-        newRumors.push({
-          id: `${key}-winter-herb`,
-          message: "Medicinal herbs are scarce during winter. ❄️"
-        });
-      }
-      if (lowerKey.includes("flower")) {
-        item.price = Math.max(1, Math.round(item.price * 0.9));
-        newRumors.push({
-          id: `${key}-winter-flower`,
-          message: "Rare winter blooms draw admiration. 🌼"
-        });
-      }
-    }
-
-    // --- Moon Phase-Influenced Random Events ---
-    const isFullMoon = moonPhase === 4;
-    const isNewMoon = moonPhase === 0;
-
-    if (lowerKey.includes("fruit")) {
-      const chance = isFullMoon ? 0.15 : 0.03;
-      if (Math.random() < chance) {
-        item.price = Math.round(item.price * 1.5);
-        newRumors.push({
-          id: `${key}-fullmoon-fruit`,
-          message: "Rare magical fruits appeared under the full moon! 🌕🍎"
-        });
-      }
-    }
-
-    if (lowerKey.includes("mushroom")) {
-      const chance = isNewMoon ? 0.2 : 0.1;
-      if (Math.random() < chance) {
-        item.stock = Math.max(0, Math.floor(item.stock / 2));
-        newRumors.push({
-          id: `${key}-newmoon-blight`,
-          message: "Fungal blight devastates mushroom stocks. 🌑🍄"
-        });
-      }
-    }
-
-    if (lowerKey.includes("herb")) {
-      const chance = (moonPhase >= 1 && moonPhase <= 3) ? 0.1 : 0.05;
-      if (Math.random() < chance) {
-        item.stock += 5;
-        item.price = Math.max(1, Math.round(item.price * 0.7));
-        newRumors.push({
-          id: `${key}-waxingmoon-herbs`,
-          message: "Bumper herb harvest under a waxing moon! 🌒🌱"
-        });
-      }
-    }
-
-    // Apply accumulated rumors
-    if (newRumors.length > 0) {
-      item.rumors = newRumors;
-    }
-  }
+    item.rumors = rumors;
+  });
 }

@@ -1,25 +1,26 @@
 import type { GameState, GardenSlot } from "../../shared/src/types";
 
-/* helper: make a fresh 8-slot garden row */
-function newGarden(): GardenSlot[] {
+/** helper to make a fresh 8-slot starter garden */
+export function makeStarterGarden(): GardenSlot[] {
   return Array.from({ length: 8 }, (): GardenSlot => ({
-    crop   : "mushroom",    // initial tutorial seed
-    kind   : "crop",
-    growth : 0,
-    dead   : false,
-    watered: false,
+    crop    : "mushroom",
+    kind    : "crop",
+    growth  : 0,
+    dead    : false,
+    watered : false,
   }));
 }
 
-export default function createGameState(): GameState {
+/** factory used by server boot + /play demo endpoint */
+export function createGameState(): GameState {
   return {
     players: [{
-      id:  "player1",
-      name:"Demo Witch",
+      id: "player1",
+      name: "Demo Witch",
 
       inventory: { mushroom: 3, flower: 0, herb: 0, fruit: 0 },
       potions  : [],
-      garden   : newGarden(),
+      garden   : makeStarterGarden(),
 
       gold: 100,
       mana: 10,
@@ -32,7 +33,7 @@ export default function createGameState(): GameState {
       rumorsHeard: [],
       memory: [],
       familiarPowers: [],
-      ascendancy: { path:"", progress:0, unlocked:false },
+      ascendancy: { path: "", progress: 0, unlocked: false },
       quests: [],
     }],
 
@@ -41,7 +42,9 @@ export default function createGameState(): GameState {
     quests: [],
     rumors: [],
     journal: [],
-    status: { year:1, moonPhase:0, season:"spring", weather:"sunny" },
+    status: { year: 1, moonPhase: 0, season: "spring", weather: "sunny" },
     actionsUsed: 0,
   };
 }
+
+export default createGameState;         // default + named export
