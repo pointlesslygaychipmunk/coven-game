@@ -3,9 +3,12 @@ import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import { createInitialGameState, applyGameAction } from './game';
 import type { GameState, GameAction } from '@shared/types';
+import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
-const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -36,6 +39,36 @@ app.post('/start', (req, res) => {
   res.json(gameState);
 });
 
-app.listen(PORT, () => {
-  console.log(`✨ Coven backend is running on port ${PORT}`);
+// Ports
+const HTTP_PORT = 80;
+const ALT_HTTP_PORT = 8080;
+const HTTPS_PORT = 443;
+
+// Certificate paths
+const certPath = path.resolve(__dirname, '../certs');
+const keyFile = path.join(certPath, 'privkey.pem');
+const certFile = path.join(certPath, 'fullchain.pem');
+
+// Try to create HTTPS server
+try {
+  const key = fs.readFileSync(keyFile);
+  const cert = fs.readFileSync(certFile);
+
+  const httpsServer = https.createServer({ key, cert }, app);
+  httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`🌙 Coven backend (HTTPS) running at https://localhost:${HTTPS_PORT}`);
+  });
+} catch (err) {
+  console.warn('⚠️  HTTPS certificates not found. Skipping HTTPS setup.');
+}
+
+// Always create HTTP servers
+const httpServer = http.createServer(app);
+httpServer.listen(HTTP_PORT, () => {
+  console.log(`✨ Coven backend (HTTP) running at http://localhost:${HTTP_PORT}`);
+});
+
+const altHttpServer = http.createServer(app);
+altHttpServer.listen(ALT_HTTP_PORT, () => {
+  console.log(`✨ Coven backend (Alt HTTP) running at http://localhost:${ALT_HTTP_PORT}`);
 });
