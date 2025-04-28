@@ -1,7 +1,12 @@
 {
-  "name": "coven-shared",
+  "name": "shared",
   "version": "1.0.0",
   "main": "dist/types.js",
   "types": "dist/types.d.ts",
-  "license": "MIT"
+  "scripts": {
+    "build": "tsc --build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
 }

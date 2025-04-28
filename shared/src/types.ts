@@ -1,12 +1,8 @@
-// Shared types and interfaces for Coven game
-
-// Basic type aliases
 export type PlayerID = string;
 export type ItemName = string;
 export type TownName = string;
 export type PotionName = string;
 
-// Enumerations for certain categories
 export type Season = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
 export type Weather = 'clear' | 'rainy' | 'stormy' | 'misty' | 'snowy';
 
@@ -14,16 +10,16 @@ export interface InventoryItem {
   name: ItemName;
   category: 'seed' | 'herb' | 'potion';
   quantity: number;
-  tier?: number; // for potions, indicates potency tier (1 = base)
+  tier?: number;
 }
 
 export interface GardenSlot {
   id: number;
   plant: {
-    name: ItemName; // herb name that is growing
-    growth: number; // current growth progress
-    growthRequired: number; // required to mature
-    watered: boolean; // if watered this turn
+    name: ItemName;
+    growth: number;
+    growthRequired: number;
+    watered: boolean;
   } | null;
 }
 
@@ -32,10 +28,9 @@ export interface MarketItem {
   category: 'seed' | 'herb' | 'potion';
   basePrice: number;
   price: number;
-  // Market memory: track demand or supply for dynamic pricing
-  demandMemory: number; // positive if recently bought, negative if sold
-  available?: number; // optional stock count, if limited (undefined => unlimited)
-  blackMarket?: boolean; // if this item only appears in black market events
+  demandMemory: number;
+  available?: number;
+  blackMarket?: boolean;
 }
 
 export interface TownRequest {
@@ -51,16 +46,19 @@ export interface TownRequest {
 export interface Rumor {
   id: string;
   content: string;
-  spread: number; // how far it has spread (abstract value)
-  impact?: string; // description of any effect the rumor has caused
+  spread: number;
+  impact?: string;
 }
 
 export interface RitualQuest {
   name: string;
-  steps: Array<{ description: string; requirement: { item: ItemName; quantity: number; }; done: boolean; }>;
+  steps: Array<{
+    description: string;
+    requirement: { item: ItemName; quantity: number };
+    done: boolean;
+  }>;
   currentStep: number;
   active: boolean;
-  // We track who completed it if done
   completedBy?: PlayerID;
 }
 
@@ -71,13 +69,13 @@ export interface Player {
   garden: GardenSlot[];
   inventory: InventoryItem[];
   influence: Record<TownName, number>;
-  ascendancy: boolean; // whether this player achieved Hexcraft Ascendancy
-  actionsUsed: number; // how many actions used in current turn
+  ascendancy: boolean;
+  actionsUsed: number;
 }
 
 export interface GameStatus {
-  turn: number;        // turn count (incremented each moon phase)
-  moonPhase: number;   // current moon phase index (0-7, e.g., 0 = New Moon, 4 = Full Moon)
+  turn: number;
+  moonPhase: number;
   season: Season;
   weather: Weather;
   currentPlayer: PlayerID;
@@ -91,11 +89,11 @@ export interface GameState {
   townRequests: TownRequest[];
   rumors: Rumor[];
   ritual: RitualQuest;
-  log: string[]; // event log for journal
+  log: string[];
   status: GameStatus;
 }
 
-// Game actions definitions
+// Actions
 export interface PlantAction {
   type: 'plant';
   playerId: PlayerID;
@@ -146,7 +144,7 @@ export interface EndTurnAction {
   playerId: PlayerID;
 }
 
-export type GameAction = 
+export type GameAction =
   | PlantAction
   | WaterAction
   | HarvestAction

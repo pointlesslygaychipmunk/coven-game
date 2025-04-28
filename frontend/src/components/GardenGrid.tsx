@@ -1,50 +1,53 @@
 import React from 'react';
-import type { GardenSlot, InventoryItem } from '../../../shared/src/types';
+import type { GardenSlot } from '@shared/types';
 
-interface GardenGridProps {
+interface Props {
   garden: GardenSlot[];
-  selectedItem: InventoryItem | null;
-  onSlotClick: (slotId: number) => void;
+  onPlant: (slotId: number, seedName: string) => void;
+  onWater: (slotId: number) => void;
+  onHarvest: (slotId: number) => void;
 }
 
-const GardenGrid: React.FC<GardenGridProps> = ({ garden, selectedItem, onSlotClick }) => {
-  // Using a fixed 4-column grid layout for the garden
+const GardenGrid: React.FC<Props> = ({ garden, onPlant, onWater, onHarvest }) => {
   return (
-    <div className="grid grid-cols-4 gap-1">
-      {garden.map(slot => {
-        const plant = slot.plant;
-        let displayChar = '';
-        let extraClass = '';
-        if (plant) {
-          const isMature = plant.growth >= plant.growthRequired;
-          // Use first letter of plant name as icon, with color highlight if mature
-          displayChar = plant.name.charAt(0).toUpperCase();
-          extraClass = ' plant';
-          if (isMature) {
-            extraClass += ' mature';
-          }
-        } else {
-          displayChar = '+';
-          extraClass = ' empty';
-        }
-        return (
-          <div 
-            key={slot.id} 
-            className={`grid-slot${extraClass}`}
-            onClick={() => onSlotClick(slot.id)}
-          >
-            {plant ? (
-              <span title={`${plant.name} (${plant.growth}/${plant.growthRequired})${plant.watered ? ' [Watered]' : ''}`}>
-                {displayChar}
+    <div className="grid grid-cols-3 gap-2">
+      {garden.map((slot) => (
+        <div
+          key={slot.id}
+          className={`grid-slot ${slot.plant ? 'plant' : 'empty'}`}
+        >
+          {slot.plant ? (
+            <div className="flex flex-col items-center">
+              <span className="text-sm">{slot.plant.name}</span>
+              <span className="text-xs">
+                {slot.plant.growth}/{slot.plant.growthRequired}
               </span>
-            ) : (
-              <span title={selectedItem && selectedItem.category === 'seed' ? `Plant ${selectedItem.name}` : 'Empty plot'}>
-                {displayChar}
-              </span>
-            )}
-          </div>
-        );
-      })}
+              {slot.plant.growth >= slot.plant.growthRequired ? (
+                <button
+                  className="mt-1 px-2 py-1 text-xs bg-green-600 rounded"
+                  onClick={() => onHarvest(slot.id)}
+                >
+                  Harvest
+                </button>
+              ) : !slot.plant.watered ? (
+                <button
+                  className="mt-1 px-2 py-1 text-xs bg-blue-600 rounded"
+                  onClick={() => onWater(slot.id)}
+                >
+                  Water
+                </button>
+              ) : (
+                <div className="text-xs mt-1 text-gray-400">Watered</div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <span className="text-sm text-gray-400">Empty</span>
+              {/* Planting would be done via inventory, no direct click here */}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 };

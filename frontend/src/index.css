@@ -2,27 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom styling */
 body {
-  font-family: sans-serif;
+  background-color: #111827;
+  color: #f9fafb;
 }
-
-/* Custom styles for garden grid */
 .grid-slot {
   width: 60px;
   height: 60px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
   cursor: pointer;
 }
 .grid-slot.empty:hover {
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 .grid-slot.plant:hover {
-  background-color: rgba(0,255,0,0.1);
+  background-color: rgba(16, 185, 129, 0.2);
 }
 .selected-item {
-  background-color: rgba(255,255,255,0.2);
+  background-color: rgba(139, 92, 246, 0.4);
 }
