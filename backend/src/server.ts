@@ -19,9 +19,9 @@ try {
     key: fs.readFileSync(path.join(CERTS_DIR, 'privkey.pem')),
     cert: fs.readFileSync(path.join(CERTS_DIR, 'fullchain.pem')),
   };
-  console.log('✅ SSL certificates loaded successfully.');
+  console.log('🌕🔮 SSL certificates loaded successfully.');
 } catch (err) {
-  console.warn('⚠️ SSL certificates not found. Proceeding without HTTPS.');
+  console.warn('🌑⚠️ SSL certificates not found. Proceeding without HTTPS.');
 }
 
 // Serve static frontend files
@@ -45,7 +45,7 @@ if (credentials) {
   httpsServer = https.createServer(credentials, app);
 }
 
-// Attach WebSocket to the right server
+// Attach WebSocket to the appropriate server
 if (httpsServer) {
   setupWebSocket(httpsServer);
 } else {
@@ -54,11 +54,11 @@ if (httpsServer) {
 
 // Start servers
 httpServer.listen(HTTP_PORT, () => {
-  console.log(`🌙 HTTP server listening at http://localhost:${HTTP_PORT}`);
+  console.log(`☾ HTTP server listening at http://localhost:${HTTP_PORT}`);
 });
 
 if (httpsServer) {
   httpsServer.listen(HTTPS_PORT, () => {
-    console.log(`☾ HTTPS server listening at https://localhost:${HTTPS_PORT}`);
-});
+    console.log(`🌙 HTTPS server listening at https://localhost:${HTTPS_PORT}`);
+  });
 }
