@@ -7,7 +7,7 @@ import path from 'path';
 const app = express();
 const HTTP_PORT = 80;
 const HTTPS_PORT = 443;
-const CERTS_DIR = path.join(__dirname, 'certs');
+const CERTS_DIR = path.join(__dirname, '..', 'certs');
 
 let credentials: { key: Buffer; cert: Buffer } | null = null;
 try {
