@@ -3,12 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "skipLibCheck": true,
-    "downlevelIteration": true
-    /* rootDir removed – keeps tsc happy about ../shared */
+    "downlevelIteration": true,
+    "resolveJsonModule": true,   // <- required for recipes.json import
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*",
     "../shared/src/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
+  ]
 }
