@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import http from 'http';
 import https from 'https';
+import stateRoutes from "./routes/state";
 
 // Setup
 const app = express();
@@ -25,6 +26,8 @@ try {
 } catch (err) {
   console.warn('🌑⚠️ SSL certificates not found. Proceeding without HTTPS.');
 }
+
+app.use("/api", stateRoutes);
 
 // Serve static frontend files
 app.use(express.static(frontendDist));

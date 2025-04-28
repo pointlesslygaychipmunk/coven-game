@@ -1,7 +1,12 @@
 import { useEffect, useReducer, useState } from "react";
-import GardenGrid from "@/components/GardenGrid";
 import type { GameState, Action } from "@shared/types";
 import { reducer, load } from "@/utils";
+import GameView from "@/components/GameView";
+
+<>
+  <div className="mist-overlay"></div>
+  <GameView state={state} />
+</>
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, null as unknown as GameState);
@@ -48,13 +53,5 @@ export default function App() {
     );
   }
 
-  return (
-    <main className="min-h-screen p-6 bg-gradient-to-br from-black via-stone-900 to-black text-stone-200 font-serif starfield-bg fade-in-spell">
-      <GardenGrid
-        tiles={state.players[0].garden}
-        inventory={state.players[0].inventory}
-        onAction={dispatch}
-      />
-    </main>
-  );
+  return <GameView state={state} />;
 }

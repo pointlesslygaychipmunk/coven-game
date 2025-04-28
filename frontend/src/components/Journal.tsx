@@ -27,18 +27,22 @@ export default function Journal() {
         <CardContent className="flex-1 overflow-y-auto space-y-4">
           <TabsContent value="log">
             <ul className="space-y-1 text-sm leading-6">
-              <li>You planted <b>Mandrake</b>.</li>
-              <li>⚡ A storm swept through your garden.</li>
-              <li>You harvested <b>Nightshade</b>.</li>
+              <li>🌑 You arrived at your cottage beneath the Third Moon.</li>
+              <li>🌱 You feel the garden's soil stirring beneath your fingers.</li>
+              <li>📜 A town herald whispered of new opportunities ahead.</li>
             </ul>
           </TabsContent>
 
           <TabsContent value="quests">
-            <p className="text-sm italic text-stone-400">No active quests.</p>
+            <p className="text-sm italic text-stone-400">
+              🌒 New quests will appear as the moons turn.
+            </p>
           </TabsContent>
 
           <TabsContent value="notes">
-            <p className="text-sm">☽ Double-check moon phases before brewing.</p>
+            <p className="text-sm">
+              🖋️ Remember to bless the garden under the next full moon.
+            </p>
           </TabsContent>
         </CardContent>
       </Tabs>
