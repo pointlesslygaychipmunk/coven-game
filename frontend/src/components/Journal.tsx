@@ -1,60 +1,127 @@
-// frontend/src/components/Journal.tsx – Journal panel with Log, Quests, and Notes tabs
-import React from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
-import type { RitualQuestCard } from '@shared/types';
+import React, { useState } from 'react';
+import type { GameState, Player } from '../../../shared/src/types';
 
 interface JournalProps {
-  log: string[];
-  quests: RitualQuestCard[];
+  gameState: GameState;
+  currentPlayer: Player | undefined;
+  otherPlayers: Player[];
+  tab: 'Events' | 'Rumors' | 'Ritual' | 'Overview';
+  onStartRumor: (content: string) => void;
+  onPerformRitual: () => void;
 }
 
-const Journal: React.FC<JournalProps> = ({ log, quests }) => {
-  return (
-    <div className="h-full bg-stone-900/80 rounded-xl">
-      <Tabs defaultValue="log" className="flex flex-col h-full">
-        {/* Tab headers */}
-        <div className="px-4 pt-2">
-          <TabsList className="bg-stone-800/70 rounded-lg p-1 flex space-x-1">
-            <TabsTrigger value="log" className="text-xs px-3 py-1 rounded bg-stone-700/60 hover:bg-stone-600">Log</TabsTrigger>
-            <TabsTrigger value="quests" className="text-xs px-3 py-1 rounded bg-stone-700/60 hover:bg-stone-600">Quests</TabsTrigger>
-            <TabsTrigger value="notes" className="text-xs px-3 py-1 rounded bg-stone-700/60 hover:bg-stone-600">Notes</TabsTrigger>
-          </TabsList>
-        </div>
-        {/* Tab contents */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
-          <TabsContent value="log">
-            {log.length ? (
-              <ul className="space-y-1">
-                {log.map((entry, idx) => <li key={idx}>{entry}</li>)}
-              </ul>
-            ) : (
-              <p className="italic text-stone-400">No events recorded yet.</p>
-            )}
-          </TabsContent>
-          <TabsContent value="quests">
-            {quests.length ? (
-              <ul className="space-y-1">
-                {quests.map(q => {
-                  const totalContrib = Object.values(q.contributions).reduce((a, b) => a + b, 0);
-                  return (
-                    <li key={q.id}>
-                      {q.fulfilled ? '✅' : '⬜'} {q.title} 
-                      {q.fulfilled ? ' – Completed!' : ` – Progress: ${totalContrib}/${q.goal}`}
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p className="italic text-stone-400">🌒 New quests will appear as the moons turn.</p>
-            )}
-          </TabsContent>
-          <TabsContent value="notes">
-            <p>🖋️ Remember to bless the garden under the next full moon.</p>
-          </TabsContent>
-        </div>
-      </Tabs>
-    </div>
-  );
+const Journal: React.FC<JournalProps> = ({ gameState, currentPlayer, otherPlayers, tab, onStartRumor, onPerformRitual }) => {
+  const [rumorText, setRumorText] = useState('');
+  // Helper to get player name by ID
+  const getPlayerName = (playerId: string) => {
+    const player = gameState.players.find(p => p.id === playerId);
+    return player ? player.name : 'Unknown';
+  };
+
+  if (tab === 'Events') {
+    // Events log tab
+    return (
+      <div className="text-sm">
+        {gameState.log.map((entry, idx) => (
+          <div key={idx} className="mb-1">- {entry}</div>
+        ))}
+      </div>
+    );
+  }
+
+  if (tab === 'Rumors') {
+    // Rumors tab with list of rumors and input to start a new rumor
+    return (
+      <div className="text-sm">
+        <ul>
+          {gameState.rumors.map(rumor => (
+            <li key={rumor.id} className="mb-1">
+              <strong>Rumor:</strong> "{rumor.content}" (Spread: {rumor.spread}) 
+              {rumor.impact && <em> — Impact: {rumor.impact}</em>}
+            </li>
+          ))}
+        </ul>
+        {currentPlayer && (
+          <div className="mt-2">
+            <input 
+              type="text" 
+              value={rumorText} 
+              onChange={(e) => setRumorText(e.target.value)} 
+              placeholder="Start a rumor..." 
+              className="w-2/3 px-1 py-0.5 text-black"
+            />
+            <button 
+              className="ml-2 px-2 py-1 text-xs bg-purple-700 rounded"
+              onClick={() => {
+                if (rumorText.trim().length > 0) {
+                  onStartRumor(rumorText.trim());
+                  setRumorText('');
+                }
+              }}
+            >
+              Spread Rumor
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (tab === 'Ritual') {
+    // Ritual quest progress tab
+    const ritual = gameState.ritual;
+    const canPerform = currentPlayer && ritual.active && ritual.currentStep < ritual.steps.length;
+    let requirement = null;
+    if (canPerform) {
+      requirement = ritual.steps[ritual.currentStep].requirement;
+    }
+    return (
+      <div className="text-sm">
+        <div><strong>Ritual Quest:</strong> {ritual.name}</div>
+        {ritual.steps.map((step, index) => (
+          <div key={index}>
+            [{step.done ? 'x' : ' '}] Step {index+1}: {step.description}
+          </div>
+        ))}
+        {ritual.active && currentPlayer && requirement && (
+          <button 
+            className="mt-2 px-2 py-1 bg-indigo-700 rounded disabled:opacity-50"
+            disabled={!currentPlayer.inventory.find(it => it.name === requirement.item && it.quantity >= requirement.quantity)}
+            onClick={() => onPerformRitual()}
+          >
+            Perform Next Ritual Step
+          </button>
+        )}
+        {!ritual.active && ritual.completedBy && (
+          <div className="mt-2 text-green-400">
+            Completed by {getPlayerName(ritual.completedBy)}.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (tab === 'Overview') {
+    // Overview/Achievements tab: show winner and influence stats
+    return (
+      <div className="text-sm">
+        {gameState.status.status === 'completed' && gameState.status.winner && (
+          <div className="mb-2 text-yellow-300">
+            Game Over: {getPlayerName(gameState.status.winner)} has ascended!
+          </div>
+        )}
+        <div className="mb-1 font-semibold">Town Influence:</div>
+        {gameState.players.map(player => (
+          <div key={player.id} className="mb-1 ml-2">
+            {player.name}: {Object.entries(player.influence).map(([town, val]) => `${town}(${val})`).join(', ')}
+            {player.ascendancy && ' – Ascended'}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default Journal;

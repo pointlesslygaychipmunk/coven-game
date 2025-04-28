@@ -1,6 +1,7 @@
 {
-    "name": "coven-shared",
-    "version": "1.0.0",
-    "main": "index.ts",
-    "private": true
-  }
+  "name": "coven-shared",
+  "version": "1.0.0",
+  "main": "dist/types.js",
+  "types": "dist/types.d.ts",
+  "license": "MIT"
+}

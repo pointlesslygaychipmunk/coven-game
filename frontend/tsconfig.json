@@ -1,12 +1,14 @@
 {
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./src",
-    "paths": {
-      "@shared/*": ["../../shared/src/*"]
-    }
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["vite/client"]
   },
-  "include": [
-    "src",
-    "../../shared/src/**/*.ts"
-  ]
+  "references": [
+    { "path": "../shared" }
+  ],
+  "include": ["src"]
 }

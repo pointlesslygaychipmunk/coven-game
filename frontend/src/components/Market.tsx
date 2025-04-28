@@ -1,63 +1,61 @@
-// frontend/src/components/Market.tsx – Market view for buying/selling
 import React from 'react';
-import type { MarketState, MarketItem, Player } from '@shared/types';
+import type { MarketItem, InventoryItem } from '../../../shared/src/types';
 
 interface MarketProps {
-  market: MarketState;
-  player: Player;
-  onBuy: (itemId: string) => void;
-  onSell: (itemId: string) => void;
+  market: MarketItem[];
+  playerGold: number;
+  inventory: InventoryItem[];
+  onBuy: (itemName: string) => void;
+  onSell: (itemName: string) => void;
 }
 
-const Market: React.FC<MarketProps> = ({ market, player, onBuy, onSell }) => {
-  const items = Object.entries(market.items);
-  if (!items.length) {
-    return <div className="p-4 text-center text-sm italic text-stone-400">Market is closed.</div>;
-  }
+const Market: React.FC<MarketProps> = ({ market, playerGold, inventory, onBuy, onSell }) => {
+  const sortedMarket = [...market].sort((a, b) => {
+    if (a.category !== b.category) return a.category.localeCompare(b.category);
+    return a.name.localeCompare(b.name);
+  });
+  const hasItem = (itemName: string) => inventory.some(it => it.name === itemName && it.quantity > 0);
   return (
-    <div className="p-4 bg-stone-900/80 rounded-xl">
-      <h3 className="text-lg font-semibold mb-2">🏷️ Market</h3>
-      <table className="w-full text-sm">
-        <thead className="text-stone-400">
-          <tr>
-            <th className="text-left">Item</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th colSpan={2}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map(([id, item]) => {
-            const name = ('name' in item && typeof item.name === 'string') ? item.name : (id.charAt(0).toUpperCase() + id.slice(1));
-            const price = item.currentPrice ?? item.price;
-            const canBuy = player.gold >= price && (item.stock ?? 0) > 0;
-            let canSell = false;
-            if (item.type === 'crop' || item.type === 'ingredient') {
-              (player.inventory[id as keyof typeof player.inventory] ?? 0)
-            }
-            return (
-              <tr key={id}>
-                <td>{name}</td>
-                <td className="text-center">{price}g</td>
-                <td className="text-center">{item.stock ?? 0}</td>
-                <td className="text-right">
-                  <button onClick={() => onBuy(id)} disabled={!canBuy}
-                    className="disabled:opacity-50 px-2 py-1 bg-green-600 hover:bg-green-500 rounded text-xs">
-                    Buy
-                  </button>
-                </td>
-                <td className="text-left">
-                  <button onClick={() => onSell(id)} disabled={!canSell}
-                    className="disabled:opacity-50 px-2 py-1 bg-purple-600 hover:bg-purple-500 rounded text-xs">
-                    Sell
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="text-left border-b border-gray-700">
+          <th className="px-2">Item</th>
+          <th className="px-2">Price</th>
+          <th className="px-2">Buy</th>
+          <th className="px-2">Sell</th>
+        </tr>
+      </thead>
+      <tbody>
+        {sortedMarket.map(item => {
+          const outOfStock = item.available !== undefined && item.available <= 0;
+          return (
+            <tr key={item.name} className="border-b border-gray-800">
+              <td className="px-2 py-1">{item.name}</td>
+              <td className="px-2 py-1">{item.price}g</td>
+              <td className="px-2 py-1">
+                <button 
+                  className="px-2 py-1 text-xs bg-green-700 rounded disabled:opacity-50" 
+                  disabled={playerGold < item.price || outOfStock}
+                  onClick={() => onBuy(item.name)}
+                >
+                  Buy
+                </button>
+                {outOfStock && <span className="text-xs text-gray-400 ml-1">Out of stock</span>}
+              </td>
+              <td className="px-2 py-1">
+                <button 
+                  className="px-2 py-1 text-xs bg-yellow-700 rounded disabled:opacity-50"
+                  disabled={!hasItem(item.name)}
+                  onClick={() => onSell(item.name)}
+                >
+                  Sell
+                </button>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 };
 
