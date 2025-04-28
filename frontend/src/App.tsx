@@ -8,17 +8,21 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("[App.tsx] Fetching /api/state...");
     fetch("/api/state")
       .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch state");
+        console.log("[App.tsx] Response OK");
         return response.json();
       })
       .then((gameState: GameState) => {
+        console.log("[App.tsx] Received gameState:", gameState);
         dispatch({ type: "loadState", state: gameState });
+        console.log("[App.tsx] Dispatched loadState");
         setLoading(false);
       })
       .catch((error) => {
-        console.error(error);
+        console.error("[App.tsx] Error fetching state:", error);
         const fallback = load();
         if (fallback) {
           dispatch({ type: "loadState", state: fallback });
