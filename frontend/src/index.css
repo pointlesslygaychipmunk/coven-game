@@ -1,27 +1,197 @@
-/* frontend/src/index.css */
-/* Basic styling and Tailwind utility imports (if using Tailwind) */
-
-/* If using Tailwind CSS, the directives would be:
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-*/
 
-/* Custom styles for a luxurious, Hanbang-inspired aesthetic */
-body {
-  background-color: #f9f5ef; /* a light cream background */
-  font-family: serif; /* a classic serif for a touch of luxury */
-  color: #3b302a; /* deep brown/gray text for softness */
+/* Custom Coven styles */
+@layer base {
+  body {
+    @apply bg-primary-50 text-neutral-800 font-serif;
+    background-image: url('/images/textures/paper-texture.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold text-accent-800 mb-6;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl font-bold text-accent-700 mb-4;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl font-bold text-accent-600 mb-3;
+  }
+
+  h4 {
+    @apply text-lg md:text-xl font-semibold text-accent-500 mb-2;
+  }
+
+  button {
+    @apply transition-all duration-200 ease-in-out;
+  }
 }
 
-#hud {
-  font-family: 'Georgia', serif;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(5px);
+@layer components {
+  /* Lunar phase indicators */
+  .phase-dot {
+    @apply w-2 h-2 rounded-full bg-neutral-300 mx-1;
+  }
+  
+  .phase-dot.active {
+    @apply bg-accent-500 animate-glow-pulse;
+  }
+  
+  /* Garden plots */
+  .garden-plot {
+    @apply border-2 border-primary-300 rounded-lg p-3 flex flex-col justify-center items-center shadow-md hover:shadow-lg transition;
+    background-color: rgba(93, 82, 130, 0.15);
+  }
+  
+  .garden-plot.empty {
+    @apply bg-primary-50/50;
+  }
+  
+  .garden-plot.selected {
+    @apply border-accent-400 shadow-inner-glow;
+  }
+  
+  /* Progress bars */
+  .progress-bar {
+    @apply w-full h-2 bg-neutral-200 rounded overflow-hidden;
+  }
+  
+  .progress-fill {
+    @apply h-full rounded;
+  }
+  
+  .progress-fill.high {
+    @apply bg-green-500;
+  }
+  
+  .progress-fill.medium {
+    @apply bg-yellow-500;
+  }
+  
+  .progress-fill.low {
+    @apply bg-red-500;
+  }
+  
+  /* Action buttons */
+  .action-button {
+    @apply px-4 py-2 rounded-md shadow-md transition transform hover:scale-105 active:scale-95;
+  }
+  
+  .water-button {
+    @apply bg-blue-600 hover:bg-blue-700 text-white;
+  }
+  
+  .harvest-button {
+    @apply bg-green-600 hover:bg-green-700 text-white;
+  }
+  
+  .end-turn-button {
+    @apply bg-accent-600 hover:bg-accent-700 text-white;
+  }
+  
+  /* Weather effects container */
+  .weather-effects {
+    @apply absolute inset-0 pointer-events-none overflow-hidden z-10;
+  }
+  
+  /* Moon phase icon */
+  .lunar-phase-icon {
+    @apply rounded-full overflow-hidden flex items-center justify-center;
+  }
+  
+  .lunar-phase-icon.small {
+    @apply w-8 h-8;
+  }
+  
+  .lunar-phase-icon.medium {
+    @apply w-16 h-16;
+  }
+  
+  .lunar-phase-icon.large {
+    @apply w-24 h-24;
+  }
+  
+  .lunar-phase-icon.full-moon-glow {
+    @apply animate-glow-pulse;
+  }
 }
 
-/* Styling buttons and panels for consistency */
-button {
-  transition: background-color 0.2s;
+/* Weather effects */
+.garden-rainy {
+  @apply bg-primary-50/90;
 }
 
+.garden-dry {
+  @apply bg-yellow-50/90;
+}
+
+.garden-foggy {
+  @apply bg-neutral-50/90;
+}
+
+.garden-windy {
+  @apply bg-primary-100/90;
+}
+
+.garden-stormy {
+  @apply bg-neutral-700/40;
+}
+
+/* Dark mode styles */
+.dark {
+  @apply bg-neutral-900 text-neutral-100;
+}
+
+.dark .garden-plot {
+  @apply border-neutral-700 bg-neutral-800/60;
+}
+
+.dark .garden-plot.empty {
+  @apply bg-neutral-800/30;
+}
+
+.dark .progress-bar {
+  @apply bg-neutral-700;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4 {
+  @apply text-accent-300;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 5px 0 rgba(156, 106, 183, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 20px 10px rgba(156, 106, 183, 0.6);
+  }
+}
