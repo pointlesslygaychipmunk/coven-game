@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+      /* language & module targets */
+      "target": "ES2022",
+      "module": "ESNext",
+      "moduleResolution": "NodeNext",
+      "jsx": "react-jsx",
+  
+      /* strictness & transforms */
+      "strict": true,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowSyntheticDefaultImports": true,
+      "resolveJsonModule": true,
+  
+      /* paths & baseUrl */
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"],
+        "@components/*": ["src/components/*"],
+        "@layout/*": ["src/layout/*"],
+        "@lib/*": ["src/lib/*"],
+        "@shared/*": ["../shared/src/*"]
+      },
+  
+      /* out-dir is left to per-project tsconfig */
+      "downlevelIteration": true
+    },
+  
+    "include": ["src/**/*", "env.d.ts"]
+  }  

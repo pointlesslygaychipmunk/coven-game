@@ -1,0 +1,1 @@
+export type MiniGameType = 'Watering' | 'Planting' | 'Harvesting' | 'Brewing';

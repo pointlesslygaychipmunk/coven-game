@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌙 Coven Custom Styles */
+
+body {
+  @apply bg-gradient-to-b from-[#0a0a23] via-[#1b1325] to-[#3c2f3d] text-gray-200 font-serif min-h-screen;
+  background-image: url('/mistyforest.png'); /* optional mist overlay later */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+h1, h2 {
+  @apply font-bold text-pink-300 tracking-wide;
+}
+
+button {
+  @apply transition-all duration-200 ease-in-out transform hover:scale-105 hover:brightness-110;
+}
+
+.grid-slot {
+  @apply border-2 border-pink-400 rounded-lg p-3 flex flex-col justify-center items-center shadow-md hover:shadow-lg transition;
+  background-color: rgba(93, 82, 130, 0.15);
+}
+
+.grid-slot.plant {
+  @apply bg-green-800/40;
+}
+
+.grid-slot.empty {
+  @apply bg-[#3c2f3d]/50;
+}
+
+button.harvest {
+  @apply bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 rounded;
+}
+
+button.water {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 rounded;
+}
+
+button.plant {
+  @apply bg-purple-700 hover:bg-purple-800 text-white font-semibold px-3 py-1 rounded;
+}
+
+button.buy {
+  @apply bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-2 py-1 rounded;
+}
+
+button.sell {
+  @apply bg-amber-600 hover:bg-amber-700 text-white font-semibold px-2 py-1 rounded;
+}
+
+.journal-panel {
+  @apply bg-[#1e1e30] border border-purple-700 rounded-lg p-4 overflow-y-auto shadow-inner;
+  animation: journalGlow 5s infinite alternate;
+}
+
+@keyframes journalGlow {
+  0% { box-shadow: 0 0 10px #6d3973; }
+  100% { box-shadow: 0 0 20px #9c6cab; }
+}
+
+.market-card {
+  @apply bg-[#2f2f44] border border-emerald-600 rounded-lg p-3 shadow-md hover:shadow-xl;
+}

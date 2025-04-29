@@ -1,0 +1,19 @@
+<!-- frontend/public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coven Prototype</title>
+  <!-- Include a link to Tailwind or compiled CSS if using -->
+  <link rel="stylesheet" href="/index.css" />
+</head>
+<body class="bg-[#f9f5ef] text-gray-800 font-serif">
+  <div id="root"></div>
+  <!-- We will also have a fixed HUD for lunar phase and season -->
+  <div id="hud" class="fixed top-0 left-0 right-0 bg-white/80 text-center p-2 shadow-md text-lg">
+    <!-- HUD content is rendered by React -->
+  </div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

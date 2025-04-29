@@ -1,0 +1,27 @@
+/* frontend/src/index.css */
+/* Basic styling and Tailwind utility imports (if using Tailwind) */
+
+/* If using Tailwind CSS, the directives would be:
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+*/
+
+/* Custom styles for a luxurious, Hanbang-inspired aesthetic */
+body {
+  background-color: #f9f5ef; /* a light cream background */
+  font-family: serif; /* a classic serif for a touch of luxury */
+  color: #3b302a; /* deep brown/gray text for softness */
+}
+
+#hud {
+  font-family: 'Georgia', serif;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+/* Styling buttons and panels for consistency */
+button {
+  transition: background-color 0.2s;
+}
+

@@ -1,0 +1,79 @@
+body {
+  margin: 0;
+  font-family: 'Garamond', serif;
+  background: linear-gradient(to bottom, #0a0a23, #1b1325, #3c2f3d);
+  color: #fdf7e3;
+}
+
+h1 {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.status-bar {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.game-container {
+  padding: 1rem;
+}
+
+.content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.garden, .inventory, .market, .journal {
+  flex: 1;
+  background: #f3efe3;
+  color: #2b2118;
+  padding: 1rem;
+  border-radius: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.garden-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.garden-slot {
+  border: 1px solid #ccc;
+  background: #4a3a50;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.garden-slot:hover {
+  background: #6a5875;
+}
+
+.actions {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.actions button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #6a5875;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.actions button:hover {
+  background: #8b79a3;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 5rem;
+  font-size: 1.5rem;
+}
